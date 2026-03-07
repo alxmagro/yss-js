@@ -126,7 +126,7 @@ function buildObjectNode(raw) {
   return node
 }
 
-const RESERVED_ROOT = new Set(['$defs', '$patterns'])
+const RESERVED_ROOT = new Set(['$anchors', '$patterns'])
 
 /**
  * Build the full schema tree from a raw YAML root object.

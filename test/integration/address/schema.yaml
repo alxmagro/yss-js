@@ -1,4 +1,4 @@
-$defs:
+$anchors:
   - &Address
     street:     String {5, 120}
     city:       String {2, 60}

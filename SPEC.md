@@ -187,7 +187,7 @@ value:
 Within the same file, use native YAML anchors (`&`) and aliases (`*`) to avoid repeating structures.
 
 ```yaml
-$defs:
+$anchors:
   - &Address
     street:
       $type: String
