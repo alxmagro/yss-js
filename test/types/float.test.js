@@ -23,6 +23,6 @@ describe('Float', () => {
     expect(float.validate(NaN)).toMatch(/expected Float/)
   })
   test('exposes correct rules', () => {
-    expect(float.rules).toEqual(expect.arrayContaining(['min', 'max', 'values', 'optional']))
+    expect(float.rules).toEqual(expect.arrayContaining(['min', 'max', 'enum', 'optional']))
   })
 })

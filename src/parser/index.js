@@ -10,7 +10,7 @@ import { registerPatterns }        from '../aliases.js'
 
 const RUNES = new Set([
   '$type', '$optional', '$min', '$max', '$match',
-  '$values', '$item', '$at',
+  '$enum', '$item', '$at',
 ])
 
 /**
@@ -61,7 +61,7 @@ function buildObjectNode(raw) {
     min:      null,
     max:      null,
     match:    null,
-    values:   null,
+    enum:     null,
     item:     null,
     at:       null,
     anyOf:    null,
@@ -87,7 +87,7 @@ function buildObjectNode(raw) {
     if (raw.$min      !== undefined) node.min      = raw.$min
     if (raw.$max      !== undefined) node.max      = raw.$max
     if (raw.$match    !== undefined) node.match    = raw.$match
-    if (raw.$values   !== undefined) node.values   = raw.$values
+    if (raw.$enum   !== undefined) node.enum   = raw.$enum
 
     // $item - inline or object
     if (raw.$item !== undefined) {

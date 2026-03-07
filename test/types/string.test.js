@@ -23,6 +23,6 @@ describe('String', () => {
     expect(string.validate({})).toMatch(/expected String/)
   })
   test('exposes correct rules', () => {
-    expect(string.rules).toEqual(expect.arrayContaining(['min', 'max', 'match', 'values', 'optional']))
+    expect(string.rules).toEqual(expect.arrayContaining(['min', 'max', 'match', 'enum', 'optional']))
   })
 })

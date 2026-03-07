@@ -1,6 +1,6 @@
 export default {
   name: 'Integer',
-  rules: ['min', 'max', 'values', 'optional'],
+  rules: ['min', 'max', 'enum', 'optional'],
   validate(value) {
     if (!Number.isInteger(value))
       return `expected Integer, got ${typeof value}`

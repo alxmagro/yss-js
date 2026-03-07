@@ -39,7 +39,7 @@ export function parseInline(token) {
     type:     null,
     min:      null,
     max:      null,
-    values:   null,
+    enum:     null,
     optional: false,
     match:    null,
     item:     null,  // for List<Type>
@@ -64,7 +64,7 @@ export function parseInline(token) {
   // 2. Extract values [val1, val2] - last [] group
   const valuesMatch = token.match(/^(.*)\[([^\]]+)\]$/)
   if (valuesMatch) {
-    result.values = valuesMatch[2].split(',').map(v => v.trim())
+    result.enum = valuesMatch[2].split(',').map(v => v.trim())
     token = valuesMatch[1].trim()
   }
 
