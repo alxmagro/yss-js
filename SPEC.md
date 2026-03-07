@@ -25,46 +25,47 @@ It is designed to be simple to read, simple to write, and simple to implement in
 | `Set`     | Array, duplicates not allowed        |
 | `Tuple`   | Array with fixed length and types    |
 | `null`    | JSON null value                      |
+| `any`     | Any value, no type check             |
 
 ## Rules
 
 Every field is described by a block with `$type` and optional rules. All rules are prefixed with `$`.
 
-| Rule        | Applies to                        | Description                               |
-|-------------|-----------------------------------|-------------------------------------------|
-| `$type`     | any                               | The type of the field                     |
-| `$optional` | any                               | Field may be absent. Default: `false`     |
-| `$min`      | String, Integer, Float, List, Set | Minimum length / value / item count       |
-| `$max`      | String, Integer, Float, List, Set | Maximum length / value / item count       |
+| Rule        | Applies to                        | Description                                   |
+|-------------|-----------------------------------|-----------------------------------------------|
+| `$type`     | any                               | The type of the field                         |
+| `$optional` | any                               | Field may be absent. Default: `false`         |
+| `$min`      | String, Integer, Float, List, Set | Minimum length / value / item count           |
+| `$max`      | String, Integer, Float, List, Set | Maximum length / value / item count           |
 | `$match`    | String                            | Named alias or `/regex/` the value must match |
-| `$enum`     | String, Integer, Float            | List of allowed values                    |
-| `$item`     | List, Set                         | Schema for each item in the collection    |
-| `$at`       | List, Tuple                       | Schema per position                       |
+| `$enum`     | String, Integer, Float            | List of allowed values                        |
+| `$item`     | List, Set                         | Schema for each item in the collection        |
+| `$at`       | List, Tuple                       | Schema per position                           |
 
 ```yaml
 email:
-  $type:     String
-  $match:    email
+  $type: String
+  $match: email
   $optional: true
 
 age:
   $type: Integer
-  $min:  18
-  $max:  120
+  $min: 18
+  $max: 120
 
 status:
-  $type:   String
+  $type: String
   $enum: [active, inactive, banned]
 
 phone:
-  $type:  String
+  $type: String
   $match: /^\+?[0-9]{10,11}$/
 ```
 
 When a field has no extra rule, the type alone is enough:
 
 ```yaml
-name:   String
+name: String
 active: Boolean
 ```
 
@@ -77,9 +78,9 @@ no `$type: Object` needed.
 address:
   street:
     $type: String
-    $min:  5
-    $max:  120
-  city:    String
+    $min: 5
+    $max: 120
+  city: String
   country: String
 ```
 
@@ -94,8 +95,8 @@ add `$strict: true` to the object.
 # strict - extra fields will cause a validation error
 user:
   $strict: true
-  name:    String
-  email:   String
+  name: String
+  email: String
   address:
     street: String   # also strict, inherited from user
 ```
@@ -105,10 +106,10 @@ A nested object can opt out by declaring `$strict: false`:
 ```yaml
 user:
   $strict: true
-  name:    String
+  name: String
   meta:
     $strict: false   # open, overrides parent
-    source:  String
+    source: String
     address:
       street: String  # open again, inherited from meta
 ```
@@ -121,10 +122,10 @@ and `$min` / `$max` for length constraints.
 ```yaml
 emails:
   $type: List
-  $min:  1
-  $max:  20
+  $min: 1
+  $max: 20
   $item:
-    $type:  String
+    $type: String
     $match: email
 ```
 
@@ -136,7 +137,7 @@ A list of items, duplicates not allowed. Follows the same syntax as List.
 roles:
   $type: Set
   $item:
-    $type:   String
+    $type: String
     $enum: [admin, editor, viewer]
 ```
 
@@ -164,7 +165,7 @@ tokens:
   $type: List
   $at:
     0:
-      $type:  String
+      $type: String
       $match: uuid
     1: Integer
 ```
@@ -176,25 +177,26 @@ The value must match at least one of the listed types. Each branch is a full sch
 
 ```yaml
 value:
-  - $type:  String
+  - $type: String
     $match: email
   - $type: Integer
-    $min:  1
+    $min: 1
   - null
 ```
 
 ## Schema reuse (YAML anchors)
 
-Within the same file, use native YAML anchors (`&`) and aliases (`*`) to avoid repeating structures.
+Within the same file, use native YAML anchors (`&`) and aliases (`*`) to avoid repeating
+structures.
 
 ```yaml
 $anchors:
   - &Address
     street:
       $type: String
-      $min:  5
-      $max:  120
-    city:    String
+      $min: 5
+      $max: 120
+    city: String
     country: String
 
 user:
@@ -216,18 +218,19 @@ Type? (match) [val1, val2] {min, max}
 ### Pure type
 
 ```yaml
-name:   String
+name: String
 active: Boolean
 ```
 
 ### Match - `Type (named-pattern)`
 
-Validates the value against a named alias. Raw regex is not allowed in shorthand - use `$match: /regex/` in expanded form instead.
+Validates the value against a named alias. Raw regex is not allowed in shorthand - use
+`$match: /regex/` in expanded form instead.
 
 ```yaml
-id:         String (uuid)
+id: String (uuid)
 created_at: String (date-time)
-email:      String (email)
+email: String (email)
 ```
 
 ### Values - `Type [val1, val2]`
@@ -236,23 +239,24 @@ The value must be one of the listed options.
 
 ```yaml
 status: String [active, inactive, banned]
-code:   Integer [1, 2, 3]
+code: Integer [1, 2, 3]
 ```
 
 ### Optional - `?`
 
 ```yaml
 nickname: String?
-phone:    String? {10, 11}
+phone: String? {10, 11}
 ```
 
 ### Range - `Type {min, max}`
 
-Applies to the value for numbers, character length for strings, and item count for List/Set. Both bounds are **inclusive**.
+Applies to the value for numbers, character length for strings, and item count for List/Set.
+Both bounds are **inclusive**.
 
 ```yaml
-name:  String {2, 80}
-age:   Integer {18, 120}
+name: String {2, 80}
+age: Integer {18, 120}
 score: Float {0, 100}
 ```
 
@@ -267,16 +271,16 @@ Either bound can be omitted:
 
 ```yaml
 name: String {2, }   # min 2, no max
-age:  Integer {, 18} # max 18, no min
+age: Integer {, 18} # max 18, no min
 ```
 
 ### Combining modifiers
 
 ```yaml
-tag:    String? (slug) [urgent, low, medium] {1, 20}
-email:  String? (email)
-role:   String? [admin, editor, viewer]
-name:   String? {2, 80}
+tag: String? (slug) [urgent, low, medium] {1, 20}
+email: String? (email)
+role: String? [admin, editor, viewer]
+name: String? {2, 80}
 ```
 
 ### AnyOf shorthand
@@ -384,26 +388,26 @@ RFC 6901 - https://datatracker.ietf.org/doc/html/rfc6901
 ```yaml
 # order.yaml
 
-id:         String (uuid)
+id: String (uuid)
 created_at: [String (date-time), null]
 
 customer:
   $strict: true
-  id:    Integer {1, }
-  name:  String {2, 80}
+  id: Integer {1, }
+  name: String {2, 80}
   email: String (email)
   phones:
     $type: List {1, }
     $item:
-      $type:  String
+      $type: String
       $match: /^\+?[0-9]{10,11}$/
 
 items:
   $type: List {1, 50}
   $item:
-    id:    Integer {1, }
-    name:  String {1, 100}
-    qty:   Integer {1, 9999}
+    id: Integer {1, }
+    name: String {1, 100}
+    qty: Integer {1, 9999}
     price: Float {0.01, }
     tags:
       $type: Set
@@ -417,9 +421,9 @@ items:
 
 shipping:
   method: String [standard, express, pickup]
-  cost:   Float {0, }
+  cost: Float {0, }
   tracking:
-    code:    String
+    code: String
     carrier: String?
-    status:  String? [pending, shipped, delivered, returned]
+    status: String? [pending, shipped, delivered, returned]
 ```
