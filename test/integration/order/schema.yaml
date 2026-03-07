@@ -3,8 +3,9 @@ createdAt: String (date-time)
 status:    String [pending, processing, shipped, delivered]
 
 customer:
-  name:  String {2, 80}
-  email: String (email)
+  $strict: true
+  name:    String {2, 80}
+  email:   String (email)
 
 items:
   $type: List {1, }

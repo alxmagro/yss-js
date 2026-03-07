@@ -7,9 +7,9 @@ It is designed to be simple to read, simple to write, and simple to implement in
 
 ## Core principles
 
+- Every object is open by default, extra fields are allowed.
 - Every field present in the schema is **required** by default.
-- Every object is **strict** by default - extra fields are rejected.
-- Fields and rules are additive - the more you declare, the stricter the validation.
+- Fields and rules are additive, the more you declare, the stricter the validation.
 - The schema should be readable by non-developers without explanation.
 
 ## Types
@@ -83,33 +83,34 @@ address:
   country: String
 ```
 
-### Strict mode (default)
+### Strict mode
 
-By default, objects reject any fields not declared in the schema.
+By default, objects allow any extra fields not declared in the schema. To reject extra fields,
+add `$strict: true` to the object.
+
+**NOTE:** This cascades to all nested objects unless overridden.
 
 ```yaml
+# strict - extra fields will cause a validation error
 user:
-  name:  String
-  email: String
+  $strict: true
+  name:    String
+  email:   String
+  address:
+    street: String   # also strict, inherited from user
 ```
 
-### Open objects - `...: true`
-
-To allow extra fields, add `...: true` as a child of the object. This only applies to the
-immediate object, not to nested objects.
+A nested object can opt out by declaring `$strict: false`:
 
 ```yaml
-# open - extra fields are allowed
-meta:
-  source: String
-  ...: true
-
-# nested object is still strict
 user:
-  name: String
-  address:
-    street: String   # strict
-  ...: true          # only 'user' is open
+  $strict: true
+  name:    String
+  meta:
+    $strict: false   # open, overrides parent
+    source:  String
+    address:
+      street: String  # open again, inherited from meta
 ```
 
 ## List
@@ -258,14 +259,14 @@ score: Float {0, 100}
 A single value means exactly that - equivalent to `{n, n}`:
 
 ```yaml
-code: String {4}    # exactly 4 characters
-page: Integer {1}   # exactly 1
+code: String {4}     # exactly 4 characters
+page: Integer {1}    # exactly 1
 ```
 
 Either bound can be omitted:
 
 ```yaml
-name: String {2, }  # min 2, no max
+name: String {2, }   # min 2, no max
 age:  Integer {, 18} # max 18, no min
 ```
 
@@ -387,6 +388,7 @@ id:         String (uuid)
 created_at: [String (date-time), null]
 
 customer:
+  $strict: true
   id:    Integer {1, }
   name:  String {2, 80}
   email: String (email)
@@ -420,8 +422,4 @@ shipping:
     code:    String
     carrier: String?
     status:  String? [pending, shipped, delivered, returned]
-    ...: true
-
-meta:
-  ...: true
 ```

@@ -11,5 +11,4 @@ name: String {2, 80}
 billing:  *Address
 shipping: *Address
 
-headquarters:
-  ...: true
+headquarters: Object

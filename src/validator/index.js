@@ -3,19 +3,23 @@
  * Uses the type and rule registries - each type and rule is an isolated module.
  */
 
-import { getType }                from '../types/index.js'
+import { getType }                 from '../types/index.js'
 import { scalarRules, arrayRules } from '../rules/index.js'
-import { makeError, joinPath }    from './errors.js'
+import { makeError, joinPath }     from './errors.js'
 
 /**
  * Validate a value against a schema node.
- * @param {*}      value  - the value being validated
- * @param {object} node   - normalized schema node from the parser
- * @param {string} path   - current dot-path for error messages
- * @returns {Array}       - array of { path, code, message } error objects
+ * @param {*}      value       - the value being validated
+ * @param {object} node        - normalized schema node from the parser
+ * @param {string} path        - current dot-path for error messages
+ * @param {boolean} inherited  - strict value cascaded from parent (default: false)
+ * @returns {Array}            - array of { path, code, message } error objects
  */
-export function validateNode(value, node, path = '') {
+export function validateNode (value, node, path = '', inherited = false) {
   const errors = []
+
+  // Resolve effective strict: local declaration wins, otherwise inherit
+  const strict = node.strict !== null ? node.strict : inherited
 
   // ── AnyOf ──────────────────────────────────────────────────────────────────
   if (node.anyOf) {
@@ -23,7 +27,7 @@ export function validateNode(value, node, path = '') {
       a.type === 'null' ? -1 : b.type === 'null' ? 1 : 0
     )
 
-    const matchingBranch = branches.find(branch => validateNode(value, branch, path).length === 0)
+    const matchingBranch = branches.find(branch => validateNode(value, branch, path, strict).length === 0)
 
     if (!matchingBranch) {
       const names = branches.map(b => b.type).join(' | ')
@@ -34,7 +38,7 @@ export function validateNode(value, node, path = '') {
     if (matchingBranch.type === 'Object') {
       const fieldsNode = matchingBranch.fields ? matchingBranch : node
       if (fieldsNode.fields) {
-        errors.push(...validateObject(value, fieldsNode, path))
+        errors.push(...validateObject(value, fieldsNode, path, strict))
       }
     }
 
@@ -89,18 +93,19 @@ export function validateNode(value, node, path = '') {
 
   // ── Object fields ──────────────────────────────────────────────────────────
   if (node.type === 'Object' && node.fields) {
-    errors.push(...validateObject(value, node, path))
+    errors.push(...validateObject(value, node, path, strict))
   }
 
   return errors
 }
 
 /**
- * Validate an Object's declared fields, and enforce strict mode.
+ * Validate an Object's declared fields, and enforce strict mode if active.
+ * @param {boolean} strict - effective strict value for this object
  */
-function validateObject(value, node, path) {
+function validateObject (value, node, path, strict) {
   const errors = []
-  const { fields, open } = node
+  const { fields } = node
 
   for (const [key, fieldNode] of Object.entries(fields)) {
     const fieldPath  = joinPath(path, key)
@@ -112,10 +117,10 @@ function validateObject(value, node, path) {
       continue
     }
 
-    errors.push(...validateNode(fieldValue, fieldNode, fieldPath))
+    errors.push(...validateNode(fieldValue, fieldNode, fieldPath, strict))
   }
 
-  if (!open) {
+  if (strict) {
     for (const key of Object.keys(value)) {
       if (!(key in fields))
         errors.push(makeError(joinPath(path, key), 'prop_unexpected', `unexpected field`))
