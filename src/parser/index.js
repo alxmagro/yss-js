@@ -6,6 +6,7 @@
  */
 
 import { parseValue, parseInline } from './inline.js'
+import { registerPatterns }        from '../aliases.js'
 
 const RUNES = new Set([
   '$type', '$optional', '$min', '$max', '$match',
@@ -125,6 +126,8 @@ function buildObjectNode(raw) {
   return node
 }
 
+const RESERVED_ROOT = new Set(['$defs', '$patterns'])
+
 /**
  * Build the full schema tree from a raw YAML root object.
  * The root is always treated as an Object schema.
@@ -133,5 +136,16 @@ export function buildTree(raw) {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     throw new Error('YSS schema root must be an object')
   }
-  return buildObjectNode(raw)
+
+  // Register $patterns before building the tree
+  if (raw.$patterns && typeof raw.$patterns === 'object') {
+    registerPatterns(raw.$patterns)
+  }
+
+  // Strip reserved root keys before building the node
+  const stripped = Object.fromEntries(
+    Object.entries(raw).filter(([k]) => !RESERVED_ROOT.has(k))
+  )
+
+  return buildObjectNode(stripped)
 }

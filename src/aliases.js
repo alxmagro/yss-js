@@ -113,6 +113,24 @@ export const aliases = {
 }
 
 /**
+ * Register custom patterns, merging into the aliases map.
+ * Values must be /regex/ strings. Overwrites built-ins if names collide.
+ *
+ * @param {object} patterns - { name: '/regex/' }
+ */
+export function registerPatterns (patterns) {
+  for (const [name, raw] of Object.entries(patterns)) {
+    if (typeof raw !== 'string' || !raw.startsWith('/') || raw.lastIndexOf('/') === 0) {
+      throw new Error(`$patterns: "${name}" must be a /regex/ string`)
+    }
+    const lastSlash = raw.lastIndexOf('/')
+    const source    = raw.slice(1, lastSlash)
+    const flags     = raw.slice(lastSlash + 1)
+    aliases[name]   = (v) => new RegExp(source, flags).test(v)
+  }
+}
+
+/**
  * Run a $match against a value.
  *
  * Resolution order:
@@ -123,7 +141,7 @@ export const aliases = {
  * @param {string} pattern - alias name or /regex/
  * @returns {boolean}
  */
-export function runMatch(value, pattern) {
+export function runMatch (value, pattern) {
   // Named alias - no delimiters
   if (aliases[pattern]) return aliases[pattern](value)
 
