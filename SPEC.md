@@ -42,7 +42,7 @@ Every field is described by a block with `$type` and optional runes. All runes a
 | `$min`      | String, Integer, Float, List, Set | Minimum length / value / item count       |
 | `$max`      | String, Integer, Float, List, Set | Maximum length / value / item count       |
 | `$match`    | String                            | Named alias or `/regex/` the value must match |
-| `$values`   | String, Integer, Float            | List of allowed values                    |
+| `$enum`     | String, Integer, Float            | List of allowed values                    |
 | `$item`     | List, Set                         | Schema for each item in the collection    |
 | `$at`       | List, Tuple                       | Schema per position                       |
 
@@ -59,7 +59,7 @@ age:
 
 status:
   $type:   String
-  $values: [active, inactive, banned]
+  $enum: [active, inactive, banned]
 
 phone:
   $type:  String
@@ -144,7 +144,7 @@ roles:
   $type: Set
   $item:
     $type:   String
-    $values: [admin, editor, viewer]
+    $enum: [admin, editor, viewer]
 ```
 
 ---
