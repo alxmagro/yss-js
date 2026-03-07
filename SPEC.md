@@ -205,10 +205,35 @@ user:
   shipping_address: *Address
 ```
 
+## $match aliases
+
+Custom named patterns can be declared at the root of the schema under `$patterns`. Each
+pattern is a `/regex/` string and can be used anywhere `$match` is accepted, including
+inline shorthand. Custom patterns override built-in aliases if names collide.
+
+```yaml
+$patterns:
+  zip-code: /^\d{5}-?\d{3}$/
+  phone: /^\+?[0-9]{10,11}$/
+
+address:
+  zip: String (zip-code)
+  contact:
+    $type: String
+    $match: phone
+```
+
 ## Shorthand syntax
 
-For simple fields, YSS offers an inline shorthand that fits on a single line. Shorthand is
-purely cosmetic, it compiles to the same schema as the expanded form.
+When a field has only `$type`, it can be written as a bare inline value:
+
+```yaml
+name: String
+active: Boolean
+```
+
+Some rules can also be expressed inline alongside the type. This is purely cosmetic —
+it compiles to the same schema as the expanded form.
 
 The canonical order is:
 
@@ -225,8 +250,8 @@ active: Boolean
 
 ### Match - `Type (named-pattern)`
 
-Validates the value against a named alias. Raw regex is not allowed in shorthand - use
-`$match: /regex/` in expanded form instead.
+Shorthand for `$match`. Validates the value against a named alias. Raw regex is not allowed
+in shorthand - use `$match: /regex/` in expanded form instead.
 
 ```yaml
 id: String (uuid)
@@ -234,9 +259,9 @@ created_at: String (date-time)
 email: String (email)
 ```
 
-### Values - `Type [val1, val2]`
+### Enum - `Type [val1, val2]`
 
-The value must be one of the listed options.
+Shorthand for `$enum`. The value must be one of the listed options.
 
 ```yaml
 status: String [active, inactive, banned]
@@ -245,15 +270,17 @@ code: Integer [1, 2, 3]
 
 ### Optional - `?`
 
+Shorthand for `$optional: true`. Placed immediately after the type.
+
 ```yaml
 nickname: String?
 phone: String? {10, 11}
 ```
 
-### Range - `Type {min, max}`
+### $min / $max - `{min, max}`
 
-Applies to the value for numbers, character length for strings, and item count for List/Set.
-Both bounds are **inclusive**.
+Shorthand for `$min` and `$max`. Applies to the value for numbers, character length for
+strings, and item count for List/Set. Both bounds are **inclusive**.
 
 ```yaml
 name: String {2, 80}
@@ -289,7 +316,6 @@ name: String? {2, 80}
 ```yaml
 code:       [String, Integer]
 deleted_at: [String (date-time), null]
-value:      [String [active, inactive], Integer {1, 100}]
 ```
 
 ### List shorthand - `List<Type>`
