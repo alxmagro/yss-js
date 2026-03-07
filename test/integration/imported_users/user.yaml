@@ -1,0 +1,7 @@
+$patterns:
+  zip-code: /^\d{5}-?\d{3}$/
+
+id: Integer {1, }
+name: String {2, 80}
+email: String (email)
+zip: String (zip-code)

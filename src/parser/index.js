@@ -10,13 +10,11 @@
  *   false - open, cascades to children unless overridden
  */
 
-import { parseValue, parseInline } from './inline.js'
-import { registerPatterns }        from '../aliases.js'
+import { parseValue, parseInline }  from './inline.js'
+import { registerPatterns }         from '../aliases.js'
+import { loadImports, resolveRefs } from './imports.js'
 
-const RUNES = new Set([
-  '$type', '$optional', '$min', '$max', '$match',
-  '$enum', '$item', '$at', '$strict',
-])
+const RESERVED_ROOT = new Set(['$anchors', '$patterns', '$imports'])
 
 /**
  * Build a schema node from a raw YAML node.
@@ -24,22 +22,18 @@ const RUNES = new Set([
  * @returns {object} normalized schema node
  */
 export function buildNode (raw) {
-  // null type shorthand
   if (raw === null || raw === 'null') {
     return { type: 'null' }
   }
 
-  // Inline scalar - "String {2, 80}"
   if (typeof raw === 'string') {
     return parseValue(raw)
   }
 
-  // AnyOf - YAML array at field level ["String", "Integer"]
   if (Array.isArray(raw)) {
     return parseValue(raw)
   }
 
-  // Object - either expanded rune block or object type with fields
   if (typeof raw === 'object') {
     return buildObjectNode(raw)
   }
@@ -56,6 +50,11 @@ function buildObjectNode (raw) {
   const hasRunes  = keys.some(k => k.startsWith('$'))
   const hasFields = keys.some(k => !k.startsWith('$'))
 
+  // $ref - reference to an imported schema, resolved later by resolveRefs
+  if (raw.$ref !== undefined) {
+    return { $ref: raw.$ref, optional: raw.$optional ?? false }
+  }
+
   const node = {
     type:     null,
     optional: false,
@@ -70,9 +69,7 @@ function buildObjectNode (raw) {
     fields:   null,
   }
 
-  // Read runes
   if (hasRunes) {
-    // $type can be inline "String {2, 80}" or array AnyOf
     if (raw.$type !== undefined) {
       if (Array.isArray(raw.$type)) {
         node.anyOf = raw.$type.map(t =>
@@ -91,12 +88,10 @@ function buildObjectNode (raw) {
     if (raw.$match    !== undefined) node.match    = raw.$match
     if (raw.$enum     !== undefined) node.enum     = raw.$enum
 
-    // $item - inline or object
     if (raw.$item !== undefined) {
       node.item = buildNode(raw.$item)
     }
 
-    // $at - tuple positions
     if (raw.$at !== undefined) {
       node.at = {}
       for (const [pos, val] of Object.entries(raw.$at)) {
@@ -105,7 +100,6 @@ function buildObjectNode (raw) {
     }
   }
 
-  // Object fields (non-rune keys)
   if (hasFields) {
     if (!node.type) node.type = 'Object'
     node.fields = {}
@@ -118,26 +112,32 @@ function buildObjectNode (raw) {
   return node
 }
 
-const RESERVED_ROOT = new Set(['$anchors', '$patterns'])
-
 /**
  * Build the full schema tree from a raw YAML root object.
  * The root is always treated as an Object schema.
+ *
+ * @param {object} raw     - raw YAML object
+ * @param {string} baseDir - directory of the file being parsed (for resolving imports)
  */
-export function buildTree (raw) {
+export function buildTree (raw, baseDir = process.cwd()) {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     throw new Error('YSS schema root must be an object')
   }
 
-  // Register $patterns before building the tree
   if (raw.$patterns && typeof raw.$patterns === 'object') {
     registerPatterns(raw.$patterns)
   }
 
-  // Strip reserved root keys before building the node
   const stripped = Object.fromEntries(
     Object.entries(raw).filter(([k]) => !RESERVED_ROOT.has(k))
   )
 
-  return buildObjectNode(stripped)
+  let tree = buildObjectNode(stripped)
+
+  if (raw.$imports && typeof raw.$imports === 'object') {
+    const importedTrees = loadImports(raw.$imports, baseDir, buildTree)
+    tree = resolveRefs(tree, importedTrees)
+  }
+
+  return tree
 }

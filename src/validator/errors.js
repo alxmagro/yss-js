@@ -26,8 +26,8 @@ export function makeError(path, code, message) {
   return { path, code, message }
 }
 
-export function joinPath(parent, key) {
+export function joinPath (parent, key) {
+  if (typeof key === 'number') return parent ? `${parent}[${key}]` : `[${key}]`
   if (!parent) return String(key)
-  if (typeof key === 'number') return `${parent}[${key}]`
   return `${parent}.${key}`
 }

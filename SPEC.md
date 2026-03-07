@@ -12,21 +12,6 @@ It is designed to be simple to read, simple to write, and simple to implement in
 - Fields and rules are additive, the more you declare, the stricter the validation.
 - The schema should be readable by non-developers without explanation.
 
-## Types
-
-| Type      | Validates                            |
-|-----------|--------------------------------------|
-| `String`  | UTF-8 string                         |
-| `Integer` | Whole number (no decimal part)       |
-| `Float`   | Any number, including decimals       |
-| `Boolean` | `true` or `false`                    |
-| `Object`  | JSON object (key-value pairs)        |
-| `List`    | Array, duplicates allowed            |
-| `Set`     | Array, duplicates not allowed        |
-| `Tuple`   | Array with fixed length and types    |
-| `null`    | JSON null value                      |
-| `any`     | Any value, no type check             |
-
 ## Rules
 
 Every field is described by a block with `$type` and optional rules. All rules are prefixed with `$`.
@@ -63,14 +48,24 @@ phone:
   $match: /^\+?[0-9]{10,11}$/
 ```
 
-When a field has no extra rule, the type alone is enough:
+The next section covers all available types and how to use them.
 
-```yaml
-name: String
-active: Boolean
-```
+## Types
 
-## Object
+| Type      | Validates                            |
+|-----------|--------------------------------------|
+| `String`  | UTF-8 string                         |
+| `Integer` | Whole number (no decimal part)       |
+| `Float`   | Any number, including decimals       |
+| `Boolean` | `true` or `false`                    |
+| `Object`  | JSON object (key-value pairs)        |
+| `List`    | Array, duplicates allowed            |
+| `Set`     | Array, duplicates not allowed        |
+| `Tuple`   | Array with fixed length and types    |
+| `null`    | JSON null value                      |
+| `any`     | Any value, no type check             |
+
+### Object
 
 Object schemas are declared by nesting field definitions. The type is inferred automatically,
 no `$type: Object` needed.
@@ -85,7 +80,7 @@ address:
   country: String
 ```
 
-### Strict mode
+#### Strict mode
 
 By default, objects allow any extra fields not declared in the schema. To reject extra fields,
 add `$strict: true` to the object.
@@ -115,7 +110,7 @@ user:
       street: String  # open again, inherited from meta
 ```
 
-## List
+### List
 
 A list of items, duplicates allowed. Use `$item` to declare the schema for each item,
 and `$min` / `$max` for length constraints.
@@ -130,7 +125,7 @@ emails:
     $match: email
 ```
 
-## Set
+### Set
 
 A list of items, duplicates not allowed. Follows the same syntax as List.
 
@@ -142,7 +137,7 @@ roles:
     $enum: [admin, editor, viewer]
 ```
 
-## Tuple
+### Tuple
 
 An array with a fixed number of positions, each with its own type. The `$at` rule maps each
 position index to a schema.
@@ -171,7 +166,7 @@ tokens:
     1: Integer
 ```
 
-## AnyOf
+### AnyOf
 
 The value must match at least one of the listed types. Each branch is a full schema block.
 `null` can be listed as a bare scalar.
@@ -183,44 +178,6 @@ value:
   - $type: Integer
     $min: 1
   - null
-```
-
-## Schema reuse (YAML anchors)
-
-Within the same file, use native YAML anchors (`&`) and aliases (`*`) to avoid repeating
-structures.
-
-```yaml
-$anchors:
-  - &Address
-    street:
-      $type: String
-      $min: 5
-      $max: 120
-    city: String
-    country: String
-
-user:
-  billing_address: *Address
-  shipping_address: *Address
-```
-
-## $match aliases
-
-Custom named patterns can be declared at the root of the schema under `$patterns`. Each
-pattern is a `/regex/` string and can be used anywhere `$match` is accepted, including
-inline shorthand. Custom patterns override built-in aliases if names collide.
-
-```yaml
-$patterns:
-  zip-code: /^\d{5}-?\d{3}$/
-  phone: /^\+?[0-9]{10,11}$/
-
-address:
-  zip: String (zip-code)
-  contact:
-    $type: String
-    $match: phone
 ```
 
 ## Shorthand syntax
@@ -239,13 +196,6 @@ The canonical order is:
 
 ```
 Type? (match) [val1, val2] {min, max}
-```
-
-### Pure type
-
-```yaml
-name: String
-active: Boolean
 ```
 
 ### Match - `Type (named-pattern)`
@@ -328,7 +278,110 @@ ids:   List<Integer>
 flags: Set<Boolean>
 ```
 
-## Named `$match` aliases
+## Schema reuse (YAML anchors)
+
+Within the same file, use native YAML anchors (`&`) and aliases (`*`) to avoid repeating
+structures.
+
+```yaml
+$anchors:
+  - &Address
+    street:
+      $type: String
+      $min: 5
+      $max: 120
+    city: String
+    country: String
+
+user:
+  billing_address: *Address
+  shipping_address: *Address
+```
+
+## Modular schemas
+
+Schemas can be split across multiple files and referenced via `$imports`. Each file is
+compiled in isolation with its own `$patterns` context before being made available to the
+importing file.
+
+### $imports
+
+Declared at the root of the schema. Each key is a namespace and the value is a path
+relative to the current file.
+
+```yaml
+$imports:
+  user: ./user.yaml
+  shared: ./shared/types.yaml
+```
+
+### $ref
+
+References an imported schema by namespace. Only `$optional` can be combined with `$ref`.
+
+```yaml
+profile:
+  $ref: user
+  $optional: true
+```
+
+Use dot notation to navigate into a field of the imported schema:
+
+```yaml
+$imports:
+  post: ./post.yaml
+
+data:
+  $type: List
+  $item:
+    $ref: post.data
+```
+
+### $patterns across files
+
+`$patterns` declared in an imported file are available in the importing file under the
+namespace prefix:
+
+```yaml
+# post.yaml
+$patterns:
+  slug: /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+data:
+  slug: String (slug)
+```
+
+```yaml
+# feed.yaml
+$imports:
+  post: ./post.yaml
+
+featured_slug: String (post.slug)   # using the imported pattern directly
+data:
+  $type: List
+  $item:
+    $ref: post.data
+```
+
+## $match aliases
+
+Custom named patterns can be declared at the root of the schema under `$patterns`. Each
+pattern is a `/regex/` string and can be used anywhere `$match` is accepted, including
+inline shorthand. Custom patterns override built-in aliases if names collide.
+
+```yaml
+$patterns:
+  zip-code: /^\d{5}-?\d{3}$/
+  phone: /^\+?[0-9]{10,11}$/
+
+address:
+  zip: String (zip-code)
+  contact:
+    $type: String
+    $match: phone
+```
+
+## Built-in $match aliases
 
 The following aliases can be used with `$match` or inline as `(alias)`.
 

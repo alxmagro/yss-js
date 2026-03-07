@@ -13,10 +13,11 @@
  *   validate.valid(payload)               // -> boolean
  */
 
-import { readFileSync } from 'node:fs'
-import { load }         from 'js-yaml'
-import { buildTree }    from './src/parser/index.js'
-import { validateNode } from './src/validator/index.js'
+import { readFileSync }  from 'node:fs'
+import { dirname }       from 'node:path'
+import { load }          from 'js-yaml'
+import { buildTree }     from './src/parser/index.js'
+import { validateNode }  from './src/validator/index.js'
 
 // ── ValidationError ───────────────────────────────────────────────────────────
 
@@ -56,17 +57,14 @@ export const schema = {
    * @param {string} path - path to the .yaml file
    * @returns {Function} validate(payload) -> errors[]
    */
-  fromFile(path) {
+  fromFile (path) {
     const content = readFileSync(path, 'utf8')
-    return schema.fromString(content)
+    const raw     = load(content)
+    const tree    = buildTree(raw, dirname(path))
+    return compile(tree)
   },
 
-  /**
-   * Compile a schema from a YAML string.
-   * @param {string} yaml - YSS schema as a YAML string
-   * @returns {Function} validate(payload) -> errors[]
-   */
-  fromString(yaml) {
+  fromString (yaml) {
     const raw  = load(yaml)
     const tree = buildTree(raw)
     return compile(tree)
