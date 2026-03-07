@@ -1,0 +1,27 @@
+{
+  "name": "yss",
+  "description": "YAML Simplified Schema - a human-friendly YAML-based payload validator",
+  "private": false,
+  "author": "Alexandre Magro <alexandremagro@live.com>",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
+  },
+  "scripts": {
+    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=test/"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  },
+  "keywords": ["yaml", "schema", "validation", "validator"],
+  "license": "MIT"
+}

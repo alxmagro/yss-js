@@ -1,0 +1,16 @@
+transactionId: String =~ uuid
+method:        String (credits | republic_bonds | hutt_coin | imperial_script)
+amount:        Float {0.01,}
+installments:  Integer? {1,12}
+
+card:
+  $type: [Object, null]
+  holder: String {2,80}
+  last4:  String =~ /^[0-9]{4}$/
+  expiry:
+    $type: Tuple
+    $at:
+      0: Integer {1,12}   # month
+      1: Integer {2025,}  # year
+
+billedTo: String {2,80}
