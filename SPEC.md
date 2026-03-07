@@ -41,6 +41,7 @@ Every field is described by a block with `$type` and optional rules. All rules a
 | `$enum`     | String, Integer, Float            | List of allowed values                        |
 | `$item`     | List, Set                         | Schema for each item in the collection        |
 | `$at`       | List, Tuple                       | Schema per position                           |
+| `$strict`   | Object                            | Reject extra fields. Cascades to children     |
 
 ```yaml
 email:
@@ -200,7 +201,7 @@ $anchors:
     country: String
 
 user:
-  billing_address:  *Address
+  billing_address: *Address
   shipping_address: *Address
 ```
 
@@ -271,7 +272,7 @@ Either bound can be omitted:
 
 ```yaml
 name: String {2, }   # min 2, no max
-age: Integer {, 18} # max 18, no min
+age: Integer {, 18}  # max 18, no min
 ```
 
 ### Combining modifiers
