@@ -10,10 +10,11 @@
 
 ```yaml
 # order.yaml
+
 id: Integer
 customer:
   name:  String
-  email: String =~ email
+  email: String (email)
 items:
   $type: List
   $min: 1
