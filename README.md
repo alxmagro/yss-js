@@ -35,8 +35,6 @@ const errors   = validate(payload)
 // [{ path: 'customer.email', message: 'expected String =~ email' }] -> invalid
 ```
 
----
-
 ## Install
 
 ```bash
@@ -45,11 +43,9 @@ npm install yss
 
 Requires Node.js >= 22.
 
----
-
 ## API
 
-### `schema.fromFile(path)`
+**schema.fromFile(path)**
 
 Loads and compiles a schema from a `.yaml` file on disk. The schema is compiled once and reused -
 call this at application startup, not on every request.
@@ -58,7 +54,7 @@ call this at application startup, not on every request.
 const validate = schema.fromFile('./schemas/order.yaml')
 ```
 
-### `schema.fromString(yaml)`
+**schema.fromString(yaml)**
 
 Same as `fromFile`, but receives the YAML directly as a string. Useful for tests or when
 the schema comes from a database or environment variable.
@@ -70,7 +66,7 @@ const validate = schema.fromString(`
 `)
 ```
 
-### `validate(payload)`
+**validate(payload)**
 
 Validates a payload against the compiled schema. Returns an array of error objects.
 An empty array means the payload is valid.
@@ -86,7 +82,7 @@ const errors = validate({ name: 'A', email: 'not-an-email' })
 //   ]
 ```
 
-### `validate.assert(payload)`
+**validate.assert(payload)**
 
 Same validation, but throws a `ValidationError` if the payload is invalid.
 Useful for frameworks that handle exceptions globally.
@@ -99,7 +95,7 @@ try {
 }
 ```
 
-### `validate.valid(payload)`
+**validate.valid(payload)**
 
 Returns `true` if valid, `false` otherwise.
 
@@ -109,13 +105,10 @@ if (!validate.valid(payload)) {
 }
 ```
 
----
-
 ## Schema syntax
 
 See [SPEC.md](./SPEC.md) for the full specification.
 
----
 
 ## License
 

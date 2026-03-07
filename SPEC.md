@@ -1,19 +1,16 @@
-# YSS Specification — YAML Simplified Schema
+# YSS Specification - YAML Simplified Schema
 
 > Version 0.1.0
 
-YSS is a schema language for validating JSON payloads, written in YAML. It is designed to be simple to read, simple to write, and simple to implement in any language.
-
----
+YSS is a schema language for validating JSON payloads, written in YAML.
+It is designed to be simple to read, simple to write, and simple to implement in any language.
 
 ## Core principles
 
 - Every field present in the schema is **required** by default.
-- Every object is **strict** by default — extra fields are rejected.
-- Fields and rules are additive — the more you declare, the stricter the validation.
+- Every object is **strict** by default - extra fields are rejected.
+- Fields and rules are additive - the more you declare, the stricter the validation.
 - The schema should be readable by non-developers without explanation.
-
----
 
 ## Types
 
@@ -29,13 +26,11 @@ YSS is a schema language for validating JSON payloads, written in YAML. It is de
 | `Tuple`   | Array with fixed length and types    |
 | `null`    | JSON null value                      |
 
----
+## Rules
 
-## Runes (modifiers)
+Every field is described by a block with `$type` and optional rules. All rules are prefixed with `$`.
 
-Every field is described by a block with `$type` and optional runes. All runes are prefixed with `$`.
-
-| Rune        | Applies to                        | Description                               |
+| Rule        | Applies to                        | Description                               |
 |-------------|-----------------------------------|-------------------------------------------|
 | `$type`     | any                               | The type of the field                     |
 | `$optional` | any                               | Field may be absent. Default: `false`     |
@@ -66,18 +61,17 @@ phone:
   $match: /^\+?[0-9]{10,11}$/
 ```
 
-When a field has no extra runes, the type alone is enough:
+When a field has no extra rule, the type alone is enough:
 
 ```yaml
 name:   String
 active: Boolean
 ```
 
----
-
 ## Object
 
-Object schemas are declared by nesting field definitions. The type is inferred automatically — no `$type: Object` needed.
+Object schemas are declared by nesting field definitions. The type is inferred automatically,
+no `$type: Object` needed.
 
 ```yaml
 address:
@@ -99,12 +93,13 @@ user:
   email: String
 ```
 
-### Open objects — `...: true`
+### Open objects - `...: true`
 
-To allow extra fields, add `...: true` as a child of the object. This only applies to the immediate object, not to nested objects.
+To allow extra fields, add `...: true` as a child of the object. This only applies to the
+immediate object, not to nested objects.
 
 ```yaml
-# open — extra fields are allowed
+# open - extra fields are allowed
 meta:
   source: String
   ...: true
@@ -117,11 +112,10 @@ user:
   ...: true          # only 'user' is open
 ```
 
----
-
 ## List
 
-A list of items, duplicates allowed. Use `$item` to declare the schema for each item, and `$min` / `$max` for length constraints.
+A list of items, duplicates allowed. Use `$item` to declare the schema for each item,
+and `$min` / `$max` for length constraints.
 
 ```yaml
 emails:
@@ -132,8 +126,6 @@ emails:
     $type:  String
     $match: email
 ```
-
----
 
 ## Set
 
@@ -147,11 +139,10 @@ roles:
     $enum: [admin, editor, viewer]
 ```
 
----
-
 ## Tuple
 
-An array with a fixed number of positions, each with its own type. The `$at` rune maps each position index to a schema.
+An array with a fixed number of positions, each with its own type. The `$at` rule maps each
+position index to a schema.
 
 ```yaml
 point:
@@ -161,9 +152,11 @@ point:
     1: Float   # longitude
 ```
 
-When used on a **Tuple**, the length of the array must exactly match the number of positions defined in `$at`.
+When used on a **Tuple**, the length of the array must exactly match the number of positions
+defined in `$at`.
 
-When used on a **List**, only the declared positions are validated — extra items are allowed. If the list is shorter than a declared position, it is an error.
+When used on a **List**, only the declared positions are validated - extra items are allowed.
+If the list is shorter than a declared position, it is an error.
 
 ```yaml
 tokens:
@@ -175,11 +168,10 @@ tokens:
     1: Integer
 ```
 
----
-
 ## AnyOf
 
-The value must match at least one of the listed types. Each branch is a full schema block. `null` can be listed as a bare scalar.
+The value must match at least one of the listed types. Each branch is a full schema block.
+`null` can be listed as a bare scalar.
 
 ```yaml
 value:
@@ -189,8 +181,6 @@ value:
     $min:  1
   - null
 ```
-
----
 
 ## Schema reuse (YAML anchors)
 
@@ -211,11 +201,10 @@ user:
   shipping_address: *Address
 ```
 
----
-
 ## Shorthand syntax
 
-For simple fields, YSS offers an inline shorthand that fits on a single line. Shorthand is purely cosmetic — it compiles to the same schema as the expanded form.
+For simple fields, YSS offers an inline shorthand that fits on a single line. Shorthand is
+purely cosmetic, it compiles to the same schema as the expanded form.
 
 The canonical order is:
 
@@ -230,9 +219,9 @@ name:   String
 active: Boolean
 ```
 
-### Match — `Type (named-pattern)`
+### Match - `Type (named-pattern)`
 
-Validates the value against a named alias. Raw regex is not allowed in shorthand — use `$match: /regex/` in expanded form instead.
+Validates the value against a named alias. Raw regex is not allowed in shorthand - use `$match: /regex/` in expanded form instead.
 
 ```yaml
 id:         String (uuid)
@@ -240,7 +229,7 @@ created_at: String (date-time)
 email:      String (email)
 ```
 
-### Values — `Type [val1, val2]`
+### Values - `Type [val1, val2]`
 
 The value must be one of the listed options.
 
@@ -249,14 +238,14 @@ status: String [active, inactive, banned]
 code:   Integer [1, 2, 3]
 ```
 
-### Optional — `?`
+### Optional - `?`
 
 ```yaml
 nickname: String?
 phone:    String? {10, 11}
 ```
 
-### Range — `Type {min, max}`
+### Range - `Type {min, max}`
 
 Applies to the value for numbers, character length for strings, and item count for List/Set. Both bounds are **inclusive**.
 
@@ -266,7 +255,7 @@ age:   Integer {18, 120}
 score: Float {0, 100}
 ```
 
-A single value means exactly that — equivalent to `{n, n}`:
+A single value means exactly that - equivalent to `{n, n}`:
 
 ```yaml
 code: String {4}    # exactly 4 characters
@@ -297,7 +286,7 @@ deleted_at: [String (date-time), null]
 value:      [String [active, inactive], Integer {1, 100}]
 ```
 
-### List shorthand — `List<Type>`
+### List shorthand - `List<Type>`
 
 No modifiers inside `<>`.
 
@@ -306,8 +295,6 @@ tags:  List<String>
 ids:   List<Integer>
 flags: Set<Boolean>
 ```
-
----
 
 ## Named `$match` aliases
 
@@ -390,8 +377,6 @@ RFC 6901 - https://datatracker.ietf.org/doc/html/rfc6901
 | Alias   | Description                          |
 |---------|--------------------------------------|
 | `regex` | A valid regular expression string    |
-
----
 
 ## Full example
 
