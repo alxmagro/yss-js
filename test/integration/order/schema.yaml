@@ -1,17 +1,17 @@
-orderId:   String =~ uuid
-createdAt: String =~ date-time
-status:    String (pending | processing | shipped | delivered)
+orderId:   String (uuid)
+createdAt: String (date-time)
+status:    String [pending, processing, shipped, delivered]
 
 customer:
-  name:  String {2,80}
-  email: String =~ email
+  name:  String {2, 80}
+  email: String (email)
 
 items:
-  $type: List {1,}
+  $type: List {1, }
   $item:
-    productId: Integer {1,}
-    name:      String {1,100}
-    qty:       Integer {1,999}
-    price:     Float {0.01,}
+    productId: Integer {1, }
+    name:      String {1, 100}
+    qty:       Integer {1, 999}
+    price:     Float {0.01, }
 
 notes: String?

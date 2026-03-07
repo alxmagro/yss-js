@@ -1,28 +1,29 @@
 /**
  * Parses YSS inline type syntax:
  *
- *   Type?(min,max)(VAL1 | VAL2 | VAL3) =~ match
+ *   Type? (match) [val1, val2] {min, max}
  *
  * Canonical order:
  *   1. Type  - the base type
  *   2. ?     - optional, immediately after the type
- *   3. {}    - range (min,max)
- *   4. ()    - allowed values
- *   5. =~    - match alias or /regex/
+ *   3. ()    - named match alias
+ *   4. []    - allowed values
+ *   5. {}    - range (min, max)
  *
  * Examples:
  *   String
  *   String?
- *   String{2,80}
- *   String?{2,80}
- *   String(active | inactive)
- *   String?{2,80}(foo | bar)
- *   String? =~ email
- *   String?{1,20}(urgent | low | medium) =~ /^[a-z]+$/
- *   Integer{1,100}
+ *   String (email)
+ *   String? (uuid)
+ *   String [active, inactive]
+ *   String? [active, inactive]
+ *   String {2, 80}
+ *   String? {2, 80}
+ *   String? (slug) [urgent, low, medium] {1, 20}
+ *   Integer {1, 100}
  *   List<String>
- *   [String, Integer]        -> AnyOf
- *   [String, null]           -> nullable AnyOf
+ *   [String, Integer]             -> AnyOf
+ *   [String (date-time), null]    -> AnyOf with match
  */
 
 /**
@@ -44,21 +45,7 @@ export function parseInline(token) {
     item:     null,  // for List<Type>
   }
 
-  // 1. Extract =~ match (must be last - strip from right first)
-  const matchIdx = token.indexOf('=~')
-  if (matchIdx !== -1) {
-    result.match = token.slice(matchIdx + 2).trim()
-    token = token.slice(0, matchIdx).trim()
-  }
-
-  // 2. Extract values (VAL1 | VAL2) - last () group
-  const valuesMatch = token.match(/^(.*)\(([^)]+)\)$/)
-  if (valuesMatch) {
-    result.values = valuesMatch[2].split('|').map(v => v.trim())
-    token = valuesMatch[1].trim()
-  }
-
-  // 3. Extract range: {n} = exactly n, {n,m} = between, {n,} = min only, {,m} = max only
+  // 1. Extract range: {n} = exactly n, {n,m} = between, {n,} = min only, {,m} = max only
   const rangeMatch = token.match(/^(.*)\{([^}]+)\}$/)
   if (rangeMatch) {
     const raw   = rangeMatch[2]
@@ -74,7 +61,21 @@ export function parseInline(token) {
     token = rangeMatch[1].trim()
   }
 
-  // 4. Extract optional ? - now immediately after the type name
+  // 2. Extract values [val1, val2] - last [] group
+  const valuesMatch = token.match(/^(.*)\[([^\]]+)\]$/)
+  if (valuesMatch) {
+    result.values = valuesMatch[2].split(',').map(v => v.trim())
+    token = valuesMatch[1].trim()
+  }
+
+  // 3. Extract named match (alias) - last () group
+  const matchMatch = token.match(/^(.*)\(([^)]+)\)$/)
+  if (matchMatch) {
+    result.match = matchMatch[2].trim()
+    token = matchMatch[1].trim()
+  }
+
+  // 4. Extract optional ? - immediately after the type name
   if (token.endsWith('?')) {
     result.optional = true
     token = token.slice(0, -1).trim()
