@@ -16,17 +16,21 @@ It is designed to be simple to read, simple to write, and simple to implement in
 
 Every field is described by a block with `$type` and optional rules. All rules are prefixed with `$`.
 
-| Rule        | Applies to                        | Description                                   |
-|-------------|-----------------------------------|-----------------------------------------------|
-| `$type`     | any                               | The type of the field                         |
-| `$optional` | any                               | Field may be absent. Default: `false`         |
-| `$min`      | String, Integer, Float, List, Set | Minimum length / value / item count           |
-| `$max`      | String, Integer, Float, List, Set | Maximum length / value / item count           |
-| `$match`    | String                            | Named alias or `/regex/` the value must match |
-| `$enum`     | String, Integer, Float            | List of allowed values                        |
-| `$item`     | List, Set                         | Schema for each item in the collection        |
-| `$at`       | List, Tuple                       | Schema per position                           |
-| `$strict`   | Object                            | Reject extra fields. Cascades to children     |
+| Rule        | Applies to                 | Description                                   |
+|-------------|----------------------------|-----------------------------------------------|
+| `$type`     | any                        | The type of the field                         |
+| `$optional` | any                        | Field may be absent. Default: `false`         |
+| `$min`      | String, List, Set          | Minimum character length or item count        |
+| `$max`      | String, List, Set          | Maximum character length or item count        |
+| `$gte`      | Integer, Float             | Value must be >= the given number             |
+| `$gt`       | Integer, Float             | Value must be > the given number              |
+| `$lte`      | Integer, Float             | Value must be <= the given number             |
+| `$lt`       | Integer, Float             | Value must be < the given number              |
+| `$match`    | String                     | Named alias or `/regex/` the value must match |
+| `$enum`     | String, Integer, Float     | List of allowed values                        |
+| `$item`     | List, Set                  | Schema for each item in the collection        |
+| `$at`       | List, Tuple                | Schema per position                           |
+| `$strict`   | Object                     | Reject extra fields. Cascades to children     |
 
 ```yaml
 email:
@@ -36,8 +40,18 @@ email:
 
 age:
   $type: Integer
-  $min: 18
-  $max: 120
+  $gte: 18
+  $lte: 120
+
+price:
+  $type: Float
+  $gt: 0
+  $lt: 1000
+
+name:
+  $type: String
+  $min: 2
+  $max: 80
 
 status:
   $type: String
@@ -195,7 +209,7 @@ it compiles to the same schema as the expanded form.
 The canonical order is:
 
 ```
-Type? (match) [val1, val2] {min, max}
+Type? (match) [val1, val2] {range}
 ```
 
 ### Match - `Type (named-pattern)`
@@ -227,38 +241,50 @@ nickname: String?
 phone: String? {10, 11}
 ```
 
-### $min / $max - `{min, max}`
+### $min / $max - `{n, m}`
 
-Shorthand for `$min` and `$max`. Applies to the value for numbers, character length for
-strings, and item count for List/Set. Both bounds are **inclusive**.
+Shorthand for `$min` and `$max`. Applies to character length for strings and item count
+for List/Set.
 
 ```yaml
 name: String {2, 80}
-age: Integer {18, 120}
-score: Float {0, 100}
+tags: List {1, 10}
 ```
 
-A single value means exactly that - equivalent to `{n, n}`:
+A single value means exactly that:
 
 ```yaml
 code: String {4}     # exactly 4 characters
-page: Integer {1}    # exactly 1
 ```
 
 Either bound can be omitted:
 
 ```yaml
 name: String {2, }   # min 2, no max
-age: Integer {, 18}  # max 18, no min
+name: String {, 80}  # max 80, no min
+```
+
+### $gte / $gt / $lte / $lt - `{op n, op m}`
+
+Shorthand for numeric comparison rules. Used exclusively with `Integer` and `Float`.
+Both operators and a space before the value are required.
+
+```yaml
+age:   Integer {>= 18}
+price: Float {> 0, < 1000}
+ratio: Float {>= 0, <= 1}
+score: Float {> 0}
 ```
 
 ### Combining modifiers
 
 ```yaml
-tag: String? (slug) [urgent, low, medium] {1, 20}
+tag:   String? (slug) [urgent, low, medium] {1, 20}
 email: String? (email)
-role: String? [admin, editor, viewer]
-name: String? {2, 80}
+role:  String? [admin, editor, viewer]
+name:  String? {2, 80}
+price: Float? {> 0, < 1000}
+age:   Integer? {>= 18}
 ```
 
 ### AnyOf shorthand

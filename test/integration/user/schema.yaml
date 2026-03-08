@@ -8,6 +8,6 @@ roles:
 profile:
   displayName: String {2, 60}
   homeworld:   String?
-  age:         Integer? {0, 900}
+  age:         Integer? {>= 0, <= 900}
 
 deletedAt: [String, null]

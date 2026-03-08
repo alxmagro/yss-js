@@ -17,26 +17,6 @@ describe('min — String (length)', () => {
   })
 })
 
-describe('min — Integer / Float (value)', () => {
-  test('passes when value equals min', () => {
-    expect(min(5, 5, '')).toBeNull()
-  })
-  test('passes when value exceeds min', () => {
-    expect(min(10, 5, '')).toBeNull()
-  })
-  test('fails when value is below min', () => {
-    const result = min(3, 5, '')
-    expect(result.code).toBe('min_invalid')
-    expect(result.message).toMatch(/expected value >= 5/)
-  })
-  test('passes negative values correctly', () => {
-    expect(min(-1, -5, '')).toBeNull()
-    const result = min(-10, -5, '')
-    expect(result.code).toBe('min_invalid')
-    expect(result.message).toMatch(/expected value >= -5/)
-  })
-})
-
 describe('min — Array (item count)', () => {
   test('passes when count equals min', () => {
     expect(min([1, 2], 2, '')).toBeNull()
@@ -51,5 +31,12 @@ describe('min — Array (item count)', () => {
   })
   test('passes empty array with min 0', () => {
     expect(min([], 0, '')).toBeNull()
+  })
+})
+
+describe('min — does not apply to numbers', () => {
+  test('returns null for numeric values (handled by gte/gt)', () => {
+    expect(min(3, 5, '')).toBeNull()
+    expect(min(10, 5, '')).toBeNull()
   })
 })

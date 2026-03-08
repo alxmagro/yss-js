@@ -2,7 +2,7 @@ $patterns:
   slug: /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 data:
-  id: Integer {1, }
+  id: Integer {>= 1}
   title: String {1, 120}
   slug: String (slug)
   body: String {1, }

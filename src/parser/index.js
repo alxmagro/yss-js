@@ -61,6 +61,10 @@ function buildObjectNode (raw) {
     strict:   null,
     min:      null,
     max:      null,
+    gt:       null,
+    gte:      null,
+    lt:       null,
+    lte:      null,
     match:    null,
     enum:     null,
     item:     null,
@@ -85,6 +89,10 @@ function buildObjectNode (raw) {
     if (raw.$strict   !== undefined) node.strict   = raw.$strict
     if (raw.$min      !== undefined) node.min      = raw.$min
     if (raw.$max      !== undefined) node.max      = raw.$max
+    if (raw.$gt       !== undefined) node.gt       = raw.$gt
+    if (raw.$gte      !== undefined) node.gte      = raw.$gte
+    if (raw.$lt       !== undefined) node.lt       = raw.$lt
+    if (raw.$lte      !== undefined) node.lte      = raw.$lte
     if (raw.$match    !== undefined) node.match    = raw.$match
     if (raw.$enum     !== undefined) node.enum     = raw.$enum
 

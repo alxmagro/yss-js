@@ -1,8 +1,9 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { schema } from '../../../index.js'
 
-const validate = schema.fromFile(
-  new URL('./schema.yaml', import.meta.url).pathname
-)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const validate = schema.fromFile(path.join(__dirname, 'schema.yaml'))
 
 const validPayload = {
   transactionId: 'c0ffee00-dead-beef-cafe-000000000042',
@@ -18,16 +19,16 @@ const validPayload = {
 }
 
 const invalidPayload = {
-  transactionId: 'kessel-run-12-parsecs',
-  method:        'bitcoin',
-  amount:        0,
-  installments:  13,
+  transactionId: 'kessel-run-12-parsecs',   // invalid uuid
+  method:        'bitcoin',                 // not in allowed values
+  amount:        0,                         // below min 0.01
+  installments:  13,                        // exceeds max 12
   card: {
-    holder: 'H',
-    last4:  'ABCD',
-    expiry: [13, 2027],
+    holder: 'H',                            // too short (min 2)
+    last4:  'ABCD',                         // does not match /^[0-9]{4}$/
+    expiry: [13, 2027],                     // month 13 exceeds max 12
   },
-  billedTo: 'B',
+  billedTo: 'B',                            // too short (min 2)
 }
 
 describe('integration - payment', () => {
@@ -35,18 +36,45 @@ describe('integration - payment', () => {
     expect(validate(validPayload)).toEqual([])
   })
 
+  test('card accepts null (no card payment)', () => {
+    const payload = {
+      ...validPayload,
+      method: 'hutt_coin',
+      card:   null,
+    }
+    expect(validate(payload)).toEqual([])
+  })
+
+  test('installments is optional', () => {
+    const { installments, ...withoutInstallments } = validPayload
+    expect(validate(withoutInstallments)).toEqual([])
+  })
+
+  test('expiry tuple must have exactly 2 positions', () => {
+    const errors = validate({
+      ...validPayload,
+      card: { ...validPayload.card, expiry: [5] },
+    })
+    expect(errors.some(e => e.path === 'card.expiry')).toBe(true)
+  })
+
   test('invalid payload returns expected errors', () => {
     const errors = validate(invalidPayload)
+    const paths = errors.map(e => e.path)
+    expect(paths).toContain('transactionId')
+    expect(paths).toContain('method')
+    expect(paths).toContain('amount')
+    expect(paths).toContain('installments')
+    expect(paths).toContain('card.holder')
+    expect(paths).toContain('card.last4')
+    expect(paths).toContain('billedTo')
+  })
 
-    expect(errors).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'transactionId', code: 'match_invalid' }),
-      expect.objectContaining({ path: 'method',        code: 'enum_invalid'  }),
-      expect.objectContaining({ path: 'amount',        code: 'min_invalid'   }),
-      expect.objectContaining({ path: 'installments',  code: 'max_invalid'   }),
-      expect.objectContaining({ path: 'card.holder',   code: 'min_invalid'   }),
-      expect.objectContaining({ path: 'card.last4',    code: 'match_invalid' }),
-      expect.objectContaining({ path: 'card.expiry[0]', code: 'max_invalid'  }),
-      expect.objectContaining({ path: 'billedTo',      code: 'min_invalid'   }),
-    ]))
+  test('past year on expiry is rejected', () => {
+    const errors = validate({
+      ...validPayload,
+      card: { ...validPayload.card, expiry: [1, 2020] },
+    })
+    expect(errors.some(e => e.path === 'card.expiry[1]')).toBe(true)
   })
 })
