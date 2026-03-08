@@ -1,3 +1,5 @@
+$required: [id, username, email, roles, profile]
+
 id:       String (uuid)
 username: String {3, 30}
 email:    String (email)
@@ -6,8 +8,10 @@ roles:
   $item: String [jedi, sith, senator, pilot, bounty_hunter]
 
 profile:
-  displayName: String {2, 60}
-  homeworld:   String?
-  age:         Integer? {>= 0, <= 900}
+  $required: [displayName]
 
-deletedAt: [String, null]
+  displayName: String {2, 60}
+  homeworld:   String
+  age:         Integer {>= 0, <= 900}
+
+deletedAt: String | null

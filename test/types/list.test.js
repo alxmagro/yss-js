@@ -20,6 +20,6 @@ describe('List', () => {
     expect(list.validate(null)).toMatch(/expected List/)
   })
   test('exposes correct rules', () => {
-    expect(list.rules).toEqual(expect.arrayContaining(['min', 'max', 'item', 'at', 'optional']))
+    expect(list.rules).toEqual(expect.arrayContaining(['min', 'max', 'item', 'at', 'required']))
   })
 })

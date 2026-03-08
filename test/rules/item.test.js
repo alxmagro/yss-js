@@ -1,7 +1,7 @@
 import item from '../../src/rules/item.js'
 
-const stringNode  = { type: 'String',  optional: false, rules: {} }
-const integerNode = { type: 'Integer', optional: false, rules: {} }
+const stringNode  = { type: 'String',  required: true, rules: {} }
+const integerNode = { type: 'Integer', required: true, rules: {} }
 
 describe('item', () => {
   test('passes when all items match the schema', () => {
@@ -14,7 +14,7 @@ describe('item', () => {
     const errors = item(['a', 42, 'c'], stringNode, 'tags')
     expect(errors).toHaveLength(1)
     expect(errors[0].path).toBe('tags[1]')
-    expect(errors[0].message).toMatch(/expected String/)
+    expect(errors[0].message).toMatch(/got/)
   })
   test('fails when multiple items do not match', () => {
     expect(item([1, 2, 3], stringNode, 'tags')).toHaveLength(3)

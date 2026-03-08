@@ -17,6 +17,6 @@ describe('Set', () => {
     expect(set_.validate(null)).toMatch(/expected Set/)
   })
   test('exposes correct rules', () => {
-    expect(set_.rules).toEqual(expect.arrayContaining(['min', 'max', 'item', 'optional']))
+    expect(set_.rules).toEqual(expect.arrayContaining(['min', 'max', 'item', 'required']))
   })
 })

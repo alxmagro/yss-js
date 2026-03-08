@@ -52,12 +52,12 @@ function buildObjectNode (raw) {
 
   // $ref - reference to an imported schema, resolved later by resolveRefs
   if (raw.$ref !== undefined) {
-    return { $ref: raw.$ref, optional: raw.$optional ?? false }
+    return { $ref: raw.$ref, required: false }
   }
 
   const node = {
     type:     null,
-    optional: false,
+    required: false,
     strict:   null,
     min:      null,
     max:      null,
@@ -76,25 +76,21 @@ function buildObjectNode (raw) {
   if (hasRunes) {
     if (raw.$type !== undefined) {
       if (Array.isArray(raw.$type)) {
-        node.anyOf = raw.$type.map(t =>
-          t === null || t === 'null' ? { type: 'null' } : parseInline(String(t))
-        )
+        node.type = raw.$type.map(t => t === null ? 'null' : String(t))
       } else {
-        const parsed = parseInline(String(raw.$type))
-        Object.assign(node, parsed)
+        node.type = String(raw.$type)
       }
     }
 
-    if (raw.$optional !== undefined) node.optional = raw.$optional
-    if (raw.$strict   !== undefined) node.strict   = raw.$strict
-    if (raw.$min      !== undefined) node.min      = raw.$min
-    if (raw.$max      !== undefined) node.max      = raw.$max
-    if (raw.$gt       !== undefined) node.gt       = raw.$gt
-    if (raw.$gte      !== undefined) node.gte      = raw.$gte
-    if (raw.$lt       !== undefined) node.lt       = raw.$lt
-    if (raw.$lte      !== undefined) node.lte      = raw.$lte
-    if (raw.$match    !== undefined) node.match    = raw.$match
-    if (raw.$enum     !== undefined) node.enum     = raw.$enum
+    if (raw.$strict !== undefined) node.strict = raw.$strict
+    if (raw.$min    !== undefined) node.min    = raw.$min
+    if (raw.$max    !== undefined) node.max    = raw.$max
+    if (raw.$gt     !== undefined) node.gt     = raw.$gt
+    if (raw.$gte    !== undefined) node.gte    = raw.$gte
+    if (raw.$lt     !== undefined) node.lt     = raw.$lt
+    if (raw.$lte    !== undefined) node.lte    = raw.$lte
+    if (raw.$match  !== undefined) node.match  = raw.$match
+    if (raw.$enum   !== undefined) node.enum   = raw.$enum
 
     if (raw.$item !== undefined) {
       node.item = buildNode(raw.$item)
@@ -111,9 +107,18 @@ function buildObjectNode (raw) {
   if (hasFields) {
     if (!node.type) node.type = 'Object'
     node.fields = {}
+
+    // $required declares which fields are required — all others are optional
+    const required = new Set(
+      Array.isArray(raw.$required) ? raw.$required : []
+    )
+
     for (const [key, val] of Object.entries(raw)) {
       if (key.startsWith('$')) continue
-      node.fields[key] = buildNode(val)
+      const fieldNode = buildNode(val)
+      // Mark as required if listed in $required
+      if (required.has(key)) fieldNode.required = false
+      node.fields[key] = fieldNode
     }
   }
 

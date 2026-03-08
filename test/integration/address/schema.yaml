@@ -1,14 +1,16 @@
 $anchors:
   - &Address
+    $required: [street, city, planet]
+
     street:     String {5, 120}
     city:       String {2, 60}
     planet:     String {2, 60}
-    postalCode: String? {4, 10}
+    postalCode: String {4, 10}
+
+$required: [id, name, billing, shipping, headquarters]
 
 id:   String (uuid)
 name: String {2, 80}
-
 billing:  *Address
 shipping: *Address
-
 headquarters: Object

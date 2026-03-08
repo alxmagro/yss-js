@@ -20,6 +20,6 @@ describe('Boolean', () => {
     expect(boolean_.validate(null)).toMatch(/expected Boolean/)
   })
   test('exposes correct rules', () => {
-    expect(boolean_.rules).toContain('optional')
+    expect(boolean_.rules).toContain('required')
   })
 })

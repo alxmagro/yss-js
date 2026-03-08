@@ -1,6 +1,6 @@
 export default {
   name: 'Float',
-  rules: ['gt', 'gte', 'lt', 'lte', 'enum', 'optional'],
+  rules: ['gt', 'gte', 'lt', 'lte', 'enum', 'required'],
   validate (value) {
     if (typeof value !== 'number' || isNaN(value))
       return `expected Float, got ${typeof value}`

@@ -1,41 +1,35 @@
 /**
  * Parses YSS inline type syntax:
  *
- *   Type? (match) [val1, val2] {range}
+ *   Type (| Type2 ...)? (match) [val1, val2] {range}
  *
  * Canonical order:
- *   1. Type  - the base type
- *   2. ?     - optional, immediately after the type
- *   3. ()    - named match alias
- *   4. []    - allowed values (enum)
- *   5. {}    - range:
- *              - String/List/Set: {n, m} inclusive min/max
- *              - Integer/Float:   {>= n, < m} operator-based bounds
+ *   1. Type(s) - one or more types separated by |
+ *   2. ?       - nullable, immediately after the last type
+ *   3. ()      - named match alias
+ *   4. []      - allowed values (enum)
+ *   5. {}      - range:
+ *               - String/List/Set: {n, m} inclusive min/max
+ *               - Integer/Float:   {>= n, < m} operator-based bounds
  *
  * Examples:
  *   String
- *   String?
+ *   String | null
+ *   String | Integer
  *   String (email)
- *   String? (uuid)
+ *   String | null (uuid)
  *   String [active, inactive]
- *   String? [active, inactive]
  *   String {2, 80}
- *   String? {2, 80}
- *   String? (slug) [urgent, low, medium] {1, 20}
+ *   String | null {2, 80}
  *   Integer {>= 18}
  *   Float {> 0, < 1000}
- *   Float {>= 0, <= 1}
  *   List<String>
- *   [String, Integer]             -> AnyOf
- *   [String (date-time), null]    -> AnyOf with match
  */
 
 const NUMERIC_OPS = { '>=': 'gte', '>': 'gt', '<=': 'lte', '<': 'lt' }
 
 /**
  * Parse a single range part like ">= 18" or "2" into { key, value }.
- * For numeric operators: key is 'gte'/'gt'/'lte'/'lt', value is a Number.
- * For plain numbers:     key is null, value is a Number.
  */
 function parseRangePart (raw) {
   raw = raw.trim()
@@ -68,9 +62,9 @@ export function parseInline (token) {
     lt:       null,
     lte:      null,
     enum:     null,
-    optional: false,
+    required: false,
     match:    null,
-    item:     null,  // for List<Type>
+    item:     null,
   }
 
   // 1. Extract range: {n, m} or {>= n, < m} etc.
@@ -82,14 +76,12 @@ export function parseInline (token) {
     const isNumeric = parts.some(p => p !== '' && /^(>=|>|<=|<)\s/.test(p))
 
     if (isNumeric) {
-      // Numeric operator bounds: each part is independent
       for (const part of parts) {
         if (part === '') continue
         const parsed = parseRangePart(part)
         if (parsed && parsed.key) result[parsed.key] = parsed.value
       }
     } else {
-      // Plain min/max bounds
       if (parts.length === 1) {
         const exact = Number(parts[0])
         result.min  = exact
@@ -117,13 +109,7 @@ export function parseInline (token) {
     token = matchMatch[1].trim()
   }
 
-  // 4. Extract optional ? - immediately after the type name
-  if (token.endsWith('?')) {
-    result.optional = true
-    token = token.slice(0, -1).trim()
-  }
-
-  // 5. Extract List<Type> / Set<Type> generic
+  // 4. Extract List<Type> / Set<Type> generic (before pipe split)
   const genericMatch = token.match(/^(\w+)<(\w+)>$/)
   if (genericMatch) {
     result.type = genericMatch[1]
@@ -131,23 +117,42 @@ export function parseInline (token) {
     return result
   }
 
-  result.type = token
+  // 5. Split on | for multiple types
+  const types = token.split('|').map(t => t.trim()).filter(Boolean)
+  if (types.length > 1) {
+    result.type = types
+  } else {
+    result.type = types[0] ?? token
+  }
 
   return result
 }
 
 /**
  * Parse a YAML scalar value - either an inline token or an AnyOf array.
+ * An array of simple types becomes type: [...].
+ * An array with items that have extra rules becomes anyOf: [...].
  * @param {string|string[]} value - raw YAML value
  * @returns {object} normalized schema node
  */
 export function parseValue (value) {
   if (Array.isArray(value)) {
-    return {
-      anyOf: value.map(v =>
-        v === null || v === 'null' ? { type: 'null' } : parseInline(String(v))
-      )
+    const nodes = value.map(v =>
+      v === null || v === 'null' ? { type: 'null' } : parseInline(String(v))
+    )
+
+    // If all branches are simple types (no rules), collapse to type array
+    const allSimple = nodes.every(n => {
+      const { type, optional, item, ...rules } = n
+      return Object.values(rules).every(v => v === null || v === false)
+    })
+
+    if (allSimple) {
+      return { type: nodes.map(n => n.type) }
     }
+
+    // Otherwise keep as anyOf branches
+    return { anyOf: nodes }
   }
 
   return parseInline(String(value))

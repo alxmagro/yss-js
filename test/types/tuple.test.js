@@ -17,6 +17,6 @@ describe('Tuple', () => {
     expect(tuple.validate(null)).toMatch(/expected Tuple/)
   })
   test('exposes correct rules', () => {
-    expect(tuple.rules).toEqual(expect.arrayContaining(['at', 'optional']))
+    expect(tuple.rules).toEqual(expect.arrayContaining(['at', 'required']))
   })
 })

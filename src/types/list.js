@@ -1,6 +1,6 @@
 export default {
   name: 'List',
-  rules: ['min', 'max', 'item', 'at', 'optional'],
+  rules: ['min', 'max', 'item', 'at', 'required'],
   validate(value) {
     if (!Array.isArray(value))
       return `expected List, got ${typeof value}`

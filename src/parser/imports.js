@@ -101,9 +101,9 @@ export function resolveRefs (node, importedTrees) {
       resolved = resolved.fields[key]
     }
 
-    // Merge $optional if declared alongside $ref
-    if (node.optional) {
-      return { ...resolved, optional: true }
+    // Merge $required if declared alongside $ref
+    if (node.required) {
+      return { ...resolved, required: false }
     }
 
     return resolved

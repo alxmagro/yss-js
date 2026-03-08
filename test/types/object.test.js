@@ -20,6 +20,6 @@ describe('Object', () => {
     expect(object.validate(42)).toMatch(/expected Object/)
   })
   test('exposes correct rules', () => {
-    expect(object.rules).toContain('optional')
+    expect(object.rules).toContain('required')
   })
 })

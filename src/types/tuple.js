@@ -1,6 +1,6 @@
 export default {
   name: 'Tuple',
-  rules: ['at', 'optional'],
+  rules: ['at', 'required'],
   validate(value) {
     if (!Array.isArray(value))
       return `expected Tuple, got ${typeof value}`

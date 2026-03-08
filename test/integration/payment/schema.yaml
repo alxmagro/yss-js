@@ -1,13 +1,17 @@
 $patterns:
   card-last4: /^[0-9]{4}$/
 
+$required: [transactionId, method, amount, card, billedTo]
+
 transactionId: String (uuid)
 method:        String [credits, republic_bonds, hutt_coin, imperial_script]
 amount:        Float {>= 0.01}
-installments:  Integer? {>= 1, <= 12}
+installments:  Integer {>= 1, <= 12}
 
 card:
   $type: [Object, null]
+  $required: [holder, last4, expiry]
+
   holder: String {2, 80}
   last4:  String (card-last4)
   expiry:

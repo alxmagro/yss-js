@@ -1,6 +1,6 @@
 export default {
   name: 'Boolean',
-  rules: ['optional'],
+  rules: ['required'],
   validate(value) {
     if (typeof value !== 'boolean')
       return `expected Boolean, got ${typeof value}`

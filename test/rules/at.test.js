@@ -1,8 +1,8 @@
 import at from '../../src/rules/at.js'
 
-const floatNode   = { type: 'Float',   optional: false, rules: {} }
-const stringNode  = { type: 'String',  optional: false, rules: {} }
-const integerNode = { type: 'Integer', optional: false, rules: {} }
+const floatNode   = { type: 'Float',   required: true, rules: {} }
+const stringNode  = { type: 'String',  required: true, rules: {} }
+const integerNode = { type: 'Integer', required: true, rules: {} }
 
 describe('at - Tuple (strict length)', () => {
   const positions = { 0: floatNode, 1: floatNode }
@@ -46,7 +46,7 @@ describe('at - List (positional, non-strict)', () => {
   test('fails when a declared position has wrong type', () => {
     const errors = at([42, 42], positions, 'tokens', 'List')
     expect(errors[0].path).toBe('tokens[0]')
-    expect(errors[0].message).toMatch(/expected String/)
+    expect(errors[0].message).toMatch(/got/)
   })
   test('fails when list is shorter than a declared position', () => {
     const errors = at(['hello'], positions, 'tokens', 'List')

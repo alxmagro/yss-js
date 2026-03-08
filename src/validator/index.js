@@ -46,20 +46,24 @@ export function validateNode (value, node, path = '', inherited = false) {
   }
 
   // ── Type check ─────────────────────────────────────────────────────────────
-  const typeDef = getType(node.type)
+  // node.type may be a string or an array of strings (e.g. ['String', 'null'])
+  const types = Array.isArray(node.type) ? node.type : [node.type]
 
-  if (!typeDef) {
-    errors.push(makeError(path, 'type_mismatch', `unknown type: ${node.type}`))
+  const matchingType = types.find(t => {
+    const def = getType(t)
+    return def && !def.validate(value)
+  })
+
+  if (!matchingType) {
+    const jsType = typeof value === 'object' && value === null ? 'null' : typeof value
+    errors.push(makeError(path, 'type_mismatch', `got ${jsType}`))
     return errors
   }
 
-  const typeError = typeDef.validate(value)
-  if (typeError) {
-    errors.push(makeError(path, 'type_mismatch', typeError))
-    return errors
-  }
+  // Use the matched type for rule applicability checks
+  const typeDef = getType(matchingType)
 
-  if (node.type === 'null') return errors
+  if (matchingType === 'null') return errors
 
   // ── Scalar rules ───────────────────────────────────────────────────────────
   for (const [ruleName, ruleFn] of Object.entries(scalarRules)) {
@@ -77,11 +81,11 @@ export function validateNode (value, node, path = '', inherited = false) {
     if (param === null || param === undefined) continue
     if (!typeDef.rules.includes(ruleName)) continue
 
-    errors.push(...ruleFn(value, param, path, node.type))
+    errors.push(...ruleFn(value, param, path, matchingType))
   }
 
   // ── Set uniqueness ─────────────────────────────────────────────────────────
-  if (node.type === 'Set') {
+  if (matchingType === 'Set') {
     const seen = new Set()
     for (let i = 0; i < value.length; i++) {
       const key = JSON.stringify(value[i])
@@ -92,7 +96,7 @@ export function validateNode (value, node, path = '', inherited = false) {
   }
 
   // ── Object fields ──────────────────────────────────────────────────────────
-  if (node.type === 'Object' && node.fields) {
+  if (matchingType === 'Object' && node.fields) {
     errors.push(...validateObject(value, node, path, strict))
   }
 
@@ -112,7 +116,7 @@ function validateObject (value, node, path, strict) {
     const fieldValue = value[key]
 
     if (fieldValue === undefined) {
-      if (!fieldNode.optional)
+      if (fieldNode.required)
         errors.push(makeError(fieldPath, 'prop_required', `required field missing`))
       continue
     }
