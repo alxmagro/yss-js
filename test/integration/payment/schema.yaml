@@ -1,6 +1,5 @@
 $patterns:
   card-last4: /^[0-9]{4}$/
-
 $required: [transactionId, method, amount, card, billedTo]
 
 transactionId: String (uuid)

@@ -6,7 +6,6 @@ $anchors:
     city:       String {2, 60}
     planet:     String {2, 60}
     postalCode: String {4, 10}
-
 $required: [id, name, billing, shipping, headquarters]
 
 id:   String (uuid)
