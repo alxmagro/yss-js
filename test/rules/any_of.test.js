@@ -26,14 +26,14 @@ describe('any_of', () => {
     expect(result[0].code).toBe('anyof_invalid')
     expect(result[0].message).toBe('Value does not match any condition')
     expect(result[0].data.value).toBe(true)
-    expect(result[0].data.or).toHaveLength(2)
+    expect(result[0].data.any_of).toHaveLength(2)
   })
 
-  test('data.or contains per-branch errors', () => {
+  test('data.any_of contains per-branch errors', () => {
     const result = anyOf(true, branches, 'field', false)
-    expect(result[0].data.or[0]).toHaveLength(1)
-    expect(result[0].data.or[0][0].code).toBe('type_mismatch')
-    expect(result[0].data.or[1]).toHaveLength(1)
-    expect(result[0].data.or[1][0].code).toBe('type_mismatch')
+    expect(result[0].data.any_of[0]).toHaveLength(1)
+    expect(result[0].data.any_of[0][0].code).toBe('type_mismatch')
+    expect(result[0].data.any_of[1]).toHaveLength(1)
+    expect(result[0].data.any_of[1][0].code).toBe('type_mismatch')
   })
 })

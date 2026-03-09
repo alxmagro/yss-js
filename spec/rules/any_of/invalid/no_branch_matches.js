@@ -8,7 +8,7 @@ export const expected = [
     message: 'Value does not match any condition',
     data: {
       value: 'huge',
-      or: [
+      any_of: [
         [
           {
             path: 'size',

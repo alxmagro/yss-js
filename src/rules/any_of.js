@@ -20,7 +20,7 @@ export default function anyOf (value, param, path, strict) {
       message: 'Value does not match any condition',
       data: {
         value,
-        or: branchErrors,
+        any_of: branchErrors,
       },
     }]
   }
