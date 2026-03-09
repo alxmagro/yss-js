@@ -21,8 +21,8 @@ describe('enum', () => {
     const result = enumRule('nope', ['a', 'b'], '')
     expect(result.message).toMatch(/nope/)
   })
-  test('includes allowed values in data.expected', () => {
+  test('includes allowed values in data.enum', () => {
     const result = enumRule('nope', ['a', 'b'], '')
-    expect(result.data.expected).toEqual(['a', 'b'])
+    expect(result.data.enum).toEqual(['a', 'b'])
   })
 })

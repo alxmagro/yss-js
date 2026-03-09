@@ -8,7 +8,7 @@ export const expected = [
     message: 'Value `invalid` is not allowed',
     data: {
       value: 'invalid',
-      expected: ['featured', 'pinned']
+      enum: ['featured', 'pinned']
     }
   }
 ]

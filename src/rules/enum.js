@@ -8,7 +8,7 @@ export default function enumRule (value, param, path) {
       message: `Value \`${value}\` is not allowed`,
       data: {
         value,
-        expected: param,
+        enum: param,
       },
     }
   }

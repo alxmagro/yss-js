@@ -8,7 +8,7 @@ export const expected = [
     message: 'Value `5` is not allowed',
     data: {
       value: 5,
-      expected: [1, 2, 3]
+      enum: [1, 2, 3]
     }
   }
 ]

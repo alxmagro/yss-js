@@ -8,7 +8,7 @@ export const expected = [
     message: 'Value `cancelled` is not allowed',
     data: {
       value: 'cancelled',
-      expected: ['pending', 'processing', 'shipped']
+      enum: ['pending', 'processing', 'shipped']
     }
   }
 ]

@@ -4,7 +4,7 @@
  */
 
 import { getType }                 from '../types/index.js'
-import { scalarRules, arrayRules } from '../rules/index.js'
+import { scalarRules, arrayRules, getRule } from '../rules/index.js'
 import { makeError, joinPath }     from './errors.js'
 
 /**
@@ -23,26 +23,7 @@ export function validateNode (value, node, path = '', inherited = false) {
 
   // ── AnyOf ──────────────────────────────────────────────────────────────────
   if (node.anyOf) {
-    const branches = [...node.anyOf].sort((a, b) =>
-      a.type === 'null' ? -1 : b.type === 'null' ? 1 : 0
-    )
-
-    const matchingBranch = branches.find(branch => validateNode(value, branch, path, strict).length === 0)
-
-    if (!matchingBranch) {
-      const names = branches.map(b => b.type).join(' | ')
-      errors.push(makeError(path, 'anyof_invalid', `expected ${names}, got ${typeof value}`))
-      return errors
-    }
-
-    if (matchingBranch.type === 'Object') {
-      const fieldsNode = matchingBranch.fields ? matchingBranch : node
-      if (fieldsNode.fields) {
-        errors.push(...validateObject(value, fieldsNode, path, strict))
-      }
-    }
-
-    return errors
+    return getRule('anyOf')(value, node.anyOf, path, strict)
   }
 
   // ── Type check ─────────────────────────────────────────────────────────────

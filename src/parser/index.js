@@ -106,6 +106,10 @@ function buildObjectNode (raw) {
         node.at[Number(pos)] = buildNode(val)
       }
     }
+
+    if (raw.$any_of !== undefined) {
+      node.anyOf = raw.$any_of.map(branch => buildNode(branch))
+    }
   }
 
   if (hasFields) {
