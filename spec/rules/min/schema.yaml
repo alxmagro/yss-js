@@ -1,0 +1,9 @@
+name:
+  $type: String
+  $min: 2
+tags:
+  $type: List
+  $min: 1
+  $item:
+    $type: String
+

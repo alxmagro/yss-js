@@ -13,7 +13,7 @@ describe('gte — value >= param', () => {
   test('fails when value is below param', () => {
     const result = gte(3, 5)
     expect(result.code).toBe('gte_invalid')
-    expect(result.message).toMatch(/expected value >= 5, got 3/)
+    expect(result.message).toMatch(/greater than or equal to/)
   })
   test('works with floats', () => {
     expect(gte(0.5, 0.5)).toBeNull()
@@ -32,7 +32,7 @@ describe('gt — value > param', () => {
   test('fails when value equals param', () => {
     const result = gt(5, 5)
     expect(result.code).toBe('gt_invalid')
-    expect(result.message).toMatch(/expected value > 5, got 5/)
+    expect(result.message).toMatch(/greater than/)
   })
   test('fails when value is below param', () => {
     expect(gt(3, 5)).toMatchObject({ code: 'gt_invalid' })
@@ -53,7 +53,7 @@ describe('lte — value <= param', () => {
   test('fails when value exceeds param', () => {
     const result = lte(6, 5)
     expect(result.code).toBe('lte_invalid')
-    expect(result.message).toMatch(/expected value <= 5, got 6/)
+    expect(result.message).toMatch(/less than or equal to/)
   })
   test('works with floats', () => {
     expect(lte(0.5, 0.5)).toBeNull()
@@ -68,7 +68,7 @@ describe('lt — value < param', () => {
   test('fails when value equals param', () => {
     const result = lt(5, 5)
     expect(result.code).toBe('lt_invalid')
-    expect(result.message).toMatch(/expected value < 5, got 5/)
+    expect(result.message).toMatch(/less than/)
   })
   test('fails when value exceeds param', () => {
     expect(lt(6, 5)).toMatchObject({ code: 'lt_invalid' })

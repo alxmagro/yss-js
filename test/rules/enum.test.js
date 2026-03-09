@@ -10,7 +10,7 @@ describe('enum', () => {
   test('fails when value is not in the list', () => {
     const result = enumRule('banned', ['active', 'inactive'], '')
     expect(result.code).toBe('enum_invalid')
-    expect(result.message).toMatch(/expected one of/)
+    expect(result.message).toMatch(/is not allowed/)
   })
   test('works with integers', () => {
     expect(enumRule(1, [1, 2, 3], '')).toBeNull()
@@ -19,10 +19,10 @@ describe('enum', () => {
   })
   test('includes the invalid value in the error message', () => {
     const result = enumRule('nope', ['a', 'b'], '')
-    expect(result.message).toMatch(/"nope"/)
+    expect(result.message).toMatch(/nope/)
   })
-  test('includes allowed values in the error message', () => {
+  test('includes allowed values in data.expected', () => {
     const result = enumRule('nope', ['a', 'b'], '')
-    expect(result.message).toMatch(/"a"\|"b"/)
+    expect(result.data.expected).toEqual(['a', 'b'])
   })
 })

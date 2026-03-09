@@ -47,11 +47,11 @@ describe('integration - address', () => {
     const errors = validate(invalidPayload)
 
     expect(errors).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'id',                  code: 'match_invalid' }),
-      expect.objectContaining({ path: 'name',                code: 'min_invalid'   }),
-      expect.objectContaining({ path: 'billing.street',      code: 'min_invalid'   }),
-      expect.objectContaining({ path: 'billing.planet',      code: 'min_invalid'   }),
-      expect.objectContaining({ path: 'shipping.postalCode', code: 'max_invalid'   })
+      expect.objectContaining({ path: 'id',                  code: 'format_invalid' }),
+      expect.objectContaining({ path: 'name',                code: 'min_invalid'    }),
+      expect.objectContaining({ path: 'billing.street',      code: 'min_invalid'    }),
+      expect.objectContaining({ path: 'billing.planet',      code: 'min_invalid'    }),
+      expect.objectContaining({ path: 'shipping.postalCode', code: 'max_invalid'    }),
     ]))
   })
 })

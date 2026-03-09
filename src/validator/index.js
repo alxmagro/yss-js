@@ -55,8 +55,10 @@ export function validateNode (value, node, path = '', inherited = false) {
   })
 
   if (!matchingType) {
-    const jsType = typeof value === 'object' && value === null ? 'null' : typeof value
-    errors.push(makeError(path, 'type_mismatch', `got ${jsType}`))
+    errors.push(makeError(path, 'type_mismatch', 'Unexpected type', {
+      value,
+      expected: types.length === 1 ? types[0] : types,
+    }))
     return errors
   }
 
@@ -72,7 +74,7 @@ export function validateNode (value, node, path = '', inherited = false) {
     if (!typeDef.rules.includes(ruleName)) continue
 
     const result = ruleFn(value, param, path)
-    if (result) errors.push(makeError(path, result.code, result.message))
+    if (result) errors.push(makeError(path, result.code, result.message, result.data))
   }
 
   // ── Array rules ────────────────────────────────────────────────────────────
@@ -117,7 +119,7 @@ function validateObject (value, node, path, strict) {
 
     if (fieldValue === undefined) {
       if (fieldNode.required)
-        errors.push(makeError(fieldPath, 'prop_required', `required field missing`))
+        errors.push(makeError(fieldPath, 'prop_required', `Missing required property \`${fieldPath}\``))
       continue
     }
 
@@ -127,7 +129,7 @@ function validateObject (value, node, path, strict) {
   if (strict) {
     for (const key of Object.keys(value)) {
       if (!(key in fields))
-        errors.push(makeError(joinPath(path, key), 'prop_unexpected', `unexpected field`))
+        errors.push(makeError(joinPath(path, key), 'prop_unexpected', `Unexpected property \`${joinPath(path, key)}\``))
     }
   }
 

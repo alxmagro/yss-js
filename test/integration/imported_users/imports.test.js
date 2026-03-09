@@ -26,10 +26,10 @@ describe('integration - imports', () => {
     test('invalid user returns expected errors', () => {
       const errors = validateUser(invalidUser)
       expect(errors).toEqual(expect.arrayContaining([
-        expect.objectContaining({ path: 'id',    code: 'gte_invalid'   }),
-        expect.objectContaining({ path: 'name',  code: 'min_invalid'   }),
-        expect.objectContaining({ path: 'email', code: 'match_invalid' }),
-        expect.objectContaining({ path: 'zip',   code: 'match_invalid' }),
+        expect.objectContaining({ path: 'id',    code: 'gte_invalid'    }),
+        expect.objectContaining({ path: 'name',  code: 'min_invalid'    }),
+        expect.objectContaining({ path: 'email', code: 'format_invalid' }),
+        expect.objectContaining({ path: 'zip',   code: 'format_invalid' }),
       ]))
     })
   })
@@ -46,10 +46,10 @@ describe('integration - imports', () => {
     test('invalid user inside list returns errors with correct path', () => {
       const errors = validateUsers([validUser, invalidUser])
       expect(errors).toEqual(expect.arrayContaining([
-        expect.objectContaining({ path: '[1].id',    code: 'gte_invalid'   }),
-        expect.objectContaining({ path: '[1].name',  code: 'min_invalid'   }),
-        expect.objectContaining({ path: '[1].email', code: 'match_invalid' }),
-        expect.objectContaining({ path: '[1].zip',   code: 'match_invalid' }),
+        expect.objectContaining({ path: '[1].id',    code: 'gte_invalid'    }),
+        expect.objectContaining({ path: '[1].name',  code: 'min_invalid'    }),
+        expect.objectContaining({ path: '[1].email', code: 'format_invalid' }),
+        expect.objectContaining({ path: '[1].zip',   code: 'format_invalid' }),
       ]))
     })
 

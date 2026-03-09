@@ -2,12 +2,16 @@
  * Converts a raw parsed YAML object into a normalized YSS schema tree.
  *
  * Each node in the tree is one of:
- *   { type, min, max, enum, optional, match, item, at, anyOf, fields, strict }
+ *   { type, min, max, enum, optional, format, item, at, anyOf, fields, strict }
  *
  * strict values:
  *   null  - not declared, inherits from parent (default: open)
  *   true  - strict, cascades to children unless overridden
  *   false - open, cascades to children unless overridden
+ *
+ * optional:
+ *   Fields are optional by default.
+ *   $required: [field1, field2] on an object declares which fields are required.
  */
 
 import { parseValue, parseInline }  from './inline.js'
@@ -65,7 +69,7 @@ function buildObjectNode (raw) {
     gte:      null,
     lt:       null,
     lte:      null,
-    match:    null,
+    format:    null,
     enum:     null,
     item:     null,
     at:       null,
@@ -89,7 +93,7 @@ function buildObjectNode (raw) {
     if (raw.$gte    !== undefined) node.gte    = raw.$gte
     if (raw.$lt     !== undefined) node.lt     = raw.$lt
     if (raw.$lte    !== undefined) node.lte    = raw.$lte
-    if (raw.$match  !== undefined) node.match  = raw.$match
+    if (raw.$format  !== undefined) node.format = raw.$format
     if (raw.$enum   !== undefined) node.enum   = raw.$enum
 
     if (raw.$item !== undefined) {
@@ -117,7 +121,7 @@ function buildObjectNode (raw) {
       if (key.startsWith('$')) continue
       const fieldNode = buildNode(val)
       // Mark as required if listed in $required
-      if (required.has(key)) fieldNode.required = false
+      if (required.has(key)) fieldNode.required = true
       node.fields[key] = fieldNode
     }
   }

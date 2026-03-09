@@ -1,0 +1,4 @@
+age:
+  $type: Integer
+  $gte: 18
+

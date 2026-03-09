@@ -13,12 +13,12 @@ describe('at - Tuple (strict length)', () => {
   test('fails when array is too short', () => {
     const errors = at([1.5], positions, 'point', 'Tuple')
     expect(errors).toHaveLength(1)
-    expect(errors[0].message).toMatch(/expected Tuple of length 2, got 1/)
+    expect(errors[0].message).toMatch(/Expected tuple of length/)
   })
   test('fails when array is too long', () => {
     const errors = at([1.5, 2.5, 3.5], positions, 'point', 'Tuple')
     expect(errors).toHaveLength(1)
-    expect(errors[0].message).toMatch(/expected Tuple of length 2, got 3/)
+    expect(errors[0].message).toMatch(/Expected tuple of length/)
   })
   test('fails when a position has wrong type', () => {
     const errors = at(['not-a-float', 2.5], positions, 'point', 'Tuple')
@@ -46,12 +46,12 @@ describe('at - List (positional, non-strict)', () => {
   test('fails when a declared position has wrong type', () => {
     const errors = at([42, 42], positions, 'tokens', 'List')
     expect(errors[0].path).toBe('tokens[0]')
-    expect(errors[0].message).toMatch(/got/)
+    expect(errors[0].message).toMatch(/Unexpected type/)
   })
   test('fails when list is shorter than a declared position', () => {
     const errors = at(['hello'], positions, 'tokens', 'List')
     expect(errors).toHaveLength(1)
-    expect(errors[0].message).toMatch(/position 1 is required/)
+    expect(errors[0].message).toMatch(/Position `1` is required/)
   })
   test('passes empty list with no declared positions', () => {
     expect(at([], {}, 'tokens', 'List')).toEqual([])

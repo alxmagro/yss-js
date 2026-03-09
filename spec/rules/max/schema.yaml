@@ -1,0 +1,9 @@
+name:
+  $type: String
+  $max: 5
+tags:
+  $type: List
+  $max: 2
+  $item:
+    $type: String
+

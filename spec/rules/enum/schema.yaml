@@ -1,0 +1,7 @@
+status:
+  $type: String
+  $enum: [pending, processing, shipped]
+priority:
+  $type: Integer
+  $enum: [1, 2, 3]
+

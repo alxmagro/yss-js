@@ -1,5 +1,5 @@
 /**
- * Named aliases for $match.
+ * Named aliases for $format.
  * Each alias maps to a regex or validator function.
  *
  * Spec references per category:
@@ -131,7 +131,7 @@ export function registerPatterns (patterns) {
 }
 
 /**
- * Run a $match against a value.
+ * Run a $format against a value.
  *
  * Resolution order:
  *   - Named alias (e.g. "email", "uuid")  -> no delimiters

@@ -1,0 +1,4 @@
+score:
+  $type: Float
+  $gt: 0
+

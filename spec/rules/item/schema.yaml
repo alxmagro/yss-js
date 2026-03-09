@@ -1,0 +1,10 @@
+tags:
+  $type: List
+  $item:
+    $type: String
+scores:
+  $type: List
+  $item:
+    $type: Integer
+    $gte: 0
+

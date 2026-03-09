@@ -1,0 +1,10 @@
+email:
+  $type: String
+  $format: email
+uuid:
+  $type: String
+  $format: uuid
+date:
+  $type: String
+  $format: date
+
