@@ -16,6 +16,7 @@
     "jest": "^30.2.0"
   },
   "scripts": {
+    "spec": "node spec/run.js",
     "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=test/"
   },
   "jest": {

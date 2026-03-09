@@ -16,13 +16,13 @@ const validPost = {
 
 const invalidPost = {
   data: {
-    id:        0,             // below min
-    title:     '',            // below min
-    slug:      'Not A Slug',  // invalid pattern
-    body:      '',            // below min
+    id:        0,
+    title:     '',
+    slug:      'Not A Slug',
+    body:      '',
     published: true,
   },
-  meta: null,                 // any - should pass
+  meta: null,
 }
 
 describe('integration - imported_posts', () => {
@@ -40,10 +40,10 @@ describe('integration - imported_posts', () => {
     test('invalid post.data returns expected errors', () => {
       const errors = validatePost(invalidPost)
       expect(errors).toEqual(expect.arrayContaining([
-        expect.objectContaining({ path: 'data.id',    code: 'gte_invalid'   }),
-        expect.objectContaining({ path: 'data.title', code: 'min_invalid'   }),
-        expect.objectContaining({ path: 'data.slug',  code: 'match_invalid' }),
-        expect.objectContaining({ path: 'data.body',  code: 'min_invalid'   }),
+        expect.objectContaining({ path: 'data.id',    code: 'gte_invalid'    }),
+        expect.objectContaining({ path: 'data.title', code: 'min_invalid'    }),
+        expect.objectContaining({ path: 'data.slug',  code: 'format_invalid' }),
+        expect.objectContaining({ path: 'data.body',  code: 'min_invalid'    }),
       ]))
     })
   })
@@ -61,10 +61,10 @@ describe('integration - imported_posts', () => {
     test('invalid post inside list returns errors with correct path', () => {
       const errors = validatePosts({ data: [validPost.data, invalidPost.data], meta: null })
       expect(errors).toEqual(expect.arrayContaining([
-        expect.objectContaining({ path: 'data[1].id',    code: 'gte_invalid'   }),
-        expect.objectContaining({ path: 'data[1].title', code: 'min_invalid'   }),
-        expect.objectContaining({ path: 'data[1].slug',  code: 'match_invalid' }),
-        expect.objectContaining({ path: 'data[1].body',  code: 'min_invalid'   }),
+        expect.objectContaining({ path: 'data[1].id',    code: 'gte_invalid'    }),
+        expect.objectContaining({ path: 'data[1].title', code: 'min_invalid'    }),
+        expect.objectContaining({ path: 'data[1].slug',  code: 'format_invalid' }),
+        expect.objectContaining({ path: 'data[1].body',  code: 'min_invalid'    }),
       ]))
     })
 
@@ -73,7 +73,7 @@ describe('integration - imported_posts', () => {
       expect(validatePosts({ data: [post], meta: null })).toEqual([])
 
       const errors = validatePosts({ data: [{ ...validPost.data, slug: 'INVALID SLUG' }], meta: null })
-      expect(errors.some(e => e.path === 'data[0].slug' && e.code === 'match_invalid')).toBe(true)
+      expect(errors.some(e => e.path === 'data[0].slug' && e.code === 'format_invalid')).toBe(true)
     })
   })
 })

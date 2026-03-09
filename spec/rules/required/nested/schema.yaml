@@ -1,0 +1,5 @@
+$required: [user]
+user:
+  $required: [name]
+  name:  String
+  email: String

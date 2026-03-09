@@ -1,0 +1,14 @@
+point:
+  $type: Tuple
+  $at:
+    0:
+      $type: Float
+    1:
+      $type: Float
+tags:
+  $type: List
+  $at:
+    0:
+      $type: String
+      $enum: [featured, pinned]
+

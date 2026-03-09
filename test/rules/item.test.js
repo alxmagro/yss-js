@@ -14,7 +14,7 @@ describe('item', () => {
     const errors = item(['a', 42, 'c'], stringNode, 'tags')
     expect(errors).toHaveLength(1)
     expect(errors[0].path).toBe('tags[1]')
-    expect(errors[0].message).toMatch(/got/)
+    expect(errors[0].message).toMatch(/Unexpected type/)
   })
   test('fails when multiple items do not match', () => {
     expect(item([1, 2, 3], stringNode, 'tags')).toHaveLength(3)

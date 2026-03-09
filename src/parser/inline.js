@@ -1,3 +1,5 @@
+import { load } from 'js-yaml'
+
 /**
  * Parses YSS inline type syntax:
  *
@@ -63,7 +65,7 @@ export function parseInline (token) {
     lte:      null,
     enum:     null,
     required: false,
-    match:    null,
+    format:    null,
     item:     null,
   }
 
@@ -96,16 +98,18 @@ export function parseInline (token) {
   }
 
   // 2. Extract enum [val1, val2] - last [] group
-  const valuesMatch = token.match(/^(.*)\[([^\]]+)\]$/)
+  // Use js-yaml to parse the bracket expression so types are inferred correctly
+  // e.g. [1, 2, 3] → [1, 2, 3] (integers), [a, b] → ['a', 'b'] (strings)
+  const valuesMatch = token.match(/^(.*?)(\[[^\]]+\])$/)
   if (valuesMatch) {
-    result.enum = valuesMatch[2].split(',').map(v => v.trim())
+    result.enum = load(valuesMatch[2])
     token = valuesMatch[1].trim()
   }
 
   // 3. Extract named match (alias) - last () group
   const matchMatch = token.match(/^(.*)\(([^)]+)\)$/)
   if (matchMatch) {
-    result.match = matchMatch[2].trim()
+    result.format = matchMatch[2].trim()
     token = matchMatch[1].trim()
   }
 

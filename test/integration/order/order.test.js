@@ -39,11 +39,11 @@ describe('integration - order', () => {
     const errors = validate(invalidPayload)
 
     expect(errors).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: 'orderId',       code: 'match_invalid' }),
-      expect.objectContaining({ path: 'status',        code: 'enum_invalid'  }),
-      expect.objectContaining({ path: 'customer.name', code: 'min_invalid'   }),
-      expect.objectContaining({ path: 'customer.email', code: 'match_invalid' }),
-      expect.objectContaining({ path: 'items',         code: 'min_invalid'   }),
+      expect.objectContaining({ path: 'orderId',        code: 'format_invalid' }),
+      expect.objectContaining({ path: 'status',         code: 'enum_invalid'   }),
+      expect.objectContaining({ path: 'customer.name',  code: 'min_invalid'    }),
+      expect.objectContaining({ path: 'customer.email', code: 'format_invalid' }),
+      expect.objectContaining({ path: 'items',          code: 'min_invalid'    }),
     ]))
   })
 })

@@ -15,15 +15,17 @@
  *   min_invalid           - value/length/count is below minimum
  *   max_invalid           - value/length/count is above maximum
  *   enum_invalid          - value is not in the allowed list
- *   match_invalid         - value does not match regex or alias
+ *   format_invalid        - value does not match a format alias
  *   set_duplicated        - duplicate value in Set
  *   anyof_invalid         - value does not match any branch of AnyOf
  *   tuple_length_invalid  - array length does not match Tuple definition
  *   list_position_missing - declared List position is out of bounds
  */
 
-export function makeError(path, code, message) {
-  return { path, code, message }
+export function makeError (path, code, message, data) {
+  const err = { path, code, message }
+  if (data !== undefined) err.data = data
+  return err
 }
 
 export function joinPath (parent, key) {

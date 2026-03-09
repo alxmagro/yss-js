@@ -5,7 +5,11 @@ export default function enumRule (value, param, path) {
   if (!param.includes(value)) {
     return {
       code:    'enum_invalid',
-      message: `expected one of ${param.map(v => JSON.stringify(v)).join('|')}, got ${JSON.stringify(value)}`,
+      message: `Value \`${value}\` is not allowed`,
+      data: {
+        value,
+        expected: param,
+      },
     }
   }
   return null

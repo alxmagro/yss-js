@@ -1,0 +1,21 @@
+str:
+  $type: String
+int:
+  $type: Integer
+float:
+  $type: Float
+bool:
+  $type: Boolean
+null_val:
+  $type: null
+any_val:
+  $type: any
+list:
+  $type: List
+set:
+  $type: Set
+tuple:
+  $type: Tuple
+obj:
+  $type: Object
+
