@@ -15,15 +15,19 @@ import { makeError, joinPath }     from './errors.js'
  * @param {boolean} inherited  - strict value cascaded from parent (default: false)
  * @returns {Array}            - array of { path, code, message } error objects
  */
-export function validateNode (value, node, path = '', inherited = false) {
+export function validateNode (value, node, path = '') {
   const errors = []
 
-  // Resolve effective strict: local declaration wins, otherwise inherit
-  const strict = node.strict !== null ? node.strict : inherited
+  const strict = node.strict ?? false
 
   // ── AnyOf ──────────────────────────────────────────────────────────────────
-  if (node.anyOf) {
-    return getRule('anyOf')(value, node.anyOf, path, strict)
+  if (node.type === 'AnyOf') {
+    return getRule('anyOf')(value, node.items, path, strict)
+  }
+
+  // ── Any ────────────────────────────────────────────────────────────────────
+  if (node.type === 'Any' || node.type === null) {
+    return errors
   }
 
   // ── Type check ─────────────────────────────────────────────────────────────
@@ -72,8 +76,10 @@ export function validateNode (value, node, path = '', inherited = false) {
     const seen = new Set()
     for (let i = 0; i < value.length; i++) {
       const key = JSON.stringify(value[i])
-      if (seen.has(key))
-        errors.push(makeError(joinPath(path, i), 'set_duplicated', `duplicate value in Set`))
+      if (seen.has(key)) {
+        errors.push(makeError(path, 'set_duplicated', 'Set contains duplicated items'))
+        break
+      }
       seen.add(key)
     }
   }
@@ -104,7 +110,7 @@ function validateObject (value, node, path, strict) {
       continue
     }
 
-    errors.push(...validateNode(fieldValue, fieldNode, fieldPath, strict))
+    errors.push(...validateNode(fieldValue, fieldNode, fieldPath))
   }
 
   if (strict) {
