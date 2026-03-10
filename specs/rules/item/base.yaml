@@ -1,0 +1,54 @@
+feature: Item validation — list items schema
+
+given:
+  tags:
+    $type: List
+    $item:
+      $type: String
+  scores:
+    $type: List
+    $item:
+      $type: Integer
+      $gte: 0
+
+scenarios:
+  - name: valid strings
+    when:
+      tags: [jedi, pilot]
+    then: []
+
+  - name: valid integers
+    when:
+      scores: [10, 20, 30]
+    then: []
+
+  - name: empty list
+    when:
+      tags: []
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: wrong item type
+    when:
+      tags: [jedi, 42]
+    then:
+      - path: tags[1]
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: String
+
+  - name: item rule violation
+    when:
+      scores: [10, -1, 20]
+    then:
+      - path: scores[1]
+        code: "{{ CODE_GTE_INVALID }}"
+        message: Value must be greater than or equal to `0`
+        data:
+          value: -1
+          gte: 0

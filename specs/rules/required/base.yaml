@@ -1,0 +1,71 @@
+feature: Required fields
+
+given:
+  $required: [name, email]
+  name:  String
+  email: String
+  age:   Integer
+  user:
+    $required: [name]
+    name:  String
+    email: String
+
+scenarios:
+  - name: all fields present
+    when:
+      name: Luke
+      email: luke@jedi.org
+      age: 19
+    then: []
+
+  - name: optional field absent
+    when:
+      name: Luke
+      email: luke@jedi.org
+    then: []
+
+  - name: nested required field present
+    when:
+      name: Luke
+      email: luke@jedi.org
+      user:
+        name: Luke
+        email: luke@jedi.org
+    then: []
+
+  - name: nested optional field absent
+    when:
+      name: Luke
+      email: luke@jedi.org
+      user:
+        name: Luke
+    then: []
+
+  - name: missing one required field
+    when:
+      name: Luke
+    then:
+      - path: email
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `email`
+
+  - name: missing all required fields
+    when: {}
+    then:
+      - path: name
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `name`
+      - path: email
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `email`
+
+  - name: missing nested required field
+    when:
+      name: Luke
+      email: luke@jedi.org
+      user:
+        email: luke@jedi.org
+    then:
+      - path: user.name
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `user.name`

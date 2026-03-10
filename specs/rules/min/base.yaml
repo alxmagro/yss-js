@@ -1,0 +1,52 @@
+feature: Min validation
+
+given:
+  name:
+    $type: String
+    $min: 2
+  tags:
+    $type: List
+    $min: 1
+    $item:
+      $type: String
+
+scenarios:
+  - name: valid values above min
+    when:
+      name: Lu
+      tags: [a, b]
+    then: []
+
+  - name: valid values at min
+    when:
+      name: Lu
+      tags: [a]
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: string below min
+    when:
+      name: L
+    then:
+      - path: name
+        code: "{{ CODE_MIN_INVALID }}"
+        message: Minimum size is `2`
+        data:
+          min: 2
+          value: L
+          size: 1
+
+  - name: list below min
+    when:
+      tags: []
+    then:
+      - path: tags
+        code: "{{ CODE_MIN_INVALID }}"
+        message: Minimum size is `1`
+        data:
+          min: 1
+          value: []
+          size: 0

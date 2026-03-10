@@ -1,0 +1,40 @@
+feature: Strict mode — unexpected fields
+
+given:
+  $strict: true
+  name:  String
+  email: String
+
+scenarios:
+  - name: valid — only declared fields
+    when:
+      name: Luke
+      email: luke@jedi.org
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: unexpected field
+    when:
+      name: Luke
+      email: luke@jedi.org
+      age: 19
+    then:
+      - path: age
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `age`
+
+  - name: multiple unexpected fields
+    when:
+      name: Luke
+      role: jedi
+      side: light
+    then:
+      - path: role
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `role`
+      - path: side
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `side`

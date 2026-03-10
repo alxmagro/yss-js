@@ -1,0 +1,67 @@
+feature: AnyOf validation
+
+given:
+  $patterns:
+    phone: '/^\+?[\d\s\-]{7,20}$/'
+
+  contact:
+    $any_of:
+      - $type: String
+        $format: email
+      - $type: String
+        $format: phone
+  size:
+    $any_of:
+      - $type: String
+        $enum: [small, medium, large]
+      - $type: Integer
+        $gte: 1
+        $lte: 100
+
+scenarios:
+  - name: valid email contact
+    when:
+      contact: user@example.com
+    then: []
+
+  - name: valid phone contact
+    when:
+      contact: "+55 11 91234-5678"
+    then: []
+
+  - name: valid string size
+    when:
+      size: medium
+    then: []
+
+  - name: valid integer size
+    when:
+      size: 42
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: no branch matches
+    when:
+      size: huge
+    then:
+      - path: size
+        code: "{{ CODE_ANYOF_INVALID }}"
+        message: Value does not match any condition
+        data:
+          value: huge
+          any_of:
+            - - path: size
+                code: "{{ CODE_ENUM_INVALID }}"
+                message: Value `huge` is not allowed
+                data:
+                  value: huge
+                  enum: [small, medium, large]
+            - - path: size
+                code: "{{ CODE_TYPE_MISMATCH }}"
+                message: Unexpected type
+                data:
+                  value: huge
+                  expected: Integer

@@ -1,0 +1,48 @@
+feature: Enum validation
+
+given:
+  status:
+    $type: String
+    $enum: [pending, processing, shipped]
+  priority:
+    $type: Integer
+    $enum: [1, 2, 3]
+
+scenarios:
+  - name: valid string value
+    when:
+      status: pending
+      priority: 1
+    then: []
+
+  - name: valid integer value
+    when:
+      status: pending
+      priority: 2
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: string not in enum
+    when:
+      status: cancelled
+    then:
+      - path: status
+        code: "{{ CODE_ENUM_INVALID }}"
+        message: Value `cancelled` is not allowed
+        data:
+          value: cancelled
+          enum: [pending, processing, shipped]
+
+  - name: integer not in enum
+    when:
+      priority: 5
+    then:
+      - path: priority
+        code: "{{ CODE_ENUM_INVALID }}"
+        message: Value `5` is not allowed
+        data:
+          value: 5
+          enum: [1, 2, 3]

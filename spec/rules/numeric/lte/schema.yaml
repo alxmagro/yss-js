@@ -1,4 +1,0 @@
-age:
-  $type: Integer
-  $lte: 100
-

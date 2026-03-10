@@ -1,4 +1,0 @@
-$required: [name, email]
-name:  String
-email: String
-age:   Integer

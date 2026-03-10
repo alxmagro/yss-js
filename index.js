@@ -69,4 +69,9 @@ export const schema = {
     const tree = buildTree(raw)
     return compile(tree)
   },
+
+  fromObject (raw) {
+    const tree = buildTree(raw)
+    return compile(tree)
+  },
 }

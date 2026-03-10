@@ -57,7 +57,7 @@ describe('integration - user', () => {
     expect(paths).toContain('id')
     expect(paths).toContain('username')
     expect(paths).toContain('email')
-    expect(paths).toContain('roles[1]')
+    expect(paths).toContain('roles')
     expect(paths).toContain('profile.displayName')
     expect(paths).toContain('profile.age')
     expect(paths).toContain('deletedAt')

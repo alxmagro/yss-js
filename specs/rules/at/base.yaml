@@ -1,0 +1,14 @@
+feature: At validation — Base
+
+given:
+  tags:
+    $type: List
+    $at:
+      0:
+        $type: String
+        $enum: [featured, pinned]
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []

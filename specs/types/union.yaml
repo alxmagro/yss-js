@@ -1,0 +1,43 @@
+feature: Union types — String | null
+
+given:
+  name:
+    $type: [String, null]
+  age:
+    $type: [Integer, null]
+
+scenarios:
+  - name: valid string
+    when:
+      name: Luke
+    then: []
+
+  - name: valid null
+    when:
+      name: null
+    then: []
+
+  - name: valid integer
+    when:
+      age: 19
+    then: []
+
+  - name: valid null for integer
+    when:
+      age: null
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: wrong type
+    when:
+      name: 42
+    then:
+      - path: name
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: [String, "null"]

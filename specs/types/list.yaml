@@ -1,0 +1,53 @@
+feature: List type — ordered collection of items
+
+given:
+  tags:
+    $type: List
+    $item:
+      $type: String
+  scores:
+    $type: List
+    $item:
+      $type: Integer
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: empty list
+    when:
+      tags: []
+    then: []
+
+  - name: valid list of strings
+    when:
+      tags: [jedi, pilot, hero]
+    then: []
+
+  - name: valid list of integers
+    when:
+      scores: [10, 20, 30]
+    then: []
+
+  - name: wrong type
+    when:
+      tags: hello
+    then:
+      - path: tags
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: hello
+          expected: List
+
+  - name: wrong item type
+    when:
+      tags: [jedi, 42]
+    then:
+      - path: tags[1]
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: String

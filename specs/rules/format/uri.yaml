@@ -1,0 +1,57 @@
+feature: Format validation — uri, uri-reference and iri
+
+given:
+  uri:
+    $type: String
+    $format: uri
+  uri_ref:
+    $type: String
+    $format: uri-reference
+  iri:
+    $type: String
+    $format: iri
+
+scenarios:
+  - name: valid values
+    when:
+      uri: https://example.com/path
+      uri_ref: /relative/path
+      iri: https://example.com/path
+    then: []
+
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: invalid uri
+    when:
+      uri: not a uri
+    then:
+      - path: uri
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: not a uri
+          format: uri
+
+  - name: invalid uri-reference
+    when:
+      uri_ref: "not a uri ref!"
+    then:
+      - path: uri_ref
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "not a uri ref!"
+          format: uri-reference
+
+  - name: invalid iri
+    when:
+      iri: not a iri
+    then:
+      - path: iri
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: not a iri
+          format: iri

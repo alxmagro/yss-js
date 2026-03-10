@@ -1,0 +1,37 @@
+feature: Format validation — json-pointer
+
+given:
+  pointer:
+    $type: String
+    $format: json-pointer
+
+scenarios:
+  - name: valid root pointer
+    when:
+      pointer: ""
+    then: []
+
+  - name: valid pointer
+    when:
+      pointer: /foo/bar/0
+    then: []
+
+  - name: valid pointer with escaped chars
+    when:
+      pointer: /foo~0bar/baz~1qux
+    then: []
+
+  - name: optional absent
+    when: {}
+    then: []
+
+  - name: invalid pointer
+    when:
+      pointer: foo/bar
+    then:
+      - path: pointer
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: foo/bar
+          format: json-pointer
