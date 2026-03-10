@@ -60,6 +60,7 @@ function buildObjectNode (raw) {
   }
 
   const node = {
+    const:    null,
     type:     null,
     required: false,
     strict:   null,
@@ -86,6 +87,7 @@ function buildObjectNode (raw) {
       }
     }
 
+    if (raw.$const   !== undefined) node.const  = raw.$const
     if (raw.$strict !== undefined) node.strict = raw.$strict
     if (raw.$min    !== undefined) node.min    = raw.$min
     if (raw.$max    !== undefined) node.max    = raw.$max
@@ -95,6 +97,7 @@ function buildObjectNode (raw) {
     if (raw.$lte    !== undefined) node.lte    = raw.$lte
     if (raw.$format  !== undefined) node.format = raw.$format
     if (raw.$enum   !== undefined) node.enum   = raw.$enum
+
 
     if (raw.$item !== undefined) {
       node.item = buildNode(raw.$item)

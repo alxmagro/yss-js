@@ -12,6 +12,8 @@ export const code = {
   FORMAT_INVALID:        'format_invalid',
   SET_DUPLICATED:        'set_duplicated',
   ANYOF_INVALID:         'anyof_invalid',
+  CONST_MISMATCH:        'const_mismatch',
   TUPLE_LENGTH_INVALID:  'tuple_length_invalid',
   LIST_POSITION_MISSING: 'list_position_missing',
 }
+

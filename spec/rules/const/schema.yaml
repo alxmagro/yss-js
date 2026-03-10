@@ -1,0 +1,7 @@
+role:
+  $type: String
+  $const: admin
+version:
+  $type: Integer
+  $const: 2
+
