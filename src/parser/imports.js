@@ -19,16 +19,16 @@ import { registerPatterns } from '../aliases.js'
 /**
  * Compile an imported file in isolation and return its tree.
  * Extracted here to avoid a circular dependency with parser/index.js —
- * the caller (buildTree) passes buildTree itself as a parameter.
+ * the caller (buildAST) passes buildAST itself as a parameter.
  *
  * @param {string}   filePath   - absolute path to the .yaml file
- * @param {Function} buildTree  - buildTree function from parser/index.js
+ * @param {Function} buildAST  - buildAST function from parser/index.js
  * @returns {object} compiled schema tree
  */
-function compileFile (filePath, buildTree) {
+function compileFile (filePath, buildAST) {
   const content = readFileSync(filePath, 'utf8')
   const raw     = load(content)
-  return buildTree(raw)
+  return buildAST(raw)
 }
 
 /**
@@ -37,10 +37,10 @@ function compileFile (filePath, buildTree) {
  *
  * @param {object}   rawImports  - raw $imports map { namespace: './path.yaml' }
  * @param {string}   baseDir     - directory of the file declaring $imports
- * @param {Function} buildTree   - buildTree function from parser/index.js
+ * @param {Function} buildAST   - buildAST function from parser/index.js
  * @returns {object} map of namespace -> compiled tree
  */
-export function loadImports (rawImports, baseDir, buildTree) {
+export function loadImports (rawImports, baseDir, buildAST) {
   const importedTrees = {}
 
   for (const [namespace, relativePath] of Object.entries(rawImports)) {
@@ -62,8 +62,8 @@ export function loadImports (rawImports, baseDir, buildTree) {
     }
 
     // Compile the imported file in isolation (its own $patterns are registered
-    // without prefix inside compileFile via buildTree)
-    importedTrees[namespace] = compileFile(absolutePath, buildTree)
+    // without prefix inside compileFile via buildAST)
+    importedTrees[namespace] = compileFile(absolutePath, buildAST)
   }
 
   return importedTrees

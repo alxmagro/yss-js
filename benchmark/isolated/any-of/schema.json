@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "contact": {
+      "anyOf": [
+        { "type": "object", "required": ["phone"],  "properties": { "phone":  { "type": "string", "minLength": 7, "maxLength": 15 } } },
+        { "type": "object", "required": ["email"],  "properties": { "email":  { "type": "string", "format": "email" } } },
+        { "type": "object", "required": ["handle"], "properties": { "handle": {
+          "type": "object",
+          "required": ["platform", "username"],
+          "properties": {
+            "platform": { "type": "string", "enum": ["twitter", "github", "linkedin"] },
+            "username": { "type": "string", "minLength": 1, "maxLength": 40 }
+          }
+        }}}
+      ]
+    }
+  }
+}

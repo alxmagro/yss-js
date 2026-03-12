@@ -1,0 +1,6 @@
+name:   string, size [2, 50]
+email:  string, ~ email
+age:    integer, >= 18, <= 120
+score:  number,  >= 0,  <= 100
+role:   string,  enum [admin, user, guest]
+active: boolean

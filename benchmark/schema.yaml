@@ -1,0 +1,46 @@
+$strict: true
+
+id:       integer, >= 1
+username: string,  size [3, 32]
+email:    string,  ~ email
+role:     string,  enum [admin, editor, viewer, guest]
+score:    number,  >= 0, <= 100
+level:    integer, > 0, < 100
+active:   boolean
+version:
+  $const: 1
+
+address:
+  $strict: true
+  street:  string, size [1, 100]
+  city:    string, size [1, 60]
+  country: string, size [2, 2]
+  zip:     string, ~ zip
+
+  $required: [street, city, country]
+
+tags:
+  $type:   array
+  $size:   [1, 10]
+  $unique: true
+  $item:   string, size [1, 30]
+
+permissions:
+  $type: array
+  $item:
+    $strict: true
+    resource: string
+    actions:
+      $type: array
+      $size: [1, ~]
+      $item: string, enum [create, read, update, delete]
+    $required: [resource, actions]
+
+contact:
+  $any_of:
+    - phone: string, ~ /^\+?[0-9\s\-]{7,15}$/
+    - social:
+        platform: string, enum [twitter, linkedin, github]
+        handle:   string, size [1, 50]
+
+$required: [id, username, email, role, active, address, version]

@@ -13,16 +13,25 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "ajv": "^8.18.0",
+    "ajv-formats": "^3.0.1",
     "jest": "^30.2.0"
   },
   "scripts": {
     "specs": "node scripts/run-specs.js",
+    "bm": "node benchmark/run.js",
+    "bm:isolated": "node benchmark/isolated.js",
     "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=test/"
   },
   "jest": {
     "testEnvironment": "node",
     "transform": {}
   },
-  "keywords": ["yaml", "schema", "validation", "validator"],
+  "keywords": [
+    "yaml",
+    "schema",
+    "validation",
+    "validator"
+  ],
   "license": "MIT"
 }

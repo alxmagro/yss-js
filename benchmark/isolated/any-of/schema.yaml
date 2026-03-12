@@ -1,0 +1,7 @@
+contact:
+  $any_of:
+    - phone: string, size [7, 15]
+    - email: string, ~ email
+    - handle:
+        platform: string, enum [twitter, github, linkedin]
+        username: string, size [1, 40]

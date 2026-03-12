@@ -1,0 +1,11 @@
+$strict: true
+user:
+  $strict: true
+  profile:
+    $strict: true
+    name: string
+    bio:  string, size [~, 500]
+  settings:
+    $strict: true
+    theme: string, enum [light, dark]
+    lang:  string

@@ -1,0 +1,8 @@
+items:
+  $type: array
+  $size: [1, 20]
+  $item:
+    id:    integer, >= 1
+    name:  string,  size [1, 50]
+    price: number,  >= 0
+    $required: [id, name, price]

@@ -153,7 +153,7 @@ function buildObjectNode (raw, inheritedStrict) {
 /**
  * Build the full schema tree from a raw YAML root object.
  */
-export function buildTree (raw, baseDir = process.cwd()) {
+export function buildAST (raw, baseDir = process.cwd()) {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     throw new Error('YSS schema root must be an object')
   }
@@ -169,7 +169,7 @@ export function buildTree (raw, baseDir = process.cwd()) {
   let tree = buildObjectNode(stripped, false)
 
   if (raw.$imports && typeof raw.$imports === 'object') {
-    const importedTrees = loadImports(raw.$imports, baseDir, buildTree)
+    const importedTrees = loadImports(raw.$imports, baseDir, buildAST)
     tree = resolveRefs(tree, importedTrees)
   }
 

@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "user": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "bio":  { "type": "string", "maxLength": 500 }
+          }
+        },
+        "settings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "theme": { "type": "string", "enum": ["light", "dark"] },
+            "lang":  { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}
