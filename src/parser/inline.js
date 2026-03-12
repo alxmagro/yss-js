@@ -122,14 +122,15 @@ export function parseInline (token) {
     const key = spaceIdx === -1 ? constraint : constraint.slice(0, spaceIdx).trim()
     const val = spaceIdx === -1 ? true       : parseScalar(constraint.slice(spaceIdx + 1).trim())
 
-    if (key === '==')   { result.const  = val;  rules.push('const');  continue }
-    if (key === '~')    { result.format = val;  rules.push('format'); continue }
-    if (key === '>=')   { result.gte    = val;  rules.push('gte');    continue }
-    if (key === '>')    { result.gt     = val;  rules.push('gt');     continue }
-    if (key === '<=')   { result.lte    = val;  rules.push('lte');    continue }
-    if (key === '<')    { result.lt     = val;  rules.push('lt');     continue }
-    if (key === 'uniq') { result.unique = true; rules.push('unique'); continue }
-    else                { result[key]   = val;  rules.push(key) }
+    if (key === '==')     { result.const  = val;  rules.push('const');  continue }
+    if (key === '~')      { result.format = val;  rules.push('format'); continue }
+    if (key === '>=')     { result.gte    = val;  rules.push('gte');    continue }
+    if (key === '>')      { result.gt     = val;  rules.push('gt');     continue }
+    if (key === '<=')     { result.lte    = val;  rules.push('lte');    continue }
+    if (key === '<')      { result.lt     = val;  rules.push('lt');     continue }
+    if (key === 'size')   { result.size   = val;  rules.push('size');   continue }
+    if (key === 'enum')   { result.enum   = val;  rules.push('enum');   continue }
+    if (key === 'uniq')   { result.unique = true; rules.push('unique'); continue }
   }
 
   if (rules.length) result.rules = rules
