@@ -2,28 +2,28 @@
   <img src="assets/logo.svg"/>
 </p>
 
-<p align="center">
-  A human-friendly alternative to JSON Schema. Write validation schemas in clean YAML.
-</p>
+## Introduction
+
+A YSS parser for javascript.
+
+**See** [YAML Simplified Schema](https://github.com/alxmagro/yss) for the full specification.
 
 ## Examples
 
 ```yaml
 # order.yaml
 
-id: Integer
+id: integer
 customer:
-  name:  String
-  email: String (email)
+  name:  string
+  email: string, ~ email
 items:
-  $type: List
-  $min: 1
+  $type: array
+  $size: [1, ~]
   $item:
-    id: Integer
-    qty:
-      $type: Integer
-      $min: 1
-    price: Float
+    id: integer
+    qty: integer, >= 1
+    price: number
 ```
 
 ```js
@@ -32,13 +32,13 @@ import { schema } from 'yss'
 const validate = schema.fromFile('./order.yaml')
 const errors   = validate(payload)
 // [] -> valid
-// [{ path: 'customer.email', message: 'expected String =~ email' }] -> invalid
+// [{ path: 'customer.email', code: 'format_invalid', message: 'Value does not match required format', data: { value: 'bad', format: 'email' } }]
 ```
 
 ## Install
 
 ```bash
-npm install yss
+npm install yss-js
 ```
 
 Requires Node.js >= 22.
@@ -54,6 +54,17 @@ call this at application startup, not on every request.
 const validate = schema.fromFile('./schemas/order.yaml')
 ```
 
+**schema.fromObject(raw)**
+
+Same as `fromFile`, but receives a plain JavaScript object. Useful when the schema is already parsed or comes from another source.
+
+```js
+const validate = schema.fromObject({
+  name:  'string, size [2, 80]',
+  email: 'string, ~ email',
+})
+```
+
 **schema.fromString(yaml)**
 
 Same as `fromFile`, but receives the YAML directly as a string. Useful for tests or when
@@ -61,8 +72,8 @@ the schema comes from a database or environment variable.
 
 ```js
 const validate = schema.fromString(`
-  name:  String{2,80}
-  email: String =~ email
+  name:  string, size [2, 80]
+  email: string, ~ email
 `)
 ```
 
@@ -77,8 +88,8 @@ const errors = validate({ name: 'Ana', email: 'ana@email.com' })
 
 const errors = validate({ name: 'A', email: 'not-an-email' })
 // -> [
-//     { path: 'name',  message: 'expected String length >= 2, got 1' },
-//     { path: 'email', message: 'expected String =~ email' }
+//     { path: 'name',  code: 'size_min_invalid', message: 'Minimum size is `2`',                      data: { size: 1, min: 2 } },
+//     { path: 'email', code: 'format_invalid',   message: 'Value does not match required format',     data: { value: 'not-an-email', format: 'email' } }
 //   ]
 ```
 
@@ -91,7 +102,7 @@ Useful for frameworks that handle exceptions globally.
 try {
   validate.assert(payload)
 } catch (e) {
-  console.log(e.errors) // [{ path, message }]
+  console.log(e.errors) // [{ path, code, message, data }]
 }
 ```
 
@@ -105,13 +116,8 @@ if (!validate.valid(payload)) {
 }
 ```
 
-## Schema syntax
-
-See [SPEC.md](./SPEC.md) for the full specification.
-
-
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2025-present, Alexandre Magro
+Copyright (c) 2026-present, Alexandre Magro
