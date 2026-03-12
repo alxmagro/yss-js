@@ -1,0 +1,3 @@
+name:  string, size [2, 80]
+email: string, ~ email
+age:   integer, >= 18
