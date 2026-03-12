@@ -1,0 +1,40 @@
+feature: Format validation — hostname and idn-hostname
+
+given:
+  host: string, ~ hostname
+  idn_host:
+    $type: string
+    $format: idn-hostname
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid values
+    when:
+      host: example.com
+      idn_host: münchen.de
+    then: []
+
+  - name: invalid hostname
+    when:
+      host: "not a hostname!"
+    then:
+      - path: host
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "not a hostname!"
+          format: hostname
+
+  - name: invalid idn-hostname
+    when:
+      idn_host: "not a hostname!"
+    then:
+      - path: idn_host
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "not a hostname!"
+          format: idn-hostname

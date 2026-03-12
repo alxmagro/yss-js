@@ -1,0 +1,14 @@
+data:
+  $required: [title]
+  title:
+    $type: string
+    $size: [2, 120]
+  owner:
+    $required: [name, email]
+    name: string
+    email:
+      $type: string
+      $format: email
+  budget:
+    $type: number
+    $gte: 0

@@ -1,0 +1,66 @@
+feature: Null type validation
+
+given:
+  deleted_at: null
+  cleared:
+    $type: null
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: null value
+    when:
+      deleted_at: ~
+      cleared: ~
+    then: []
+
+  - name: string fails null
+    when:
+      deleted_at: "null"
+    then:
+      - <<: *unexpected_type
+        path: deleted_at
+        data: { value: "null", expected: 'null' }
+
+  - name: integer fails null
+    when:
+      deleted_at: 0
+    then:
+      - <<: *unexpected_type
+        path: deleted_at
+        data: { value: 0, expected: 'null' }
+
+  - name: boolean fails null
+    when:
+      deleted_at: false
+    then:
+      - <<: *unexpected_type
+        path: deleted_at
+        data: { value: false, expected: 'null' }
+
+  - name: array fails null
+    when:
+      deleted_at: []
+    then:
+      - <<: *unexpected_type
+        path: deleted_at
+        data: { value: [], expected: 'null' }
+
+  - name: object fails null
+    when:
+      deleted_at:
+        key: value
+    then:
+      - <<: *unexpected_type
+        path: deleted_at
+        data:
+          value:
+            key: value
+          expected: 'null'

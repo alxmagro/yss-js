@@ -1,119 +1,99 @@
-import { load } from 'js-yaml'
-
 /**
- * Parses YSS inline type syntax:
+ * YSS inline syntax v2.
  *
- *   Type (| Type2 ...)? (match) [val1, val2] {range}
+ * Syntax: Type1 | Type2, key val, key val, ...
  *
- * Canonical order:
- *   1. Type(s) - one or more types separated by |
- *   2. ?       - nullable, immediately after the last type
- *   3. ()      - named match alias
- *   4. []      - allowed values (enum)
- *   5. {}      - range:
- *               - String/List/Set: {n, m} inclusive min/max
- *               - Integer/Float:   {>= n, < m} operator-based bounds
+ * Constraints (comma-separated after type):
+ *   ~ format       format alias or /regex/
+ *   == x           const value
+ *   >= n           gte
+ *   > n            gt
+ *   <= n           lte
+ *   < n            lt
+ *   size n         exact size
+ *   size [n, m]    size range (null = unbounded)
+ *   enum [a, b]    allowed values
+ *   uniq           unique: true (no val needed)
+ *   key            key: true  (any boolean flag with no val)
  *
- * Examples:
- *   String
- *   String | null
- *   String | Integer
- *   String (email)
- *   String | null (uuid)
- *   String [active, inactive]
- *   String {2, 80}
- *   String | null {2, 80}
- *   Integer {>= 18}
- *   Float {> 0, < 1000}
- *   List<String>
+ * Generic: array<string>, set<integer>, etc.
  */
 
-const NUMERIC_OPS = { '>=': 'gte', '>': 'gt', '<=': 'lte', '<': 'lt' }
-
-/**
- * Parse a single range part like ">= 18" or "2" into { key, value }.
- */
-function parseRangePart (raw) {
+function parseScalar (raw) {
   raw = raw.trim()
-  if (raw === '') return null
 
-  for (const [op, key] of Object.entries(NUMERIC_OPS)) {
-    if (raw.startsWith(op + ' ')) {
-      return { key, value: Number(raw.slice(op.length).trim()) }
-    }
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    const inner = raw.slice(1, -1).trim()
+    if (!inner) return []
+    return splitArray(inner).map(parseScalar)
   }
 
-  return { key: null, value: Number(raw) }
+  if (raw === 'true')  return true
+  if (raw === 'false') return false
+
+  if ((raw.startsWith('"') && raw.endsWith('"')) ||
+      (raw.startsWith("'") && raw.endsWith("'"))) {
+    return raw.slice(1, -1)
+  }
+
+  if (/^-?\d+\.\d+$/.test(raw)) return parseFloat(raw)
+  if (/^-?\d+$/.test(raw))      return parseInt(raw, 10)
+
+  return raw
 }
 
-/**
- * Parse a single inline type token.
- * Returns a normalized schema node.
- */
+function splitArray (str) {
+  const parts = []
+  let depth = 0
+  let current = ''
+
+  for (const ch of str) {
+    if (ch === '[') depth++
+    else if (ch === ']') depth--
+    if (ch === ',' && depth === 0) {
+      parts.push(current.trim())
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  if (current.trim()) parts.push(current.trim())
+  return parts
+}
+
+function splitConstraints (str) {
+  const parts = []
+  let depth = 0
+  let quote = null
+  let current = ''
+
+  for (const ch of str) {
+    if (quote) {
+      current += ch
+      if (ch === quote) quote = null
+      continue
+    }
+    if (ch === '"' || ch === "'") { quote = ch; current += ch; continue }
+    if ('[({'.includes(ch)) depth++
+    else if ('])}' .includes(ch)) depth--
+    if (ch === ',' && depth === 0) {
+      parts.push(current.trim())
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  if (current.trim()) parts.push(current.trim())
+  return parts
+}
+
 export function parseInline (token) {
   if (typeof token !== 'string') return null
-
   token = token.trim()
 
-  const result = {
-    type:     null,
-    min:      null,
-    max:      null,
-    gt:       null,
-    gte:      null,
-    lt:       null,
-    lte:      null,
-    enum:     null,
-    required: false,
-    format:    null,
-    item:     null,
-  }
+  const result = {}
 
-  // 1. Extract range: {n, m} or {>= n, < m} etc.
-  const rangeMatch = token.match(/^(.*)\{([^}]+)\}$/)
-  if (rangeMatch) {
-    const raw   = rangeMatch[2]
-    const parts = raw.split(',').map(v => v.trim())
-
-    const isNumeric = parts.some(p => p !== '' && /^(>=|>|<=|<)\s/.test(p))
-
-    if (isNumeric) {
-      for (const part of parts) {
-        if (part === '') continue
-        const parsed = parseRangePart(part)
-        if (parsed && parsed.key) result[parsed.key] = parsed.value
-      }
-    } else {
-      if (parts.length === 1) {
-        const exact = Number(parts[0])
-        result.min  = exact
-        result.max  = exact
-      } else {
-        result.min = parts[0] !== '' ? Number(parts[0]) : null
-        result.max = parts[1] !== '' ? Number(parts[1]) : null
-      }
-    }
-
-    token = rangeMatch[1].trim()
-  }
-
-  // 2. Extract enum [val1, val2] - last [] group
-  // Use js-yaml to parse the bracket expression so types are inferred correctly
-  // e.g. [1, 2, 3] → [1, 2, 3] (integers), [a, b] → ['a', 'b'] (strings)
-  const valuesMatch = token.match(/^(.*?)(\[[^\]]+\])$/)
-  if (valuesMatch) {
-    result.enum = load(valuesMatch[2])
-    token = valuesMatch[1].trim()
-  }
-
-  // 3. Extract named match (alias) - last () group
-  const matchMatch = token.match(/^(.*)\(([^)]+)\)$/)
-  if (matchMatch) {
-    result.format = matchMatch[2].trim()
-    token = matchMatch[1].trim()
-  }
-
-  // 4. Extract List<Type> / Set<Type> generic (before pipe split)
+  // Generic: array<string>, set<integer>, etc.
   const genericMatch = token.match(/^(\w+)<(\w+)>$/)
   if (genericMatch) {
     result.type = genericMatch[1]
@@ -121,41 +101,54 @@ export function parseInline (token) {
     return result
   }
 
-  // 5. Split on | for multiple types
-  const types = token.split('|').map(t => t.trim()).filter(Boolean)
-  if (types.length > 1) {
-    result.type = types
-  } else {
-    result.type = types[0] ?? token
+  if (!token.includes(',')) {
+    const types = token.split('|').map(t => t.trim()).filter(Boolean)
+    result.type = types.length > 1 ? types : (types[0] ?? token)
+    return result
   }
+
+  const parts = splitConstraints(token)
+  const typePart = parts[0]
+  const constraints = parts.slice(1)
+
+  const types = typePart.split('|').map(t => t.trim()).filter(Boolean)
+  result.type = types.length > 1 ? types : (types[0] ?? typePart)
+
+  const rules = []
+
+  for (const constraint of constraints) {
+    if (!constraint) continue
+    const spaceIdx = constraint.indexOf(' ')
+    const key = spaceIdx === -1 ? constraint : constraint.slice(0, spaceIdx).trim()
+    const val = spaceIdx === -1 ? true       : parseScalar(constraint.slice(spaceIdx + 1).trim())
+
+    if (key === '==')   { result.const  = val;  rules.push('const');  continue }
+    if (key === '~')    { result.format = val;  rules.push('format'); continue }
+    if (key === '>=')   { result.gte    = val;  rules.push('gte');    continue }
+    if (key === '>')    { result.gt     = val;  rules.push('gt');     continue }
+    if (key === '<=')   { result.lte    = val;  rules.push('lte');    continue }
+    if (key === '<')    { result.lt     = val;  rules.push('lt');     continue }
+    if (key === 'uniq') { result.unique = true; rules.push('unique'); continue }
+    else                { result[key]   = val;  rules.push(key) }
+  }
+
+  if (rules.length) result.rules = rules
 
   return result
 }
 
-/**
- * Parse a YAML scalar value - either an inline token or an AnyOf array.
- * An array of simple types becomes type: [...].
- * An array with items that have extra rules becomes anyOf: [...].
- * @param {string|string[]} value - raw YAML value
- * @returns {object} normalized schema node
- */
 export function parseValue (value) {
   if (Array.isArray(value)) {
     const nodes = value.map(v =>
       v === null || v === 'null' ? { type: 'null' } : parseInline(String(v))
     )
 
-    // If all branches are simple types (no rules), collapse to type array
     const allSimple = nodes.every(n => {
-      const { type, optional, item, ...rules } = n
+      const { type, required, item, ...rules } = n
       return Object.values(rules).every(v => v === null || v === false)
     })
 
-    if (allSimple) {
-      return { type: nodes.map(n => n.type) }
-    }
-
-    // Otherwise keep as anyOf branches
+    if (allSimple) return { type: nodes.map(n => n.type) }
     return { anyOf: nodes }
   }
 

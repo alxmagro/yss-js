@@ -1,0 +1,45 @@
+feature: Array composite — item validation
+
+given:
+  tags:
+    $type: array
+    $item:
+      $type: string
+  scores:
+    $type: array
+    $item:
+      $type: integer
+      $gte: 0
+
+scenarios:
+  - name: valid string items
+    when:
+      tags: [jedi, pilot]
+    then: []
+
+  - name: valid integer items
+    when:
+      scores: [10, 20, 30]
+    then: []
+
+  - name: wrong item type
+    when:
+      tags: [jedi, 42]
+    then:
+      - path: tags[1]
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string
+
+  - name: item rule violation
+    when:
+      scores: [10, -1, 20]
+    then:
+      - path: scores[1]
+        code: "{{ CODE_GTE_INVALID }}"
+        message: Value must be greater than or equal to `0`
+        data:
+          value: -1
+          gte: 0

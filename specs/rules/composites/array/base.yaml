@@ -1,0 +1,41 @@
+feature: Array composite — basic validation
+
+given:
+  tags:
+    $type: array
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: empty array
+    when:
+      tags: []
+    then: []
+
+  - name: array of strings
+    when:
+      tags: [a, b, c]
+    then: []
+
+  - name: string fails array
+    when:
+      tags: hello
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data: { value: hello, expected: array }
+
+  - name: integer fails array
+    when:
+      tags: 42
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data: { value: 42, expected: array }

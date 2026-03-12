@@ -1,0 +1,43 @@
+feature: Array composite — positional ($at) validation
+
+given:
+  coords:
+    $type: array
+    $at:
+      0:
+        $type: string
+      1:
+        $type: integer
+
+scenarios:
+  - name: valid positional items
+    when:
+      coords: [hello, 42]
+    then: []
+
+  - name: index beyond array length is ignored
+    when:
+      coords: [hello]
+    then: []
+
+  - name: wrong type at position 0
+    when:
+      coords: [42, 42]
+    then:
+      - path: coords[0]
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string
+
+  - name: wrong type at position 1
+    when:
+      coords: [hello, hello]
+    then:
+      - path: coords[1]
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: hello
+          expected: integer

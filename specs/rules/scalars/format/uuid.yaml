@@ -1,0 +1,43 @@
+feature: Format validation — uuid
+
+given:
+  id:
+    $type: string
+    $format: uuid
+
+scenarios:
+  - name: optional absent
+    when: {}
+    then: []
+
+  - name: valid uuid
+    when:
+      id: 550e8400-e29b-41d4-a716-446655440000
+    then: []
+
+  - name: valid uuid uppercase
+    when:
+      id: 550E8400-E29B-41D4-A716-446655440000
+    then: []
+
+  - name: invalid uuid
+    when:
+      id: not-a-uuid
+    then:
+      - path: id
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: not-a-uuid
+          format: uuid
+
+  - name: uuid missing dashes
+    when:
+      id: 550e8400e29b41d4a716446655440000
+    then:
+      - path: id
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: 550e8400e29b41d4a716446655440000
+          format: uuid

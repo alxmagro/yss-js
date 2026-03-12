@@ -1,0 +1,81 @@
+feature: Array type validation
+
+given:
+  tags: array
+  items:
+    $type: array
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: empty array
+    when:
+      tags: []
+      items: []
+    then: []
+
+  - name: array of strings
+    when:
+      tags: [a, b, c]
+    then: []
+
+  - name: array of integers
+    when:
+      tags: [1, 2, 3]
+    then: []
+
+  - name: array of mixed values
+    when:
+      tags: [1, hello, true]
+    then: []
+
+  - name: string fails array
+    when:
+      tags: hello
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data: { value: hello, expected: array }
+
+  - name: integer fails array
+    when:
+      tags: 42
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data: { value: 42, expected: array }
+
+  - name: boolean fails array
+    when:
+      tags: true
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data: { value: true, expected: array }
+
+  - name: null fails array
+    when:
+      tags: ~
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data: { value: ~, expected: array }
+
+  - name: object fails array
+    when:
+      tags:
+        key: value
+    then:
+      - <<: *unexpected_type
+        path: tags
+        data:
+          value:
+            key: value
+          expected: array

@@ -1,0 +1,68 @@
+feature: Format validation — dates and times
+
+given:
+  dt: string, ~ date-time
+  d: string, ~ date
+  t:
+    $type: string
+    $format: time
+  dur:
+    $type: string
+    $format: duration
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid values
+    when:
+      dt: "2024-01-01T00:00:00Z"
+      d: "2024-01-01"
+      t: "14:30:00Z"
+      dur: P3D
+    then: []
+
+  - name: invalid date-time
+    when:
+      dt: "2024-01-01"
+    then:
+      - path: dt
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "2024-01-01"
+          format: date-time
+
+  - name: invalid date
+    when:
+      d: "01-01-2024"
+    then:
+      - path: d
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "01-01-2024"
+          format: date
+
+  - name: invalid time
+    when:
+      t: "14:30"
+    then:
+      - path: t
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "14:30"
+          format: time
+
+  - name: invalid duration
+    when:
+      dur: "3 days"
+    then:
+      - path: dur
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: "3 days"
+          format: duration

@@ -1,0 +1,62 @@
+feature: Size validation — maximum size
+
+given:
+  bio: string, size [~, 100]
+  tags:
+    $type: array
+    $size: [~, 5]
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: string at maximum
+    when:
+      bio: >-
+        May the Force be with you, always. Do or do not, there is no try.
+        Never tell me the odds! I love....
+    then: []
+
+  - name: string below maximum
+    when:
+      bio: short bio
+    then: []
+
+  - name: empty string allowed
+    when:
+      bio: ""
+    then: []
+
+  - name: array at maximum
+    when:
+      tags: [a, b, c, d, e]
+    then: []
+
+  - name: string exceeds maximum
+    when:
+      bio: >-
+        In the beginning the Universe was created. This has made a lot of
+        people very angry and been widely regarded as a bad move.
+    then:
+      - path: bio
+        code: "{{ CODE_SIZE_MAX_INVALID }}"
+        message: Maximum size is `100`
+        data:
+          value: >-
+            In the beginning the Universe was created. This has made a lot of
+            people very angry and been widely regarded as a bad move.
+          size: 123
+          max: 100
+
+  - name: array exceeds maximum
+    when:
+      tags: [a, b, c, d, e, f]
+    then:
+      - path: tags
+        code: "{{ CODE_SIZE_MAX_INVALID }}"
+        message: Maximum size is `5`
+        data:
+          value: [a, b, c, d, e, f]
+          size: 6
+          max: 5

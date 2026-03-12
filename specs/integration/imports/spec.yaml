@@ -1,0 +1,70 @@
+feature: $imports and $ref resolution
+
+scenarios:
+  - name: valid data
+    when:
+      slug: my-project
+      published_at: "2024-01-15"
+      lead:
+        name: Luke Skywalker
+        email: luke@jedi.org
+        role: admin
+      projects:
+        - title: Destroy the Death Star
+          owner:
+            name: Leia Organa
+            email: leia@rebellion.org
+          budget: 50000
+    then: []
+
+  - name: missing required root field
+    when:
+      lead:
+        name: Luke Skywalker
+        email: luke@jedi.org
+      projects: []
+    then:
+      - path: slug
+        code: prop_required
+        message: Missing required property `slug`
+
+  - name: invalid slug format via imported patterns
+    when:
+      slug: "Invalid Slug!"
+      lead:
+        name: Luke Skywalker
+        email: luke@jedi.org
+      projects: []
+    then:
+      - path: slug
+        code: format_invalid
+        message: Value does not match required format
+        data:
+          value: "Invalid Slug!"
+          format: fmt.slug
+
+  - name: missing required field in $ref user
+    when:
+      slug: my-project
+      lead:
+        name: Luke Skywalker
+      projects: []
+    then:
+      - path: lead.email
+        code: prop_required
+        message: Missing required property `lead.email`
+
+  - name: missing required field in $ref project.data
+    when:
+      slug: my-project
+      lead:
+        name: Luke Skywalker
+        email: luke@jedi.org
+      projects:
+        - owner:
+            name: Leia Organa
+            email: leia@rebellion.org
+    then:
+      - path: projects[0].title
+        code: prop_required
+        message: Missing required property `projects[0].title`

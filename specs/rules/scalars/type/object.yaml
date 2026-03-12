@@ -1,0 +1,75 @@
+feature: Object type validation
+
+given:
+  meta: object
+  config:
+    $type: object
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: empty object
+    when:
+      meta: {}
+      config: {}
+    then: []
+
+  - name: object with fields
+    when:
+      meta:
+        key: value
+    then: []
+
+  - name: nested object
+    when:
+      meta:
+        outer:
+          inner: value
+    then: []
+
+  - name: string fails object
+    when:
+      meta: hello
+    then:
+      - <<: *unexpected_type
+        path: meta
+        data: { value: hello, expected: object }
+
+  - name: integer fails object
+    when:
+      meta: 42
+    then:
+      - <<: *unexpected_type
+        path: meta
+        data: { value: 42, expected: object }
+
+  - name: boolean fails object
+    when:
+      meta: true
+    then:
+      - <<: *unexpected_type
+        path: meta
+        data: { value: true, expected: object }
+
+  - name: null fails object
+    when:
+      meta: ~
+    then:
+      - <<: *unexpected_type
+        path: meta
+        data: { value: ~, expected: object }
+
+  - name: array fails object
+    when:
+      meta: [1, 2]
+    then:
+      - <<: *unexpected_type
+        path: meta
+        data: { value: [1, 2], expected: object }

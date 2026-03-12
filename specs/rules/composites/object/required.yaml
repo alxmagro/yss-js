@@ -1,0 +1,61 @@
+feature: Object composite — required fields
+
+given:
+  $required: [name, email]
+  name: string
+  email: string
+  age: integer
+  address:
+    $required: [street]
+    street: string
+    city: string
+
+scenarios:
+  - name: all required fields present
+    when:
+      name: Luke
+      email: luke@jedi.org
+    then: []
+
+  - name: optional field absent
+    when:
+      name: Luke
+      email: luke@jedi.org
+    then: []
+
+  - name: nested required field present
+    when:
+      name: Luke
+      email: luke@jedi.org
+      address:
+        street: Main St
+    then: []
+
+  - name: missing one required field
+    when:
+      name: Luke
+    then:
+      - path: email
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `email`
+
+  - name: missing all required fields
+    when: {}
+    then:
+      - path: name
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `name`
+      - path: email
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `email`
+
+  - name: missing nested required field
+    when:
+      name: Luke
+      email: luke@jedi.org
+      address:
+        city: Tatooine
+    then:
+      - path: address.street
+        code: "{{ CODE_PROP_REQUIRED }}"
+        message: Missing required property `address.street`

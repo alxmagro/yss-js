@@ -1,9 +1,0 @@
-$imports:
-  post: ./post.yaml
-
-data:
-  $type: List
-  $item:
-    $ref: post.data
-
-meta: any

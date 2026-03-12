@@ -1,0 +1,56 @@
+feature: Unique validation
+
+given:
+  tags: array, uniq
+  ids:
+    $type: array
+    $unique: true
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: empty array
+    when:
+      tags: []
+    then: []
+
+  - name: all unique strings
+    when:
+      tags: [a, b, c]
+    then: []
+
+  - name: all unique integers
+    when:
+      ids: [1, 2, 3]
+    then: []
+
+  - name: single item
+    when:
+      tags: [a]
+    then: []
+
+  - name: duplicate strings
+    when:
+      tags: [a, b, a]
+    then:
+      - path: tags
+        code: "{{ CODE_UNIQUE_INVALID }}"
+        message: Array contains duplicated items
+
+  - name: duplicate integers
+    when:
+      ids: [1, 2, 1]
+    then:
+      - path: ids
+        code: "{{ CODE_UNIQUE_INVALID }}"
+        message: Array contains duplicated items
+
+  - name: duplicate mixed values
+    when:
+      tags: [a, 1, a]
+    then:
+      - path: tags
+        code: "{{ CODE_UNIQUE_INVALID }}"
+        message: Array contains duplicated items

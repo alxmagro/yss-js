@@ -1,8 +1,9 @@
 CODE_TYPE_MISMATCH:         type_mismatch
 CODE_PROP_REQUIRED:         prop_required
 CODE_PROP_UNEXPECTED:       prop_unexpected
-CODE_MIN_INVALID:           min_invalid
-CODE_MAX_INVALID:           max_invalid
+CODE_SIZE_EXACT_INVALID:    size_exact_invalid
+CODE_SIZE_MIN_INVALID:      size_min_invalid
+CODE_SIZE_MAX_INVALID:      size_max_invalid
 CODE_GTE_INVALID:           gte_invalid
 CODE_GT_INVALID:            gt_invalid
 CODE_LTE_INVALID:           lte_invalid
@@ -10,6 +11,7 @@ CODE_LT_INVALID:            lt_invalid
 CODE_ENUM_INVALID:          enum_invalid
 CODE_FORMAT_INVALID:        format_invalid
 CODE_SET_DUPLICATED:        set_duplicated
+CODE_UNIQUE_INVALID:        unique_invalid
 CODE_ANYOF_INVALID:         anyof_invalid
 CODE_CONST_MISMATCH:        const_mismatch
 CODE_TUPLE_LENGTH_INVALID:  tuple_length_invalid

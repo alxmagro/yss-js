@@ -1,6 +1,0 @@
-$imports:
-  user: ./user.yaml
-
-$type: List
-$item:
-  $ref: user

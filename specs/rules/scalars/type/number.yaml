@@ -1,0 +1,77 @@
+feature: Number type validation
+
+given:
+  price: number
+  ratio:
+    $type: number
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: float value
+    when:
+      price: 3.14
+      ratio: 0.5
+    then: []
+
+  - name: integer also valid as number
+    when:
+      price: 42
+      ratio: 0
+    then: []
+
+  - name: negative float
+    when:
+      price: -1.5
+    then: []
+
+  - name: string fails number
+    when:
+      price: "3.14"
+    then:
+      - <<: *unexpected_type
+        path: price
+        data: { value: "3.14", expected: number }
+
+  - name: boolean fails number
+    when:
+      price: true
+    then:
+      - <<: *unexpected_type
+        path: price
+        data: { value: true, expected: number }
+
+  - name: null fails number
+    when:
+      price: ~
+    then:
+      - <<: *unexpected_type
+        path: price
+        data: { value: ~, expected: number }
+
+  - name: array fails number
+    when:
+      price: [1.0, 2.0]
+    then:
+      - <<: *unexpected_type
+        path: price
+        data: { value: [1.0, 2.0], expected: number }
+
+  - name: object fails number
+    when:
+      price:
+        key: value
+    then:
+      - <<: *unexpected_type
+        path: price
+        data:
+          value:
+            key: value
+          expected: number

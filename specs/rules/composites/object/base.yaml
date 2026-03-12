@@ -1,0 +1,40 @@
+feature: Object composite — basic validation
+
+given:
+  name: string
+  age: integer
+  address:
+    street: string
+    city: string
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: all fields present
+    when:
+      name: Luke
+      age: 19
+      address:
+        street: Main St
+        city: Tatooine
+    then: []
+
+  - name: nested fields present
+    when:
+      address:
+        street: Main St
+        city: Tatooine
+    then: []
+
+  - name: wrong type on field
+    when:
+      age: hello
+    then:
+      - path: age
+        code: "{{ CODE_TYPE_MISMATCH }}"
+        message: Unexpected type
+        data:
+          value: hello
+          expected: integer

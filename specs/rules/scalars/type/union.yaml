@@ -1,0 +1,72 @@
+feature: Union type validation
+
+given:
+  id: string | integer
+  value: string | integer | null
+  flag:
+    $type: [boolean, null]
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: string matches union
+    when:
+      id: hello
+    then: []
+
+  - name: integer matches union
+    when:
+      id: 42
+    then: []
+
+  - name: null matches three-type union
+    when:
+      value: ~
+    then: []
+
+  - name: block syntax boolean matches
+    when:
+      flag: true
+    then: []
+
+  - name: block syntax null matches
+    when:
+      flag: ~
+    then: []
+
+  - name: boolean fails two-type union
+    when:
+      id: true
+    then:
+      - <<: *unexpected_type
+        path: id
+        data:
+          value: true
+          expected: [string, integer]
+
+  - name: array fails two-type union
+    when:
+      id: [a, b]
+    then:
+      - <<: *unexpected_type
+        path: id
+        data:
+          value: [a, b]
+          expected: [string, integer]
+
+  - name: string fails boolean|null union
+    when:
+      flag: hello
+    then:
+      - <<: *unexpected_type
+        path: flag
+        data:
+          value: hello
+          expected: [boolean, "null"]

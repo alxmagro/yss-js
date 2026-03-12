@@ -1,0 +1,95 @@
+feature: AnyOf composite validation
+
+given:
+  id:
+    $any_of:
+      - integer
+      - string
+  value:
+    $any_of:
+      - integer
+      - string, enum [active, inactive]
+
+errors:
+  - &anyof_invalid
+    code: "{{ CODE_ANYOF_INVALID }}"
+    message: Value does not match any condition
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: integer matches first branch
+    when:
+      id: 42
+    then: []
+
+  - name: string matches second branch
+    when:
+      id: hello
+    then: []
+
+  - name: integer matches first branch of value
+    when:
+      value: 10
+    then: []
+
+  - name: valid enum string matches second branch
+    when:
+      value: active
+    then: []
+
+  - name: null fails both branches
+    when:
+      id: ~
+    then:
+      - <<: *anyof_invalid
+        path: id
+        data:
+          value: ~
+          any_of:
+            - - path: id
+                code: "{{ CODE_TYPE_MISMATCH }}"
+                message: Unexpected type
+                data: { value: ~, expected: integer }
+            - - path: id
+                code: "{{ CODE_TYPE_MISMATCH }}"
+                message: Unexpected type
+                data: { value: ~, expected: string }
+
+  - name: boolean fails both branches
+    when:
+      id: true
+    then:
+      - <<: *anyof_invalid
+        path: id
+        data:
+          value: true
+          any_of:
+            - - path: id
+                code: "{{ CODE_TYPE_MISMATCH }}"
+                message: Unexpected type
+                data: { value: true, expected: integer }
+            - - path: id
+                code: "{{ CODE_TYPE_MISMATCH }}"
+                message: Unexpected type
+                data: { value: true, expected: string }
+
+  - name: invalid enum string fails both branches
+    when:
+      value: pending
+    then:
+      - <<: *anyof_invalid
+        path: value
+        data:
+          value: pending
+          any_of:
+            - - path: value
+                code: "{{ CODE_TYPE_MISMATCH }}"
+                message: Unexpected type
+                data: { value: pending, expected: integer }
+            - - path: value
+                code: "{{ CODE_ENUM_INVALID }}"
+                message: Value `pending` is not allowed
+                data: { value: pending, enum: [active, inactive] }

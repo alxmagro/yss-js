@@ -1,0 +1,64 @@
+feature: Size validation — exact size
+
+given:
+  code: string, size 5
+  tags:
+    $type: array
+    $size: 3
+  meta: object, size 2
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: string with exact size
+    when:
+      code: hello
+    then: []
+
+  - name: array with exact size
+    when:
+      tags: [a, b, c]
+    then: []
+
+  - name: object with exact number of props
+    when:
+      meta: { a: 1, b: 2 }
+    then: []
+
+  - name: string too short
+    when:
+      code: hi
+    then:
+      - path: code
+        code: "{{ CODE_SIZE_EXACT_INVALID }}"
+        message: Size must be exactly `5`
+        data:
+          value: hi
+          size: 2
+          expected: 5
+
+  - name: string too long
+    when:
+      code: toolong
+    then:
+      - path: code
+        code: "{{ CODE_SIZE_EXACT_INVALID }}"
+        message: Size must be exactly `5`
+        data:
+          value: toolong
+          size: 7
+          expected: 5
+
+  - name: array wrong size
+    when:
+      tags: [a, b]
+    then:
+      - path: tags
+        code: "{{ CODE_SIZE_EXACT_INVALID }}"
+        message: Size must be exactly `3`
+        data:
+          value: [a, b]
+          size: 2
+          expected: 3

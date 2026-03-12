@@ -1,0 +1,101 @@
+feature: String type validation
+
+given:
+  name: string
+  label:
+    $type: string
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: plain unquoted string
+    when:
+      name: hello
+      label: world
+    then: []
+
+  - name: quoted string
+    when:
+      name: "hello world"
+      label: "foo bar"
+    then: []
+
+  - name: string with special characters
+    when:
+      name: "hello: world"
+      label: "foo, bar"
+    then: []
+
+  - name: empty string
+    when:
+      name: ""
+      label: ""
+    then: []
+
+  - name: string that looks like a number
+    when:
+      name: "42"
+      label: "3.14"
+    then: []
+
+  - name: string that looks like a boolean
+    when:
+      name: "true"
+      label: "false"
+    then: []
+
+  - name: string that looks like null
+    when:
+      name: "null"
+    then: []
+
+  - name: integer fails string
+    when:
+      name: 42
+    then:
+      - <<: *unexpected_type
+        path: name
+        data: { value: 42, expected: string }
+
+  - name: boolean fails string
+    when:
+      name: true
+    then:
+      - <<: *unexpected_type
+        path: name
+        data: { value: true, expected: string }
+
+  - name: null fails string
+    when:
+      name: ~
+    then:
+      - <<: *unexpected_type
+        path: name
+        data: { value: ~, expected: string }
+
+  - name: array fails string
+    when:
+      name: [a, b]
+    then:
+      - <<: *unexpected_type
+        path: name
+        data: { value: [a, b], expected: string }
+
+  - name: object fails string
+    when:
+      name:
+        key: value
+    then:
+      - <<: *unexpected_type
+        path: name
+        data:
+          value:
+            key: value
+          expected: string

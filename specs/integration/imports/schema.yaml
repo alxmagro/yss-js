@@ -1,0 +1,18 @@
+$imports:
+  user:    ./_user.yaml
+  project: ./_project.yaml
+  fmt:     ./_patterns.yaml
+
+$required: [slug, lead, projects]
+slug:
+  $type: string
+  $format: fmt.slug
+published_at:
+  $type: string
+  $format: fmt.iso_date
+lead:
+  $ref: user
+projects:
+  $type: array
+  $item:
+    $ref: project.data

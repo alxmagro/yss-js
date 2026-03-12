@@ -1,0 +1,38 @@
+feature: Numeric — gt
+
+given:
+  score:
+    $type: number
+    $gt: 0
+
+scenarios:
+  - name: valid above boundary
+    when:
+      score: 0.1
+    then: []
+
+  - name: optional absent
+    when: {}
+    then: []
+
+  - name: at boundary fails
+    when:
+      score: 0.0
+    then:
+      - path: score
+        code: "{{ CODE_GT_INVALID }}"
+        message: Value must be greater than `0`
+        data:
+          gt: 0
+          value: 0.0
+
+  - name: below boundary fails
+    when:
+      score: -1.0
+    then:
+      - path: score
+        code: "{{ CODE_GT_INVALID }}"
+        message: Value must be greater than `0`
+        data:
+          gt: 0
+          value: -1.0

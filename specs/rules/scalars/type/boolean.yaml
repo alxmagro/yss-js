@@ -1,0 +1,72 @@
+feature: Boolean type validation
+
+given:
+  active: boolean
+  flag:
+    $type: boolean
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: true value
+    when:
+      active: true
+      flag: true
+    then: []
+
+  - name: false value
+    when:
+      active: false
+      flag: false
+    then: []
+
+  - name: string fails boolean
+    when:
+      active: "true"
+    then:
+      - <<: *unexpected_type
+        path: active
+        data: { value: "true", expected: boolean }
+
+  - name: integer fails boolean
+    when:
+      active: 1
+    then:
+      - <<: *unexpected_type
+        path: active
+        data: { value: 1, expected: boolean }
+
+  - name: null fails boolean
+    when:
+      active: ~
+    then:
+      - <<: *unexpected_type
+        path: active
+        data: { value: ~, expected: boolean }
+
+  - name: array fails boolean
+    when:
+      active: [true, false]
+    then:
+      - <<: *unexpected_type
+        path: active
+        data: { value: [true, false], expected: boolean }
+
+  - name: object fails boolean
+    when:
+      active:
+        key: value
+    then:
+      - <<: *unexpected_type
+        path: active
+        data:
+          value:
+            key: value
+          expected: boolean

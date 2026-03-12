@@ -1,0 +1,64 @@
+feature: Object composite — strict mode
+
+given:
+  $strict: true
+  name: string
+  email: string
+  address:
+    street: string
+    city: string
+  metadata:
+    $strict: false
+    source: string
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: only declared fields
+    when:
+      name: Luke
+      email: luke@jedi.org
+    then: []
+
+  - name: unexpected field at root
+    when:
+      name: Luke
+      email: luke@jedi.org
+      age: 19
+    then:
+      - path: age
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `age`
+
+  - name: multiple unexpected fields
+    when:
+      name: Luke
+      role: jedi
+      side: light
+    then:
+      - path: role
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `role`
+      - path: side
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `side`
+
+  - name: strict propagates to nested object
+    when:
+      address:
+        street: Main St
+        city: Tatooine
+        country: Outer Rim
+    then:
+      - path: address.country
+        code: "{{ CODE_PROP_UNEXPECTED }}"
+        message: Unexpected property `address.country`
+
+  - name: child overrides strict with false
+    when:
+      metadata:
+        source: api
+        extra_field: ignored
+    then: []

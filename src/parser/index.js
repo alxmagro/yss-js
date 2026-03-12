@@ -2,13 +2,13 @@
  * Converts a raw parsed YAML object into a normalized YSS AST.
  *
  * Every node in the AST has an explicit `type`. The types are:
- *   String, Integer, Float, Boolean, null, Any
- *   Object, List, Set, Tuple
- *   AnyOf  - union node, has `items` and shared `fields`
+ *   string, integer, number, boolean, null, any
+ *   object, array
+ *   any_of  - union node, has `items` and shared `fields`
  *
  * Key behaviors:
- *   - $any_of on a node promotes it to type: 'AnyOf', spreading shared fields into each item
- *   - any / $type: any becomes type: 'Any'
+ *   - $any_of on a node promotes it to type: 'any_of', spreading shared fields into each item
+ *   - any / $type: any becomes type: 'any'
  *   - strict is resolved in the parser via cascade — no runtime inheritance needed
  *   - Fields are optional by default; $required: [...] marks required fields
  */
@@ -30,9 +30,7 @@ export function buildNode (raw, inheritedStrict = false) {
   }
 
   if (typeof raw === 'string' || Array.isArray(raw)) {
-    const node = parseValue(raw)
-    if (node.type === 'any') node.type = 'Any'
-    return node
+    return parseValue(raw)
   }
 
   if (typeof raw === 'object') {
@@ -59,19 +57,30 @@ function buildObjectNode (raw, inheritedStrict) {
   const strict = raw.$strict !== undefined ? raw.$strict : inheritedStrict
 
   // ── Build base node ────────────────────────────────────────────────────────
-  const node = { type: null, required: false, strict }
+  const node = { type: 'any', required: false, strict }
 
   if (hasRunes) {
     if (raw.$type !== undefined) {
       if (Array.isArray(raw.$type)) {
-        node.type = raw.$type.map(t => t === null ? 'null' : String(t))
+        node.type = raw.$type.map(String)
       } else {
-        const t = String(raw.$type)
-        node.type = t === 'any' ? 'Any' : t
+        node.type = String(raw.$type)
       }
     }
 
-    if (raw.$const  !== undefined) node.const  = raw.$const
+    if (raw.$const  !== undefined) {
+      node.const = raw.$const
+      // Infer type from const value when $type is not declared
+      if (raw.$type === undefined) {
+        const v = raw.$const
+        if (typeof v === 'string')       node.type = 'string'
+        else if (Number.isInteger(v))    node.type = 'integer'
+        else if (typeof v === 'number')  node.type = 'number'
+        else if (typeof v === 'boolean') node.type = 'boolean'
+      }
+    }
+    if (raw.$size   !== undefined) node.size   = raw.$size
+    if (raw.$unique !== undefined) node.unique = raw.$unique
     if (raw.$min    !== undefined) node.min    = raw.$min
     if (raw.$max    !== undefined) node.max    = raw.$max
     if (raw.$gt     !== undefined) node.gt     = raw.$gt
@@ -91,11 +100,15 @@ function buildObjectNode (raw, inheritedStrict) {
         node.at[Number(pos)] = buildNode(val, strict)
       }
     }
+
+    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'enum']
+    const rules = SCALAR_RUNE_KEYS.filter(k => k in node)
+    if (rules.length) node.rules = rules
   }
 
   // ── Build fields ───────────────────────────────────────────────────────────
   if (hasFields) {
-    if (!node.type) node.type = 'Object'
+    if (!node.type) node.type = 'object'
 
     const required = new Set(Array.isArray(raw.$required) ? raw.$required : [])
     const fields   = {}
@@ -120,14 +133,14 @@ function buildObjectNode (raw, inheritedStrict) {
       if (Object.keys(sharedFields).length > 0) {
         const mergedFields = { ...sharedFields, ...(branchNode.fields ?? {}) }
         branchNode.fields  = mergedFields
-        if (!branchNode.type) branchNode.type = 'Object'
+        if (!branchNode.type) branchNode.type = 'object'
       }
 
       return branchNode
     })
 
     return {
-      type:     'AnyOf',
+      type:     'any_of',
       required: node.required,
       strict,
       items,

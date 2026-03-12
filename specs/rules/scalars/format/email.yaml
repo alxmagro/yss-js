@@ -1,0 +1,40 @@
+feature: Format validation — email and idn-email
+
+given:
+  email: string, ~ email
+  idn_email:
+    $type: string
+    $format: idn-email
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid values
+    when:
+      email: user@example.com
+      idn_email: user@example.com
+    then: []
+
+  - name: invalid email
+    when:
+      email: not-an-email
+    then:
+      - path: email
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: not-an-email
+          format: email
+
+  - name: invalid idn-email
+    when:
+      idn_email: not-an-email
+    then:
+      - path: idn_email
+        code: "{{ CODE_FORMAT_INVALID }}"
+        message: Value does not match required format
+        data:
+          value: not-an-email
+          format: idn-email

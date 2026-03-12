@@ -1,0 +1,84 @@
+feature: Integer type validation
+
+given:
+  count: integer
+  total:
+    $type: integer
+
+errors:
+  - &unexpected_type
+    code: "{{ CODE_TYPE_MISMATCH }}"
+    message: Unexpected type
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: positive integer
+    when:
+      count: 42
+      total: 100
+    then: []
+
+  - name: zero
+    when:
+      count: 0
+    then: []
+
+  - name: negative integer
+    when:
+      count: -5
+    then: []
+
+  - name: float fails integer
+    when:
+      count: 3.14
+    then:
+      - <<: *unexpected_type
+        path: count
+        data: { value: 3.14, expected: integer }
+
+  - name: string fails integer
+    when:
+      count: "42"
+    then:
+      - <<: *unexpected_type
+        path: count
+        data: { value: "42", expected: integer }
+
+  - name: boolean fails integer
+    when:
+      count: true
+    then:
+      - <<: *unexpected_type
+        path: count
+        data: { value: true, expected: integer }
+
+  - name: null fails integer
+    when:
+      count: ~
+    then:
+      - <<: *unexpected_type
+        path: count
+        data: { value: ~, expected: integer }
+
+  - name: array fails integer
+    when:
+      count: [1, 2]
+    then:
+      - <<: *unexpected_type
+        path: count
+        data: { value: [1, 2], expected: integer }
+
+  - name: object fails integer
+    when:
+      count:
+        key: value
+    then:
+      - <<: *unexpected_type
+        path: count
+        data:
+          value:
+            key: value
+          expected: integer
