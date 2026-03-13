@@ -275,6 +275,7 @@ function emitScalarRule (ctx, rule, varExpr, param, nodeType, pathExpr, errTarge
     case 'format': return emitFormat(ctx, varExpr, param, pathExpr, errTarget)
     case 'size':   return emitSize(ctx, varExpr, param, nodeType, pathExpr, errTarget)
     case 'in':     return emitIn(ctx, varExpr, param, pathExpr, errTarget)
+    case 'not_in': return emitNotIn(ctx, varExpr, param, pathExpr, errTarget)
     case 'const':  return emitConst(ctx, varExpr, param, pathExpr, errTarget)
     case 'gt':     return emitCompare(ctx, varExpr, param, pathExpr, errTarget, '<=', 'gt_invalid',  'Value must be greater than',             'gt')
     case 'gte':    return emitCompare(ctx, varExpr, param, pathExpr, errTarget, '<',  'gte_invalid', 'Value must be greater than or equal to', 'gte')
@@ -348,7 +349,7 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget) {
   ctx.emit(`}`)
 }
 
-// ── in ────────────────────────────────────────────────────────────────────────
+// ── in / not_in ───────────────────────────────────────────────────────────────
 
 function emitIn (ctx, varExpr, param, pathExpr, errTarget) {
   const setRef = ctx.addRef(new Set(param))
@@ -356,6 +357,15 @@ function emitIn (ctx, varExpr, param, pathExpr, errTarget) {
 
   ctx.emit(`if (!refs.${setRef}.has(${varExpr})) {`)
   ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'in_invalid', message: 'Value \`' + ${varExpr} + '\` is not allowed', data: { value: ${varExpr}, in: refs.${arrRef} } })`)
+  ctx.emit(`}`)
+}
+
+function emitNotIn (ctx, varExpr, param, pathExpr, errTarget) {
+  const setRef = ctx.addRef(new Set(param))
+  const arrRef = ctx.addRef(param)
+
+  ctx.emit(`if (refs.${setRef}.has(${varExpr})) {`)
+  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'not_in_invalid', message: 'Value is not allowed', data: { value: ${varExpr}, not_in: refs.${arrRef} } })`)
   ctx.emit(`}`)
 }
 

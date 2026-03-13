@@ -130,6 +130,7 @@ export function parseInline (token) {
     if (key === '<')      { result.lt     = val;  rules.push('lt');     continue }
     if (key === 'size')   { result.size   = val;  rules.push('size');   continue }
     if (key === 'in')     { result.in     = val;  rules.push('in');     continue }
+    if (key === 'not_in') { result.not_in = val;  rules.push('not_in'); continue }
     if (key === 'uniq')   { result.unique = true; rules.push('unique'); continue }
   }
 

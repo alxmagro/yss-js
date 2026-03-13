@@ -3,7 +3,7 @@ $strict: true
 id:       integer, >= 1
 username: string,  size [3, 32]
 email:    string,  ~ email
-role:     string,  enum [admin, editor, viewer, guest]
+role:     string,  in [admin, editor, viewer, guest]
 score:    number,  >= 0, <= 100
 level:    integer, > 0, < 100
 active:   boolean
@@ -33,14 +33,14 @@ permissions:
     actions:
       $type: array
       $size: [1, ~]
-      $item: string, enum [create, read, update, delete]
+      $item: string, in [create, read, update, delete]
     $required: [resource, actions]
 
 contact:
   $any_of:
     - phone: string, ~ /^\+?[0-9\s\-]{7,15}$/
     - social:
-        platform: string, enum [twitter, linkedin, github]
+        platform: string, in [twitter, linkedin, github]
         handle:   string, size [1, 50]
 
 $required: [id, username, email, role, active, address, version]

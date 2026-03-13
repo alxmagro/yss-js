@@ -7,5 +7,5 @@ user:
     bio:  string, size [~, 500]
   settings:
     $strict: true
-    theme: string, enum [light, dark]
+    theme: string, in [light, dark]
     lang:  string

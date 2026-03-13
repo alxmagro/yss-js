@@ -1,0 +1,63 @@
+feature: $not_in validation
+
+given:
+  status: string, not_in [deleted, banned]
+  priority: integer, not_in [0]
+  level:
+    $type: string
+    $not_in: [low, medium]
+
+errors:
+  - &not_in_invalid
+    code: "{{ CODE_NOT_IN_INVALID }}"
+    message: Value is not allowed
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: string value not in excluded list
+    when:
+      status: active
+    then: []
+
+  - name: integer value not in excluded list
+    when:
+      priority: 2
+    then: []
+
+  - name: block syntax value not in excluded list
+    when:
+      level: high
+    then: []
+
+  - name: string value in excluded list
+    when:
+      status: banned
+    then:
+      - path: status
+        <<: *not_in_invalid
+        data:
+          value: banned
+          not_in: [deleted, banned]
+
+  - name: integer value in excluded list
+    when:
+      priority: 0
+    then:
+      - path: priority
+        <<: *not_in_invalid
+        data:
+          value: 0
+          not_in: [0]
+
+  - name: block syntax value in excluded list
+    when:
+      level: low
+    then:
+      - path: level
+        <<: *not_in_invalid
+        data:
+          value: low
+          not_in: [low, medium]

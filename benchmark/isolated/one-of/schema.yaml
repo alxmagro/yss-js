@@ -5,7 +5,7 @@ shipment:
         $required: [address]
         address: string
         carrier: string
-        status: string, enum [pending, shipped, delivered, returned]
+        status: string, in [pending, shipped, delivered, returned]
     - $required: [pickup]
       pickup:
         $required: [location]

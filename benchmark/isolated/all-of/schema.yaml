@@ -4,5 +4,5 @@ product:
       price: number, >= 0
     - sku: string, size [6, 20]
       stock: integer, >= 0
-    - category: string, enum [electronics, clothing, food, books]
+    - category: string, in [electronics, clothing, food, books]
       active: boolean
