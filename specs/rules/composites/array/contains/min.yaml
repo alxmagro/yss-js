@@ -1,0 +1,55 @@
+feature: Array contains — minimum matches
+
+given:
+  party:
+    $type: array
+    $contains:
+      $quantity: [2, ~]
+      $item:
+        race: string, == hobbit
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid array with exactly two contains matches
+    when:
+      party:
+        - { name: Frodo,   race: hobbit }
+        - { name: Sam,     race: hobbit }
+        - { name: Aragorn, race: human }
+    then: []
+
+  - name: valid array with more than two contains matches
+    when:
+      party:
+        - { name: Frodo,  race: hobbit }
+        - { name: Sam,    race: hobbit }
+        - { name: Merry,  race: hobbit }
+        - { name: Pippin, race: hobbit }
+    then: []
+
+  - name: invalid array with only one contains match
+    when:
+      party:
+        - { name: Frodo,   race: hobbit }
+        - { name: Aragorn, race: human }
+    then:
+      - path: party
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least `2` matching items
+        data:
+          quantity: [2, null]
+
+  - name: invalid array with no contains matches
+    when:
+      party:
+        - { name: Aragorn, race: human }
+        - { name: Legolas, race: elf }
+    then:
+      - path: party
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least `2` matching items
+        data:
+          quantity: [2, null]

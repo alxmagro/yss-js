@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "roster": {
+      "type": "array",
+      "contains": {
+        "type": "object",
+        "required": ["name", "role"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 50 },
+          "role": { "type": "string", "const": "captain" }
+        }
+      }
+    }
+  }
+}

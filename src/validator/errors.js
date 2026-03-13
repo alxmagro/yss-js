@@ -16,9 +16,7 @@
  *   max_invalid           - value/length/count is above maximum
  *   enum_invalid          - value is not in the allowed list
  *   format_invalid        - value does not match a format alias
- *   set_duplicated        - duplicate value in Set
  *   anyof_invalid         - value does not match any branch of AnyOf
- *   tuple_length_invalid  - array length does not match Tuple definition
  *   list_position_missing - declared List position is out of bounds
  */
 

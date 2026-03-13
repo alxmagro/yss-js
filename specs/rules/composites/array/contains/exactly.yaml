@@ -1,0 +1,58 @@
+feature: Array contains — exact matches
+
+given:
+  tags:
+    $type: array
+    $contains:
+      $quantity: 2
+      $item: string, == featured
+  flags:
+    $type: array
+    $contains:
+      $quantity: 0
+      $item: string, == banned
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid array with exactly two matches
+    when:
+      tags: [new, featured, sale, featured]
+    then: []
+
+  - name: invalid array with only one match
+    when:
+      tags: [new, featured, sale]
+    then:
+      - path: tags
+        code: "{{ CODE_CONTAINS_EXACT_INVALID }}"
+        message: Array must contain exactly `2` matching items
+        data:
+          quantity: 2
+
+  - name: invalid array with three matches
+    when:
+      tags: [featured, featured, featured]
+    then:
+      - path: tags
+        code: "{{ CODE_CONTAINS_EXACT_INVALID }}"
+        message: Array must contain exactly `2` matching items
+        data:
+          quantity: 2
+
+  - name: valid array with no banned items
+    when:
+      flags: [active, verified]
+    then: []
+
+  - name: invalid array with one banned item
+    when:
+      flags: [active, banned]
+    then:
+      - path: flags
+        code: "{{ CODE_CONTAINS_EXACT_INVALID }}"
+        message: Array must not contain any matching items
+        data:
+          quantity: 0

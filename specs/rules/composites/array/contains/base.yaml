@@ -1,0 +1,81 @@
+feature: Array composite — contains validation
+
+given:
+  tags:
+    $type: array
+    $contains: string, == featured
+  members:
+    $type: array
+    $contains:
+      role: string, == owner
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid string array with matching item
+    when:
+      tags: [new, featured, sale]
+    then: []
+
+  - name: valid string array with two matching items
+    when:
+      tags: [featured, featured]
+    then: []
+
+  - name: valid object array with matching item
+    when:
+      members:
+        - { name: alice, role: editor }
+        - { name: bob,   role: owner }
+    then: []
+
+  - name: valid object array with two matching items
+    when:
+      members:
+        - { name: alice, role: owner }
+        - { name: bob,   role: owner }
+    then: []
+
+  - name: empty string array
+    when:
+      tags: []
+    then:
+      - path: tags
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least one matching item
+        data:
+          quantity: [1, null]
+
+  - name: string array with no matching item
+    when:
+      tags: [new, sale]
+    then:
+      - path: tags
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least one matching item
+        data:
+          quantity: [1, null]
+
+  - name: empty object array
+    when:
+      members: []
+    then:
+      - path: members
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least one matching item
+        data:
+          quantity: [1, null]
+
+  - name: object array with no matching item
+    when:
+      members:
+        - { name: alice, role: editor }
+        - { name: bob,   role: viewer }
+    then:
+      - path: members
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least one matching item
+        data:
+          quantity: [1, null]

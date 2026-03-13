@@ -101,6 +101,15 @@ function buildObjectNode (raw, inheritedStrict) {
       }
     }
 
+    if (raw.$contains !== undefined) {
+      const c = raw.$contains
+      if (typeof c === 'object' && c !== null && !Array.isArray(c) && c.$item !== undefined) {
+        node.contains = { item: buildNode(c.$item, strict), quantity: c.$quantity ?? [1, null] }
+      } else {
+        node.contains = { item: buildNode(c, strict), quantity: [1, null] }
+      }
+    }
+
     const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'enum']
     const rules = SCALAR_RUNE_KEYS.filter(k => k in node)
     if (rules.length) node.rules = rules

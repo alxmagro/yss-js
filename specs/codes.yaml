@@ -10,10 +10,10 @@ CODE_LTE_INVALID:           lte_invalid
 CODE_LT_INVALID:            lt_invalid
 CODE_ENUM_INVALID:          enum_invalid
 CODE_FORMAT_INVALID:        format_invalid
-CODE_SET_DUPLICATED:        set_duplicated
+CODE_CONTAINS_MIN_INVALID:   contains_min_invalid
+CODE_CONTAINS_MAX_INVALID:   contains_max_invalid
+CODE_CONTAINS_EXACT_INVALID: contains_exact_invalid
 CODE_UNIQUE_INVALID:        unique_invalid
 CODE_ANYOF_INVALID:         anyof_invalid
 CODE_CONST_MISMATCH:        const_mismatch
-CODE_TUPLE_LENGTH_INVALID:  tuple_length_invalid
 CODE_LIST_POSITION_MISSING: list_position_missing
-

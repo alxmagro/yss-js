@@ -1,0 +1,41 @@
+feature: Array contains — maximum matches
+
+given:
+  crew:
+    $type: array
+    $contains:
+      $quantity: [~, 1]
+      $item:
+        side: string, == dark
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid array with no contains matches
+    when:
+      crew:
+        - { name: Luke, side: light }
+        - { name: Leia, side: light }
+    then: []
+
+  - name: valid array with exactly one contains match
+    when:
+      crew:
+        - { name: Luke,  side: light }
+        - { name: Vader, side: dark }
+    then: []
+
+  - name: invalid array with two contains matches
+    when:
+      crew:
+        - { name: Vader,     side: dark }
+        - { name: Palpatine, side: dark }
+        - { name: Luke,      side: light }
+    then:
+      - path: crew
+        code: "{{ CODE_CONTAINS_MAX_INVALID }}"
+        message: Array must contain at most `1` matching items
+        data:
+          quantity: [null, 1]

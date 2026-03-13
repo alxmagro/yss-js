@@ -1,0 +1,59 @@
+feature: Array contains — range matches
+
+given:
+  council:
+    $type: array
+    $contains:
+      $quantity: [2, 4]
+      $item:
+        rank: string, == master
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: valid array with exactly two contains matches
+    when:
+      council:
+        - { name: Yoda,      rank: master }
+        - { name: Windu,     rank: master }
+        - { name: Kenobi,    rank: knight }
+    then: []
+
+  - name: valid array with exactly four contains matches
+    when:
+      council:
+        - { name: Yoda,      rank: master }
+        - { name: Windu,     rank: master }
+        - { name: Kenobi,    rank: master }
+        - { name: Plo Koon,  rank: master }
+        - { name: Anakin,    rank: knight }
+    then: []
+
+  - name: invalid array with only one contains match
+    when:
+      council:
+        - { name: Yoda,   rank: master }
+        - { name: Anakin, rank: knight }
+    then:
+      - path: council
+        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        message: Array must contain at least `2` matching items
+        data:
+          quantity: [2, 4]
+
+  - name: invalid array with five contains matches
+    when:
+      council:
+        - { name: Yoda,     rank: master }
+        - { name: Windu,    rank: master }
+        - { name: Kenobi,   rank: master }
+        - { name: Plo Koon, rank: master }
+        - { name: Shaak Ti, rank: master }
+    then:
+      - path: council
+        code: "{{ CODE_CONTAINS_MAX_INVALID }}"
+        message: Array must contain at most `4` matching items
+        data:
+          quantity: [2, 4]

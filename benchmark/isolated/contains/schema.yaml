@@ -1,0 +1,6 @@
+roster:
+  $type: array
+  $contains:
+    $required: [name, role]
+    name: string, size [1, 50]
+    role: string, == captain

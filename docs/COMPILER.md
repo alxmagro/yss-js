@@ -95,6 +95,43 @@ for (let v0 = 0; v0 < payload["tags"].length; v0++) {
 }
 ```
 
+### Contains — Candidate Matching
+
+For each array item, a local buffer `beVar = []` collects errors from running the
+item schema. If the buffer stays empty the item matched; the buffer is then
+discarded. Only one error (the contains constraint violation) is pushed to the
+outer `errTarget`.
+
+```js
+let v2 = 0                       // match counter
+for (let v0 = 0; v0 < val.length; v0++) {
+  const v1  = val[v0]
+  const v3  = []                  // ← short-lived, V8 bump-pointer alloc
+  /* emitNode(v1, itemNode, path, v3) */
+  if (v3.length === 0) {
+    v2++
+    if (v2 >= min) break          // ← early exit once min satisfied (min-only)
+  }
+}
+if (v2 < min) errors.push({ code: 'contains_min_invalid', ... })
+```
+
+**Early-exit strategy** (chosen at codegen time, zero runtime branching):
+
+| `$quantity` | break condition |
+|---|---|
+| exact `N` | `count > N` |
+| `[min, max]` | `count > max` |
+| `[min, ~]` (min-only) | `count >= min` — exits as soon as constraint is met |
+| `[~, max]` (max-only) | `count > max` |
+
+The min-only early exit is critical: without it a valid array with the first item
+matching would still scan every remaining item.
+
+**Why not reuse `errTarget` with save/restore?** Tested and reverted. Setting
+`errTarget.length = savedLen` (array truncation) is more expensive than a fresh
+short-lived `[]` allocation, which V8 can optimize via escape analysis.
+
 ### AnyOf — Early Exit
 
 Branches run sequentially, stopping at the first match. Failed branch errors
@@ -162,7 +199,7 @@ in V8.
 
 ## Performance Notes
 
-Benchmarks vs Ajv (2026-03-12, Node.js v24):
+Benchmarks vs Ajv (2026-03-13, Node.js v24):
 
 | Case | valid | invalid |
 |---|---|---|
@@ -170,11 +207,17 @@ Benchmarks vs Ajv (2026-03-12, Node.js v24):
 | deep object (strict) | parity | YSS 9× faster |
 | array with items | YSS 4× faster | YSS 62% faster |
 | any_of | YSS 4× faster | Ajv 46% faster |
+| contains (min-only) | YSS 2.6× faster | Ajv 33% faster |
 
 **The anyOf invalid gap**: when all branches fail, we collect full branch errors
 into `data.any_of`. Ajv discards branch errors entirely and returns a single
 flat error. This allocation cost is the sole remaining gap. On real workloads
 where payloads are mostly valid, the difference does not appear.
+
+**The contains invalid gap**: when no item matches, every item runs a full
+`emitNode` that creates error objects (including path string computation) only
+to discard them. Ajv generates a lean boolean predicate for `contains` candidates.
+The fix would be a second "test mode" codegen path — deferred.
 
 **Things that did NOT help** (tested and reverted):
 - `require-from-string` instead of `new Function` — no measurable difference

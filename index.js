@@ -16,8 +16,11 @@
 import { readFileSync }  from 'node:fs'
 import { dirname }       from 'node:path'
 import { load }          from 'js-yaml'
-import { buildAST }    from './src/parser/index.js'
-import { compileAST }  from './src/compiler/index.js'
+import { buildAST }      from './src/parser/index.js'
+import { compileAST }    from './src/compiler/index.js'
+import { validateNode }  from './src/validator/index.js'
+
+const DEV_MODE = false
 
 // ── ValidationError ───────────────────────────────────────────────────────────
 
@@ -33,7 +36,9 @@ export class ValidationError extends Error {
 // ── Compile a schema tree into a validate function ────────────────────────────
 
 function compile(tree) {
-  const validate = compileAST(tree)
+  const validate = DEV_MODE
+    ? (payload) => validateNode(payload, tree)
+    : compileAST(tree)
 
   validate.assert = function (payload) {
     const errors = validate(payload)

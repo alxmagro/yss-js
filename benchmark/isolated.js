@@ -30,6 +30,22 @@ const payloads = {
     valid:   { contact: { phone: '+44791123456' } },
     invalid: { contact: { phone: 'x', email: 'bad', handle: { platform: 'facebook', username: '' } } },
   },
+  'contains': {
+    valid: { roster: [
+      { name: 'Alice',   role: 'captain' },
+      { name: 'Bob',     role: 'crew' },
+      { name: 'Carol',   role: 'crew' },
+      { name: 'Dave',    role: 'crew' },
+      { name: 'Eve',     role: 'crew' },
+    ]},
+    invalid: { roster: [
+      { name: 'Alice',   role: 'crew' },
+      { name: 'Bob',     role: 'crew' },
+      { name: 'Carol',   role: 'crew' },
+      { name: 'Dave',    role: 'crew' },
+      { name: 'Eve',     role: 'crew' },
+    ]},
+  },
   'unique': {
     valid: { items: [
       { id: 1, name: 'Alpha',   category: 'a', active: true,  score: 80 },

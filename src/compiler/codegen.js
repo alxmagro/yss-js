@@ -115,6 +115,60 @@ function emitArrayBody (ctx, varExpr, node, pathExpr, errTarget) {
       ctx.emit(`}`)
     }
   }
+
+  if (node.contains != null) {
+    emitContains(ctx, varExpr, node.contains, pathExpr, errTarget)
+  }
+}
+
+// ── Contains ──────────────────────────────────────────────────────────────────
+
+function emitContains (ctx, varExpr, contains, pathExpr, errTarget) {
+  const { item, quantity } = contains
+  const isExact     = typeof quantity === 'number'
+  const min         = isExact ? null : quantity[0]
+  const max         = isExact ? null : quantity[1]
+  const quantityJson = JSON.stringify(quantity)
+
+  const iVar     = ctx.nextId()
+  const elVar    = ctx.nextId()
+  const beVar    = ctx.nextId()
+  const countVar = ctx.nextId()
+
+  ctx.emit(`let ${countVar} = 0`)
+  ctx.emit(`for (let ${iVar} = 0; ${iVar} < ${varExpr}.length; ${iVar}++) {`)
+  ctx.emit(`  const ${elVar} = ${varExpr}[${iVar}]`)
+  ctx.emit(`  const ${beVar} = []`)
+  emitNode(ctx, elVar, item, indexPathExpr(pathExpr, iVar), beVar)
+  ctx.emit(`  if (${beVar}.length === 0) {`)
+  ctx.emit(`    ${countVar}++`)
+  if (isExact)          ctx.emit(`    if (${countVar} > ${quantity}) break`)
+  else if (max != null) ctx.emit(`    if (${countVar} > ${max}) break`)
+  else if (min != null) ctx.emit(`    if (${countVar} >= ${min}) break`)
+  ctx.emit(`  }`)
+  ctx.emit(`}`)
+
+  if (isExact) {
+    const msg = quantity === 0
+      ? 'Array must not contain any matching items'
+      : `Array must contain exactly \`${quantity}\` matching items`
+    ctx.emit(`if (${countVar} !== ${quantity}) {`)
+    ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_exact_invalid', message: '${msg}', data: { quantity: ${quantityJson} } })`)
+    ctx.emit(`}`)
+  } else {
+    if (max != null) {
+      ctx.emit(`if (${countVar} > ${max}) {`)
+      ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_max_invalid', message: 'Array must contain at most \`${max}\` matching items', data: { quantity: ${quantityJson} } })`)
+      ctx.emit(`}`)
+    }
+    if (min != null) {
+      const minMsg = min === 1 ? 'Array must contain at least one matching item' : `Array must contain at least \`${min}\` matching items`
+      const keyword = max != null ? 'else if' : 'if'
+      ctx.emit(`${keyword} (${countVar} < ${min}) {`)
+      ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_min_invalid', message: '${minMsg}', data: { quantity: ${quantityJson} } })`)
+      ctx.emit(`}`)
+    }
+  }
 }
 
 // ── AnyOf ─────────────────────────────────────────────────────────────────────
