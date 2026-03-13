@@ -19,5 +19,6 @@ CODE_ANYOF_INVALID:         anyof_invalid
 CODE_ALLOF_INVALID:         allof_invalid
 CODE_ONEOF_INVALID:         oneof_invalid
 CODE_ONEOF_MULTIPLE:        oneof_multiple
+CODE_DEPENDENT_REQUIRED:    dependent_required
 CODE_CONST_MISMATCH:        const_mismatch
 CODE_LIST_POSITION_MISSING: list_position_missing

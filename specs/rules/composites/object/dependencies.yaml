@@ -1,0 +1,77 @@
+feature: Object composite — dependent required fields
+
+given:
+  payment:
+    $dependencies:
+      credit_card: [billing_address]
+      bank_transfer: [iban, bic]
+    credit_card: string
+    billing_address:
+      $required: [street, city]
+      street: string
+      city: string
+      zip_code: string
+    bank_transfer: string
+    iban: string
+    bic: string
+
+errors:
+  - &dep_required
+    code: "{{ CODE_DEPENDENT_REQUIRED }}"
+    message: Value does not match all conditions
+
+scenarios:
+  - name: optional field absent
+    when: {}
+    then: []
+
+  - name: trigger field absent
+    when:
+      payment:
+        bank_transfer: "DE89 3704 0044 0532 0130 00"
+        iban: DE89370400440532013000
+        bic: COBADEFFXXX
+    then: []
+
+  - name: trigger present with all dependencies satisfied
+    when:
+      payment:
+        credit_card: "4111-1111-1111-1111"
+        billing_address:
+          street: 1977 Tatooine Ave
+          city: Mos Eisley
+    then: []
+
+  - name: trigger present with dependency missing
+    when:
+      payment:
+        credit_card: "4111-1111-1111-1111"
+    then:
+      - path: payment
+        <<: *dep_required
+        data:
+          trigger: credit_card
+          missing: [billing_address]
+
+  - name: trigger present with one of multiple dependencies missing
+    when:
+      payment:
+        bank_transfer: "DE89 3704 0044 0532 0130 00"
+        iban: DE89370400440532013000
+    then:
+      - path: payment
+        <<: *dep_required
+        data:
+          trigger: bank_transfer
+          missing: [bic]
+
+  - name: trigger present with all dependencies missing
+    when:
+      payment:
+        bank_transfer: "DE89 3704 0044 0532 0130 00"
+    then:
+      - path: payment
+        <<: *dep_required
+        data:
+          trigger: bank_transfer
+          missing: [iban, bic]

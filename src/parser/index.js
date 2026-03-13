@@ -91,6 +91,8 @@ function buildObjectNode (raw, inheritedStrict) {
     if (raw.$in     !== undefined) node.in     = raw.$in
     if (raw.$not_in !== undefined) node.not_in = raw.$not_in
 
+    if (raw.$dependencies !== undefined) node.dependencies = raw.$dependencies
+
     if (raw.$item !== undefined) {
       node.item = buildNode(raw.$item, strict)
     }

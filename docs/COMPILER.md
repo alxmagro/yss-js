@@ -4,7 +4,15 @@
 > and design decisions accumulated while building and tuning the YSS compiler.
 > It is written for the compiler author (human or AI) returning to this codebase —
 > not as API documentation, but as institutional memory: what was tried, what worked,
-> what didn't, and why. Update it whenever a non-obvious decision is made.
+> what didn't, and why.
+>
+> **Update this document when:**
+> - A non-obvious decision was made (you chose A over B for a reason not visible in the code)
+> - A new codegen pattern is introduced that will be reused or extended
+> - There is a performance tradeoff worth remembering (something that looks worse but is faster, or vice-versa)
+> - A benchmark produces a surprising or reference-worthy result
+>
+> **Do not update for** straightforward rule implementations where the code speaks for itself.
 
 Instead of interpreting the AST on every `validate(payload)` call, the compiler
 walks the AST **once at schema-load time** and produces a native JavaScript function

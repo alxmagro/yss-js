@@ -12,6 +12,7 @@ export const code = {
   NOT_IN_INVALID:        'not_in_invalid',
   FORMAT_INVALID:        'format_invalid',
   ANYOF_INVALID:         'anyof_invalid',
+  DEPENDENT_REQUIRED:    'dependent_required',
   CONST_MISMATCH:        'const_mismatch',
   LIST_POSITION_MISSING: 'list_position_missing',
 }

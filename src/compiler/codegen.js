@@ -82,6 +82,19 @@ function emitObjectBody (ctx, varExpr, node, pathExpr, errTarget) {
     ctx.emit(`}`)
   }
 
+  if (node.dependencies != null) {
+    for (const [trigger, deps] of Object.entries(node.dependencies)) {
+      const depsRef    = ctx.addRef(deps)
+      const missingVar = ctx.nextId()
+
+      ctx.emit(`if (${varExpr}["${trigger}"] !== undefined) {`)
+      ctx.emit(`  const ${missingVar} = refs.${depsRef}.filter(d => ${varExpr}[d] === undefined)`)
+      ctx.emit(`  if (${missingVar}.length > 0)`)
+      ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'dependent_required', message: 'Value does not match all conditions', data: { trigger: "${trigger}", missing: ${missingVar} } })`)
+      ctx.emit(`}`)
+    }
+  }
+
   if (node.strict) {
     const allowedRef = ctx.addRef(new Set(Object.keys(node.fields)))
     const kVar  = ctx.nextId()

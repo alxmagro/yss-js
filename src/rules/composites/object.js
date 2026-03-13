@@ -27,6 +27,15 @@ export default function object (value, node, path, validateNode) {
     errors.push(...validateNode(fieldValue, fieldNode, fieldPath))
   }
 
+  if (node.dependencies != null) {
+    for (const [trigger, deps] of Object.entries(node.dependencies)) {
+      if (value[trigger] === undefined) continue
+      const missing = deps.filter(dep => value[dep] === undefined)
+      if (missing.length > 0)
+        errors.push({ path, code: 'dependent_required', message: 'Value does not match all conditions', data: { trigger, missing } })
+    }
+  }
+
   if (strict) {
     for (const key of Object.keys(value)) {
       if (!(key in fields)) {
