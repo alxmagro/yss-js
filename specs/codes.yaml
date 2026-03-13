@@ -15,5 +15,7 @@ CODE_CONTAINS_MAX_INVALID:   contains_max_invalid
 CODE_CONTAINS_EXACT_INVALID: contains_exact_invalid
 CODE_UNIQUE_INVALID:        unique_invalid
 CODE_ANYOF_INVALID:         anyof_invalid
+CODE_ONEOF_INVALID:         oneof_invalid
+CODE_ONEOF_MULTIPLE:        oneof_multiple
 CODE_CONST_MISMATCH:        const_mismatch
 CODE_LIST_POSITION_MISSING: list_position_missing

@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "properties": {
+    "shipment": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["delivery"],
+          "properties": {
+            "delivery": {
+              "type": "object",
+              "required": ["address"],
+              "properties": {
+                "address": { "type": "string" },
+                "carrier": { "type": "string" },
+                "status":  { "type": "string", "enum": ["pending", "shipped", "delivered", "returned"] }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["pickup"],
+          "properties": {
+            "pickup": {
+              "type": "object",
+              "required": ["location"],
+              "properties": {
+                "location": { "type": "string" },
+                "slot":     { "type": "string" }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

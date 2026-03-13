@@ -156,6 +156,30 @@ function buildObjectNode (raw, inheritedStrict) {
     }
   }
 
+  // ── Promote to OneOf ───────────────────────────────────────────────────────
+  if (raw.$one_of !== undefined) {
+    const sharedFields = node.fields ?? {}
+
+    const items = raw.$one_of.map(branch => {
+      const branchNode = buildNode(branch, strict)
+
+      if (Object.keys(sharedFields).length > 0) {
+        const mergedFields = { ...sharedFields, ...(branchNode.fields ?? {}) }
+        branchNode.fields  = mergedFields
+        if (!branchNode.type) branchNode.type = 'object'
+      }
+
+      return branchNode
+    })
+
+    return {
+      type:     'one_of',
+      required: node.required,
+      strict,
+      items,
+    }
+  }
+
   return node
 }
 

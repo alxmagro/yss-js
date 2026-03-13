@@ -16,6 +16,11 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors') {
     return
   }
 
+  if (type === 'one_of') {
+    emitOneOf(ctx, varExpr, node, pathExpr, errTarget)
+    return
+  }
+
   const isArr = type === 'array'  || (type === 'any' && (node.item != null || node.at != null))
   const isObj = type === 'object' || (type === 'any' && node.fields != null)
 
@@ -172,6 +177,27 @@ function emitContains (ctx, varExpr, contains, pathExpr, errTarget) {
 }
 
 // ── AnyOf ─────────────────────────────────────────────────────────────────────
+
+function emitOneOf (ctx, varExpr, node, pathExpr, errTarget) {
+  const countVar = ctx.nextId()
+
+  ctx.emit(`let ${countVar} = 0`)
+
+  for (const branch of node.items) {
+    const beVar = ctx.nextId()
+    ctx.emit(`if (${countVar} < 2) {`)
+    ctx.emit(`  const ${beVar} = []`)
+    emitNode(ctx, varExpr, branch, pathExpr, beVar)
+    ctx.emit(`  if (${beVar}.length === 0) { ${countVar}++ }`)
+    ctx.emit(`}`)
+  }
+
+  ctx.emit(`if (${countVar} === 0) {`)
+  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'oneof_invalid', message: 'Value does not match any condition' })`)
+  ctx.emit(`} else if (${countVar} > 1) {`)
+  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'oneof_multiple', message: 'Value matches more than one condition' })`)
+  ctx.emit(`}`)
+}
 
 function emitAnyOf (ctx, varExpr, node, pathExpr, errTarget) {
   const matchedVar = ctx.nextId()

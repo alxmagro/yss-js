@@ -1,5 +1,11 @@
 # Compiler Architecture
 
+> **Purpose of this document**: This is a living log of insights, lessons learned,
+> and design decisions accumulated while building and tuning the YSS compiler.
+> It is written for the compiler author (human or AI) returning to this codebase —
+> not as API documentation, but as institutional memory: what was tried, what worked,
+> what didn't, and why. Update it whenever a non-obvious decision is made.
+
 Instead of interpreting the AST on every `validate(payload)` call, the compiler
 walks the AST **once at schema-load time** and produces a native JavaScript function
 via `new Function()`. Validation then runs pure generated code with no dynamic
@@ -134,27 +140,54 @@ short-lived `[]` allocation, which V8 can optimize via escape analysis.
 
 ### AnyOf — Early Exit
 
-Branches run sequentially, stopping at the first match. Failed branch errors
-are collected only when all branches fail (needed for the `any_of` error data):
+Branches run sequentially, stopping at the first match:
 
 ```js
 let v0 = false          // matched flag
-const v1 = []           // branch error accumulator
 
 if (!v0) {
   const v2 = []
   /* emitNode branch 0 → v2 */
-  if (v2.length === 0) { v0 = true } else { v1.push(v2) }
+  if (v2.length === 0) { v0 = true }
 }
 if (!v0) {
   const v3 = []
   /* emitNode branch 1 → v3 */
-  if (v3.length === 0) { v0 = true } else { v1.push(v3) }
+  if (v3.length === 0) { v0 = true }
 }
 if (!v0) {
-  errors.push({ code: 'anyof_invalid', data: { value, any_of: v1 } })
+  errors.push({ code: 'anyof_invalid', message: 'Value does not match any condition' })
 }
 ```
+
+### OneOf — Must Run All Branches
+
+Unlike `anyOf`, `oneOf` cannot short-circuit on the first match — it must verify
+that **exactly one** branch matches. Branches stop only after `count >= 2`
+(already invalid):
+
+```js
+let v0 = 0              // match counter
+
+if (v0 < 2) {
+  const v1 = []
+  /* emitNode branch 0 → v1 */
+  if (v1.length === 0) { v0++ }
+}
+if (v0 < 2) {
+  const v2 = []
+  /* emitNode branch 1 → v2 */
+  if (v2.length === 0) { v0++ }
+}
+if (v0 === 0)      errors.push({ code: 'oneof_invalid',  ... })
+else if (v0 > 1)   errors.push({ code: 'oneof_multiple', ... })
+```
+
+**Consequence**: on valid payloads, `oneOf` always runs all N branches, while
+`anyOf` runs only 1 on average. This is structural — not an optimization gap.
+The remaining per-branch overhead (allocating `beVar = []` and creating error
+objects for non-matching branches) is the same as `anyOf` and would be solved
+by the "test mode" codegen path.
 
 ---
 
@@ -208,6 +241,7 @@ Benchmarks vs Ajv (2026-03-13, Node.js v24):
 | array with items | YSS 4× faster | YSS 62% faster |
 | any_of | YSS 4× faster | Ajv 46% faster |
 | contains (min-only) | YSS 2.6× faster | Ajv 33% faster |
+| one_of | Ajv 44% faster | YSS 59% faster |
 
 **The anyOf invalid gap**: when all branches fail, we collect full branch errors
 into `data.any_of`. Ajv discards branch errors entirely and returns a single

@@ -1,14 +1,21 @@
 feature: AnyOf composite validation
 
 given:
-  id:
+  order:
+    $required: [buyer, country]
+    buyer: string
+    country: string
     $any_of:
-      - integer
-      - string
-  value:
-    $any_of:
-      - integer
-      - string, enum [active, inactive]
+      - country: string, == US
+      - $required: [shipping]
+        shipping:
+          $required: [method, cost]
+          method: string, enum [standard, express, pickup]
+          cost: number, >= 0
+          tracking:
+            code: string
+            carrier: string
+            status: string, enum [pending, shipped, delivered, returned]
 
 errors:
   - &anyof_invalid
@@ -16,47 +23,68 @@ errors:
     message: Value does not match any condition
 
 scenarios:
-  - name: optional fields absent
+  - name: optional field absent
     when: {}
     then: []
 
-  - name: integer matches first branch
+  - name: matches first branch
     when:
-      id: 42
+      order:
+        buyer: Luke Skywalker
+        country: US
     then: []
 
-  - name: string matches second branch
+  - name: matches second branch
     when:
-      id: hello
+      order:
+        buyer: Han Solo
+        country: BR
+        shipping:
+          method: standard
+          cost: 15.50
     then: []
 
-  - name: integer matches first branch of value
+  - name: matches second branch with nested fields
     when:
-      value: 10
+      order:
+        buyer: Leia Organa
+        country: FR
+        shipping:
+          method: express
+          cost: 30.00
+          tracking:
+            code: TRK-1977
+            carrier: Falcon Cargo
+            status: shipped
     then: []
 
-  - name: valid enum string matches second branch
+  - name: matches both branches
     when:
-      value: active
+      order:
+        buyer: Obi-Wan Kenobi
+        country: US
+        shipping:
+          method: pickup
+          cost: 0
     then: []
 
-  - name: null fails both branches
+  - name: no branch matches
     when:
-      id: ~
+      order:
+        buyer: Darth Vader
+        country: DE
     then:
       - <<: *anyof_invalid
-        path: id
+        path: order
 
-  - name: boolean fails both branches
+  - name: no branch matches due to nested validation failure
     when:
-      id: true
+      order:
+        buyer: Boba Fett
+        country: AU
+        shipping:
+          method: drone
+          cost: 20.00
     then:
       - <<: *anyof_invalid
-        path: id
-
-  - name: invalid enum string fails both branches
-    when:
-      value: pending
-    then:
-      - <<: *anyof_invalid
-        path: value
+        path: order

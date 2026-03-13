@@ -3,10 +3,14 @@ import testType     from '../rules/scalars/type.js'
 import testObject   from '../rules/composites/object.js'
 import testArray    from '../rules/composites/array.js'
 import testAnyOf    from '../rules/composites/any_of.js'
+import testOneOf    from '../rules/composites/one_of.js'
 
 export function validateNode (value, node, path = '') {
   if (node.type === 'any_of')
     return testAnyOf(value, node, path, validateNode)
+
+  if (node.type === 'one_of')
+    return testOneOf(value, node, path, validateNode)
 
   const typeError = testType(value, node.type, path)
 

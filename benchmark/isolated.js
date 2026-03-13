@@ -46,6 +46,10 @@ const payloads = {
       { name: 'Eve',     role: 'crew' },
     ]},
   },
+  'one-of': {
+    valid:   { shipment: { delivery: { address: '1977 Tatooine Ave, Mos Eisley', carrier: 'Falcon Cargo', status: 'pending' } } },
+    invalid: { shipment: { delivery: { address: '1977 Tatooine Ave, Mos Eisley' }, pickup: { location: 'Mos Eisley Cantina' } } },
+  },
   'unique': {
     valid: { items: [
       { id: 1, name: 'Alpha',   category: 'a', active: true,  score: 80 },
