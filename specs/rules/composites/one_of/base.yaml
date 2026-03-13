@@ -1,4 +1,4 @@
-feature: OneOf composite validation
+feature: OneOf composite — Base validation
 
 given:
   shipment:
@@ -62,6 +62,8 @@ scenarios:
     then:
       - <<: *oneof_multiple
         path: shipment
+        data:
+          matches_at: [0, 1]
 
   - name: no branch matches
     when:

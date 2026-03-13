@@ -260,6 +260,32 @@ The fix would be a second "test mode" codegen path — deferred.
 
 ---
 
+## DEV_MODE — Iterating on New Rules
+
+`index.js` exposes a `DEV_MODE` flag (top of file, defaults to `false`):
+
+```js
+const DEV_MODE = false
+```
+
+When `true`, every `validate(payload)` call goes through the interpreter
+(`validateNode`) instead of the compiled function. This lets you implement and
+test a new rule in two steps:
+
+1. **Interpreter first** (`DEV_MODE = true`): add the rule to the parser
+   (`src/parser/index.js`), the validator (`src/rules/composites/` or
+   `src/rules/scalars/`), and the validator dispatcher (`src/validator/index.js`).
+   Run `npm run specs` to confirm correctness before touching the compiler.
+
+2. **Compiler next** (`DEV_MODE = false`): implement the corresponding `emit*`
+   function in `src/compiler/codegen.js`. Run `npm run specs` again — the same
+   spec files cover both paths.
+
+**Never commit with `DEV_MODE = true`** — the interpreter is ~10× slower than
+the compiled path and skips all codegen coverage.
+
+---
+
 ## Integration Point
 
 `index.js` (root) calls `compileAST(tree)` and attaches `.assert` and `.valid`:

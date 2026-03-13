@@ -179,23 +179,29 @@ function emitContains (ctx, varExpr, contains, pathExpr, errTarget) {
 // ── AnyOf ─────────────────────────────────────────────────────────────────────
 
 function emitOneOf (ctx, varExpr, node, pathExpr, errTarget) {
-  const countVar = ctx.nextId()
+  const countVar       = ctx.nextId()
+  const firstMatchVar  = ctx.nextId()
+  const secondMatchVar = ctx.nextId()
 
   ctx.emit(`let ${countVar} = 0`)
+  ctx.emit(`let ${firstMatchVar} = -1`)
+  ctx.emit(`let ${secondMatchVar} = -1`)
 
-  for (const branch of node.items) {
+  for (let i = 0; i < node.items.length; i++) {
     const beVar = ctx.nextId()
     ctx.emit(`if (${countVar} < 2) {`)
     ctx.emit(`  const ${beVar} = []`)
-    emitNode(ctx, varExpr, branch, pathExpr, beVar)
-    ctx.emit(`  if (${beVar}.length === 0) { ${countVar}++ }`)
+    emitNode(ctx, varExpr, node.items[i], pathExpr, beVar)
+    ctx.emit(`  if (${beVar}.length === 0) {`)
+    ctx.emit(`    if (${countVar}++ === 0) ${firstMatchVar} = ${i}; else ${secondMatchVar} = ${i}`)
+    ctx.emit(`  }`)
     ctx.emit(`}`)
   }
 
   ctx.emit(`if (${countVar} === 0) {`)
   ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'oneof_invalid', message: 'Value does not match any condition' })`)
   ctx.emit(`} else if (${countVar} > 1) {`)
-  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'oneof_multiple', message: 'Value matches more than one condition' })`)
+  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'oneof_multiple', message: 'Value matches more than one condition', data: { matches_at: [${firstMatchVar}, ${secondMatchVar}] } })`)
   ctx.emit(`}`)
 }
 

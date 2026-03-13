@@ -1,0 +1,116 @@
+feature: OneOf composite — Multiple branches conflict
+
+given:
+  notification:
+    $one_of:
+      - $required: [email]
+        email:
+          $required: [address]
+          address: string
+          subject: string
+      - $required: [sms]
+        sms:
+          $required: [phone]
+          phone: string
+          body: string
+      - $required: [push]
+        push:
+          $required: [token]
+          token: string
+          title: string
+          badge: integer
+
+errors:
+  - &oneof_invalid
+    code: "{{ CODE_ONEOF_INVALID }}"
+    message: Value does not match any condition
+  - &oneof_multiple
+    code: "{{ CODE_ONEOF_MULTIPLE }}"
+    message: Value matches more than one condition
+
+scenarios:
+  - name: matches first branch only
+    when:
+      notification:
+        email:
+          address: luke@rebellion.org
+          subject: Mission briefing
+    then: []
+
+  - name: matches second branch only
+    when:
+      notification:
+        sms:
+          phone: "+15550001234"
+          body: Your code is 1977
+    then: []
+
+  - name: matches third branch only
+    when:
+      notification:
+        push:
+          token: abc123
+          title: New message
+          badge: 1
+    then: []
+
+  - name: matches first and second branch
+    when:
+      notification:
+        email:
+          address: luke@rebellion.org
+        sms:
+          phone: "+15550001234"
+    then:
+      - <<: *oneof_multiple
+        path: notification
+        data:
+          matches_at: [0, 1]
+
+  - name: matches first and third branch
+    when:
+      notification:
+        email:
+          address: luke@rebellion.org
+        push:
+          token: abc123
+    then:
+      - <<: *oneof_multiple
+        path: notification
+        data:
+          matches_at: [0, 2]
+
+  - name: matches second and third branch
+    when:
+      notification:
+        sms:
+          phone: "+15550001234"
+        push:
+          token: abc123
+    then:
+      - <<: *oneof_multiple
+        path: notification
+        data:
+          matches_at: [1, 2]
+
+  - name: matches all branches
+    when:
+      notification:
+        email:
+          address: luke@rebellion.org
+        sms:
+          phone: "+15550001234"
+        push:
+          token: abc123
+    then:
+      - <<: *oneof_multiple
+        path: notification
+        data:
+          matches_at: [0, 1]
+
+  - name: no branch matches
+    when:
+      notification: {}
+    then:
+      - <<: *oneof_invalid
+        path: notification
