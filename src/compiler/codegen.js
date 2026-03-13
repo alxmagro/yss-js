@@ -21,6 +21,11 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors') {
     return
   }
 
+  if (type === 'all_of') {
+    emitAllOf(ctx, varExpr, node, pathExpr, errTarget)
+    return
+  }
+
   const isArr = type === 'array'  || (type === 'any' && (node.item != null || node.at != null))
   const isObj = type === 'object' || (type === 'any' && node.fields != null)
 
@@ -173,6 +178,39 @@ function emitContains (ctx, varExpr, contains, pathExpr, errTarget) {
       ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_min_invalid', message: '${minMsg}', data: { quantity: ${quantityJson} } })`)
       ctx.emit(`}`)
     }
+  }
+}
+
+// ── AllOf ─────────────────────────────────────────────────────────────────────
+
+function emitAllOf (ctx, varExpr, node, pathExpr, errTarget) {
+  const emitBranches = () => {
+    const doneVar = ctx.nextId()
+    ctx.emit(`let ${doneVar} = false`)
+
+    for (let i = 0; i < node.items.length; i++) {
+      const beVar = ctx.nextId()
+      ctx.emit(`if (!${doneVar}) {`)
+      ctx.emit(`  const ${beVar} = []`)
+      emitNode(ctx, varExpr, node.items[i], pathExpr, beVar)
+      ctx.emit(`  if (${beVar}.length > 0) {`)
+      ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'allof_invalid', message: 'Value does not match all conditions', data: { failed_at: ${i} } })`)
+      ctx.emit(`    ${doneVar} = true`)
+      ctx.emit(`  }`)
+      ctx.emit(`}`)
+    }
+  }
+
+  if (node.baseType != null) {
+    const cond     = typeMatchCond(varExpr, node.baseType)
+    const expected = JSON.stringify(node.baseType)
+    ctx.emit(`if (!(${cond})) {`)
+    ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'type_mismatch', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } })`)
+    ctx.emit(`} else {`)
+    emitBranches()
+    ctx.emit(`}`)
+  } else {
+    emitBranches()
   }
 }
 

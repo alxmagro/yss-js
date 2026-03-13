@@ -26,6 +26,10 @@ const payloads = {
     valid:   { items: [{ id: 1, name: 'Widget', price: 9.99 }, { id: 2, name: 'Gadget', price: 24.99 }] },
     invalid: { items: [{ id: -1, name: '', price: -5 }, { id: 'x', name: 'x'.repeat(60), price: 'free' }] },
   },
+  'all-of': {
+    valid:   { product: { name: 'Wireless Headphones', price: 49.99, sku: 'WH-1000X', stock: 42, category: 'electronics', active: true } },
+    invalid: { product: { name: 'X', price: -5, sku: 'WH', stock: -1, category: 'gadgets', active: 'yes' } },
+  },
   'any-of': {
     valid:   { contact: { phone: '+44791123456' } },
     invalid: { contact: { phone: 'x', email: 'bad', handle: { platform: 'facebook', username: '' } } },

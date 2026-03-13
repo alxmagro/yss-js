@@ -1,0 +1,97 @@
+feature: AllOf composite — Schema composition
+
+# In practice, writing branches inline like this is redundant — the rules could simply
+# be declared directly on the object. This spec exists to test the $all_of merging
+# behavior, which becomes meaningful when branches come from $ref imports.
+
+given:
+  character:
+    $all_of:
+      - $required: [name, side]
+        name: string
+        side: string, enum [light, dark]
+      - $required: [species, homeworld]
+        species: string
+        homeworld: string
+      - $required: [weapon]
+        weapon: string
+        rank: string
+
+errors:
+  - &allof_invalid
+    code: "{{ CODE_ALLOF_INVALID }}"
+    message: Value does not match all conditions
+
+scenarios:
+  - name: optional field absent
+    when: {}
+    then: []
+
+  - name: all branches match
+    when:
+      character:
+        name: Luke Skywalker
+        side: light
+        species: human
+        homeworld: Tatooine
+        weapon: lightsaber
+        rank: Jedi Knight
+    then: []
+
+  - name: all branches match with only required fields
+    when:
+      character:
+        name: Darth Vader
+        side: dark
+        species: human
+        homeworld: Tatooine
+        weapon: lightsaber
+    then: []
+
+  - name: first branch fails
+    when:
+      character:
+        name: Yoda
+        side: neither
+        species: unknown
+        homeworld: Dagobah
+        weapon: lightsaber
+    then:
+      - <<: *allof_invalid
+        path: character
+        data:
+          failed_at: 0
+
+  - name: second branch fails
+    when:
+      character:
+        name: Han Solo
+        side: light
+        weapon: blaster
+    then:
+      - <<: *allof_invalid
+        path: character
+        data:
+          failed_at: 1
+
+  - name: third branch fails
+    when:
+      character:
+        name: Leia Organa
+        side: light
+        species: human
+        homeworld: Alderaan
+    then:
+      - <<: *allof_invalid
+        path: character
+        data:
+          failed_at: 2
+
+  - name: all branches fail
+    when:
+      character: {}
+    then:
+      - <<: *allof_invalid
+        path: character
+        data:
+          failed_at: 0

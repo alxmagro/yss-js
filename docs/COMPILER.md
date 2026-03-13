@@ -160,6 +160,36 @@ if (!v0) {
 }
 ```
 
+### AllOf — Short-Circuit on First Failure
+
+`allOf` runs branches sequentially and stops at the first failure — the opposite
+of `anyOf`. Only one error is ever emitted (`allof_invalid` with `failed_at: i`).
+
+```js
+let v0 = false          // done flag
+
+if (!v0) {
+  const v1 = []
+  /* emitNode branch 0 → v1 */
+  if (v1.length > 0) { errors.push({ code: 'allof_invalid', data: { failed_at: 0 } }); v0 = true }
+}
+if (!v0) {
+  const v2 = []
+  /* emitNode branch 1 → v2 */
+  if (v2.length > 0) { errors.push({ code: 'allof_invalid', data: { failed_at: 1 } }); v0 = true }
+}
+```
+
+**`baseType` pre-check**: when the schema declares `$type` alongside `$all_of`
+(e.g. `$type: array`), the parser stores `baseType` on the node. The codegen
+emits a type check *before* running branches, wrapped in an `if/else` block so
+branches are skipped entirely on type mismatch. This avoids incorrect
+`allof_invalid` errors when the real problem is a type error.
+
+**Performance**: `allOf` has no branch-error-collection overhead — a failed
+branch only needs to set the done flag. This gives it a consistent edge over
+`anyOf`/`oneOf` on invalid payloads.
+
 ### OneOf — Must Run All Branches
 
 Unlike `anyOf`, `oneOf` cannot short-circuit on the first match — it must verify
@@ -240,6 +270,7 @@ Benchmarks vs Ajv (2026-03-13, Node.js v24):
 | deep object (strict) | parity | YSS 9× faster |
 | array with items | YSS 4× faster | YSS 62% faster |
 | any_of | YSS 4× faster | Ajv 46% faster |
+| all_of | YSS 3.7× faster | YSS 2.4× faster |
 | contains (min-only) | YSS 2.6× faster | Ajv 33% faster |
 | one_of | Ajv 44% faster | YSS 59% faster |
 

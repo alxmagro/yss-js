@@ -156,6 +156,20 @@ function buildObjectNode (raw, inheritedStrict) {
     }
   }
 
+  // ── Promote to AllOf ───────────────────────────────────────────────────────
+  if (raw.$all_of !== undefined) {
+    const baseType = node.type !== 'any' ? node.type : undefined
+    const items    = raw.$all_of.map(branch => buildNode(branch, strict))
+
+    return {
+      type:     'all_of',
+      baseType,
+      required: node.required,
+      strict,
+      items,
+    }
+  }
+
   // ── Promote to OneOf ───────────────────────────────────────────────────────
   if (raw.$one_of !== undefined) {
     const sharedFields = node.fields ?? {}

@@ -4,6 +4,7 @@ import testObject   from '../rules/composites/object.js'
 import testArray    from '../rules/composites/array.js'
 import testAnyOf    from '../rules/composites/any_of.js'
 import testOneOf    from '../rules/composites/one_of.js'
+import testAllOf    from '../rules/composites/all_of.js'
 
 export function validateNode (value, node, path = '') {
   if (node.type === 'any_of')
@@ -11,6 +12,9 @@ export function validateNode (value, node, path = '') {
 
   if (node.type === 'one_of')
     return testOneOf(value, node, path, validateNode)
+
+  if (node.type === 'all_of')
+    return testAllOf(value, node, path, validateNode)
 
   const typeError = testType(value, node.type, path)
 
