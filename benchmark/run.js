@@ -68,9 +68,10 @@ const ajvValidate = ajv.compile(ajvSchema)
 
 // ── Benchmark ─────────────────────────────────────────────────────────────────
 
-const GOAL = 1.5  // yss must be no more than 1.5x slower than ajv
+const GOAL       = 1.5
+const ITERATIONS = Number(process.argv[2]?.replace(/_/g, '')) || 100_000
 
-function bench(name, fn, iterations = 100_000) {
+function bench(name, fn, iterations = ITERATIONS) {
   for (let i = 0; i < 1000; i++) fn()
 
   const start = performance.now()
@@ -91,10 +92,15 @@ console.log('\n── invalid payload ──────────────
 const yssInvalid = bench('yss', () => yss(invalidPayload))
 const ajvInvalid = bench('ajv', () => ajvValidate(invalidPayload))
 
-const ratio = ((ajvValid + ajvInvalid) / (yssValid + yssInvalid)).toFixed(2)
-const met    = ratio <= GOAL
-const status = met ? '\x1b[32m✓ goal met\x1b[0m' : '\x1b[31m✗ not yet\x1b[0m'
+const yssTotal = yssValid + yssInvalid
+const ajvTotal = ajvValid + ajvInvalid
+const pct      = (((yssTotal - ajvTotal) / ajvTotal) * 100).toFixed(1)
+const faster   = yssTotal >= ajvTotal
+const metGoal  = (ajvTotal / yssTotal) <= GOAL
+const status   = metGoal ? '\x1b[32m✓ goal met\x1b[0m' : '\x1b[31m✗ not yet\x1b[0m'
+const diff     = faster
+  ? `\x1b[32myss is ${pct}% faster than ajv\x1b[0m`
+  : `\x1b[33myss is ${Math.abs(pct)}% slower than ajv\x1b[0m`
 console.log('\n── summary ──────────────────────────────────────────────────')
-console.log(`  goal          ${GOAL}x slower than ajv`)
-console.log(`  ajv / yss     ${ratio}x   ${status}`)
+console.log(`  ${diff}   ${status}`)
 console.log()

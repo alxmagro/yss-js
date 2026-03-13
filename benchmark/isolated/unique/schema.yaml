@@ -1,0 +1,9 @@
+items:
+  $type:   array
+  $unique: true
+  $item:
+    id:       integer
+    name:     string
+    category: string
+    active:   boolean
+    score:    number

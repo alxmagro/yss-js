@@ -46,17 +46,6 @@ scenarios:
     then:
       - <<: *anyof_invalid
         path: id
-        data:
-          value: ~
-          any_of:
-            - - path: id
-                code: "{{ CODE_TYPE_MISMATCH }}"
-                message: Unexpected type
-                data: { value: ~, expected: integer }
-            - - path: id
-                code: "{{ CODE_TYPE_MISMATCH }}"
-                message: Unexpected type
-                data: { value: ~, expected: string }
 
   - name: boolean fails both branches
     when:
@@ -64,17 +53,6 @@ scenarios:
     then:
       - <<: *anyof_invalid
         path: id
-        data:
-          value: true
-          any_of:
-            - - path: id
-                code: "{{ CODE_TYPE_MISMATCH }}"
-                message: Unexpected type
-                data: { value: true, expected: integer }
-            - - path: id
-                code: "{{ CODE_TYPE_MISMATCH }}"
-                message: Unexpected type
-                data: { value: true, expected: string }
 
   - name: invalid enum string fails both branches
     when:
@@ -82,14 +60,3 @@ scenarios:
     then:
       - <<: *anyof_invalid
         path: value
-        data:
-          value: pending
-          any_of:
-            - - path: value
-                code: "{{ CODE_TYPE_MISMATCH }}"
-                message: Unexpected type
-                data: { value: pending, expected: integer }
-            - - path: value
-                code: "{{ CODE_ENUM_INVALID }}"
-                message: Value `pending` is not allowed
-                data: { value: pending, enum: [active, inactive] }

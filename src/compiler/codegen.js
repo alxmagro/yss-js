@@ -1,4 +1,8 @@
-import { aliases }                                          from '../aliases.js'
+import { createRequire } from 'node:module'
+import { aliases }       from '../aliases.js'
+
+const _require = createRequire(import.meta.url)
+const deepEqual = _require('fast-deep-equal')
 import { fieldPathExpr, indexPathExpr, atPathExpr,
          typeMatchCond }                                    from './fragments.js'
 
@@ -117,10 +121,8 @@ function emitArrayBody (ctx, varExpr, node, pathExpr, errTarget) {
 
 function emitAnyOf (ctx, varExpr, node, pathExpr, errTarget) {
   const matchedVar = ctx.nextId()
-  const aeVar      = ctx.nextId()
 
   ctx.emit(`let ${matchedVar} = false`)
-  ctx.emit(`const ${aeVar} = []`)
 
   for (const branch of node.items) {
     const beVar = ctx.nextId()
@@ -128,12 +130,11 @@ function emitAnyOf (ctx, varExpr, node, pathExpr, errTarget) {
     ctx.emit(`  const ${beVar} = []`)
     emitNode(ctx, varExpr, branch, pathExpr, beVar)
     ctx.emit(`  if (${beVar}.length === 0) { ${matchedVar} = true }`)
-    ctx.emit(`  else { ${aeVar}.push(${beVar}) }`)
     ctx.emit(`}`)
   }
 
   ctx.emit(`if (!${matchedVar}) {`)
-  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'anyof_invalid', message: 'Value does not match any condition', data: { value: ${varExpr}, any_of: ${aeVar} } })`)
+  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'anyof_invalid', message: 'Value does not match any condition' })`)
   ctx.emit(`}`)
 }
 
@@ -255,19 +256,18 @@ function emitCompare (ctx, varExpr, param, pathExpr, errTarget, failCond, code, 
 // ── unique ────────────────────────────────────────────────────────────────────
 
 function emitUnique (ctx, varExpr, pathExpr, errTarget) {
-  const seenVar = ctx.nextId()
-  const itemVar = ctx.nextId()
-  const keyVar  = ctx.nextId()
+  const eqRef  = ctx.addRef(deepEqual)
+  const iVar   = ctx.nextId()
+  const jVar   = ctx.nextId()
+  const doneVar = ctx.nextId()
 
-  ctx.emit(`{`)
-  ctx.emit(`  const ${seenVar} = new Set()`)
-  ctx.emit(`  for (const ${itemVar} of ${varExpr}) {`)
-  ctx.emit(`    const ${keyVar} = JSON.stringify(${itemVar})`)
-  ctx.emit(`    if (${seenVar}.has(${keyVar})) {`)
+  ctx.emit(`let ${doneVar} = false`)
+  ctx.emit(`for (let ${iVar} = 0; ${iVar} < ${varExpr}.length - 1 && !${doneVar}; ${iVar}++) {`)
+  ctx.emit(`  for (let ${jVar} = ${iVar} + 1; ${jVar} < ${varExpr}.length; ${jVar}++) {`)
+  ctx.emit(`    if (refs.${eqRef}(${varExpr}[${iVar}], ${varExpr}[${jVar}])) {`)
   ctx.emit(`      ${errTarget}.push({ path: ${pathExpr}, code: 'unique_invalid', message: 'Array contains duplicated items' })`)
-  ctx.emit(`      break`)
+  ctx.emit(`      ${doneVar} = true; break`)
   ctx.emit(`    }`)
-  ctx.emit(`    ${seenVar}.add(${keyVar})`)
   ctx.emit(`  }`)
   ctx.emit(`}`)
 }

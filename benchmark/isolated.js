@@ -30,6 +30,22 @@ const payloads = {
     valid:   { contact: { phone: '+44791123456' } },
     invalid: { contact: { phone: 'x', email: 'bad', handle: { platform: 'facebook', username: '' } } },
   },
+  'unique': {
+    valid: { items: [
+      { id: 1, name: 'Alpha',   category: 'a', active: true,  score: 80 },
+      { id: 2, name: 'Beta',    category: 'b', active: false, score: 60 },
+      { id: 3, name: 'Gamma',   category: 'c', active: true,  score: 90 },
+      { id: 4, name: 'Delta',   category: 'd', active: false, score: 45 },
+      { id: 5, name: 'Epsilon', category: 'a', active: true,  score: 72 },
+    ]},
+    invalid: { items: [
+      { id: 1, name: 'Alpha',   category: 'a', active: true,  score: 80 },
+      { id: 2, name: 'Beta',    category: 'b', active: false, score: 60 },
+      { id: 3, name: 'Gamma',   category: 'c', active: true,  score: 90 },
+      { id: 4, name: 'Delta',   category: 'd', active: false, score: 45 },
+      { id: 1, name: 'Alpha',   category: 'a', active: true,  score: 80 },
+    ]},
+  },
 }
 
 // ── Bench helper ──────────────────────────────────────────────────────────────

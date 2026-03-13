@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":       { "type": "integer" },
+          "name":     { "type": "string" },
+          "category": { "type": "string" },
+          "active":   { "type": "boolean" },
+          "score":    { "type": "number" }
+        }
+      }
+    }
+  }
+}

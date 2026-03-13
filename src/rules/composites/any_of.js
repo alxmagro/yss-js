@@ -7,7 +7,6 @@ export default function anyOf (value, node, path, validateNode) {
       path,
       code:    'anyof_invalid',
       message: 'Value does not match any condition',
-      data:    { value, any_of: branchErrors },
     }]
 
   return []
