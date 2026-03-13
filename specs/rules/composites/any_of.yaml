@@ -10,12 +10,12 @@ given:
       - $required: [shipping]
         shipping:
           $required: [method, cost]
-          method: string, enum [standard, express, pickup]
+          method: string, in [standard, express, pickup]
           cost: number, >= 0
           tracking:
             code: string
             carrier: string
-            status: string, enum [pending, shipped, delivered, returned]
+            status: string, in [pending, shipped, delivered, returned]
 
 errors:
   - &anyof_invalid

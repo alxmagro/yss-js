@@ -5,4 +5,4 @@ name:
 email:
   $type: string
   $format: email
-role: string, enum [admin, editor, viewer]
+role: string, in [admin, editor, viewer]

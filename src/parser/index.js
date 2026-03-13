@@ -88,7 +88,7 @@ function buildObjectNode (raw, inheritedStrict) {
     if (raw.$lt     !== undefined) node.lt     = raw.$lt
     if (raw.$lte    !== undefined) node.lte    = raw.$lte
     if (raw.$format !== undefined) node.format = raw.$format
-    if (raw.$enum   !== undefined) node.enum   = raw.$enum
+    if (raw.$in     !== undefined) node.in     = raw.$in
 
     if (raw.$item !== undefined) {
       node.item = buildNode(raw.$item, strict)
@@ -110,7 +110,7 @@ function buildObjectNode (raw, inheritedStrict) {
       }
     }
 
-    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'enum']
+    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'in']
     const rules = SCALAR_RUNE_KEYS.filter(k => k in node)
     if (rules.length) node.rules = rules
   }

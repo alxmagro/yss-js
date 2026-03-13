@@ -274,7 +274,7 @@ function emitScalarRule (ctx, rule, varExpr, param, nodeType, pathExpr, errTarge
   switch (rule) {
     case 'format': return emitFormat(ctx, varExpr, param, pathExpr, errTarget)
     case 'size':   return emitSize(ctx, varExpr, param, nodeType, pathExpr, errTarget)
-    case 'enum':   return emitEnum(ctx, varExpr, param, pathExpr, errTarget)
+    case 'in':     return emitIn(ctx, varExpr, param, pathExpr, errTarget)
     case 'const':  return emitConst(ctx, varExpr, param, pathExpr, errTarget)
     case 'gt':     return emitCompare(ctx, varExpr, param, pathExpr, errTarget, '<=', 'gt_invalid',  'Value must be greater than',             'gt')
     case 'gte':    return emitCompare(ctx, varExpr, param, pathExpr, errTarget, '<',  'gte_invalid', 'Value must be greater than or equal to', 'gte')
@@ -348,14 +348,14 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget) {
   ctx.emit(`}`)
 }
 
-// ── enum ──────────────────────────────────────────────────────────────────────
+// ── in ────────────────────────────────────────────────────────────────────────
 
-function emitEnum (ctx, varExpr, param, pathExpr, errTarget) {
+function emitIn (ctx, varExpr, param, pathExpr, errTarget) {
   const setRef = ctx.addRef(new Set(param))
   const arrRef = ctx.addRef(param)
 
   ctx.emit(`if (!refs.${setRef}.has(${varExpr})) {`)
-  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'enum_invalid', message: 'Value \`' + ${varExpr} + '\` is not allowed', data: { value: ${varExpr}, enum: refs.${arrRef} } })`)
+  ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'in_invalid', message: 'Value \`' + ${varExpr} + '\` is not allowed', data: { value: ${varExpr}, in: refs.${arrRef} } })`)
   ctx.emit(`}`)
 }
 

@@ -9,7 +9,7 @@ given:
     $all_of:
       - $required: [name, side]
         name: string
-        side: string, enum [light, dark]
+        side: string, in [light, dark]
       - $required: [species, homeworld]
         species: string
         homeworld: string

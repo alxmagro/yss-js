@@ -1,61 +1,61 @@
-feature: Enum validation
+feature: $in validation
 
 given:
-  status: string, enum [active, inactive, pending]
-  priority: integer, enum [1, 2, 3]
+  status: string, in [active, inactive, pending]
+  priority: integer, in [1, 2, 3]
   level:
     $type: string
-    $enum: [low, medium, high]
+    $in: [low, medium, high]
 
 scenarios:
   - name: optional fields absent
     when: {}
     then: []
 
-  - name: valid string enum value
+  - name: value matches allowed string
     when:
       status: active
     then: []
 
-  - name: valid integer enum value
+  - name: value matches allowed integer
     when:
       priority: 2
     then: []
 
-  - name: valid block syntax enum
+  - name: value matches allowed string via block syntax
     when:
       level: high
     then: []
 
-  - name: string not in enum
+  - name: string value not in allowed list
     when:
       status: cancelled
     then:
       - path: status
-        code: "{{ CODE_ENUM_INVALID }}"
+        code: "{{ CODE_IN_INVALID }}"
         message: Value `cancelled` is not allowed
         data:
           value: cancelled
-          enum: [active, inactive, pending]
+          in: [active, inactive, pending]
 
-  - name: integer not in enum
+  - name: integer value not in allowed list
     when:
       priority: 5
     then:
       - path: priority
-        code: "{{ CODE_ENUM_INVALID }}"
+        code: "{{ CODE_IN_INVALID }}"
         message: Value `5` is not allowed
         data:
           value: 5
-          enum: [1, 2, 3]
+          in: [1, 2, 3]
 
-  - name: block syntax value not in enum
+  - name: block syntax value not in allowed list
     when:
       level: critical
     then:
       - path: level
-        code: "{{ CODE_ENUM_INVALID }}"
+        code: "{{ CODE_IN_INVALID }}"
         message: Value `critical` is not allowed
         data:
           value: critical
-          enum: [low, medium, high]
+          in: [low, medium, high]

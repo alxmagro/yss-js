@@ -8,7 +8,7 @@ CODE_GTE_INVALID:           gte_invalid
 CODE_GT_INVALID:            gt_invalid
 CODE_LTE_INVALID:           lte_invalid
 CODE_LT_INVALID:            lt_invalid
-CODE_ENUM_INVALID:          enum_invalid
+CODE_IN_INVALID:            in_invalid
 CODE_FORMAT_INVALID:        format_invalid
 CODE_CONTAINS_MIN_INVALID:   contains_min_invalid
 CODE_CONTAINS_MAX_INVALID:   contains_max_invalid

@@ -8,7 +8,7 @@ export const code = {
   GT_INVALID:            'gt_invalid',
   LTE_INVALID:           'lte_invalid',
   LT_INVALID:            'lt_invalid',
-  ENUM_INVALID:          'enum_invalid',
+  IN_INVALID:            'in_invalid',
   FORMAT_INVALID:        'format_invalid',
   ANYOF_INVALID:         'anyof_invalid',
   CONST_MISMATCH:        'const_mismatch',

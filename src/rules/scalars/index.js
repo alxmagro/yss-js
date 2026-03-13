@@ -5,7 +5,7 @@ import testGte    from './gte.js'
 import testLt     from './lt.js'
 import testLte    from './lte.js'
 import testFormat from './format.js'
-import testEnum   from './enum.js'
+import testIn     from './in.js'
 import testConst  from './const.js'
 
 export const scalarRules = {
@@ -16,7 +16,7 @@ export const scalarRules = {
   lt:     testLt,
   lte:    testLte,
   format: testFormat,
-  enum:   testEnum,
+  in:     testIn,
   const:  testConst
 }
 
