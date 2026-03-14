@@ -9,6 +9,7 @@ export const code = {
   LTE_INVALID:           'lte_invalid',
   LT_INVALID:            'lt_invalid',
   IN_INVALID:            'in_invalid',
+  MULTIPLE_OF_INVALID:   'multiple_of_invalid',
   NOT_IN_INVALID:        'not_in_invalid',
   FORMAT_INVALID:        'format_invalid',
   ANYOF_INVALID:         'anyof_invalid',

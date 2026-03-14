@@ -288,7 +288,8 @@ function emitScalarRule (ctx, rule, varExpr, param, nodeType, pathExpr, errTarge
     case 'format': return emitFormat(ctx, varExpr, param, pathExpr, errTarget)
     case 'size':   return emitSize(ctx, varExpr, param, nodeType, pathExpr, errTarget)
     case 'in':     return emitIn(ctx, varExpr, param, pathExpr, errTarget)
-    case 'not_in': return emitNotIn(ctx, varExpr, param, pathExpr, errTarget)
+    case 'not_in':     return emitNotIn(ctx, varExpr, param, pathExpr, errTarget)
+    case 'multiple_of': return emitMultipleOf(ctx, varExpr, param, pathExpr, errTarget)
     case 'const':  return emitConst(ctx, varExpr, param, pathExpr, errTarget)
     case 'gt':     return emitCompare(ctx, varExpr, param, pathExpr, errTarget, '<=', 'gt_invalid',  'Value must be greater than',             'gt')
     case 'gte':    return emitCompare(ctx, varExpr, param, pathExpr, errTarget, '<',  'gte_invalid', 'Value must be greater than or equal to', 'gte')
@@ -359,6 +360,17 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget) {
     }
   }
 
+  ctx.emit(`}`)
+}
+
+// ── multiple_of ───────────────────────────────────────────────────────────────
+
+function emitMultipleOf (ctx, varExpr, param, pathExpr, errTarget) {
+  ctx.emit(`if (typeof ${varExpr} === 'number') {`)
+  ctx.emit(`  const _q = ${varExpr} / ${param}`)
+  ctx.emit(`  if (Math.abs(Math.round(_q) - _q) > 1e-10) {`)
+  ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'multiple_of_invalid', message: 'Value must be a multiple of \`${param}\`', data: { value: ${varExpr}, multiple_of: ${param} } })`)
+  ctx.emit(`  }`)
   ctx.emit(`}`)
 }
 

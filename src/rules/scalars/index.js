@@ -5,8 +5,9 @@ import testGte    from './gte.js'
 import testLt     from './lt.js'
 import testLte    from './lte.js'
 import testFormat from './format.js'
-import testIn     from './in.js'
-import testNotIn  from './not_in.js'
+import testIn         from './in.js'
+import testNotIn      from './not_in.js'
+import testMultipleOf from './multiple_of.js'
 import testConst  from './const.js'
 
 export const scalarRules = {
@@ -18,7 +19,8 @@ export const scalarRules = {
   lte:    testLte,
   format: testFormat,
   in:     testIn,
-  not_in: testNotIn,
+  not_in:      testNotIn,
+  multiple_of: testMultipleOf,
   const:  testConst
 }
 

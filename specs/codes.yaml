@@ -8,6 +8,7 @@ CODE_GTE_INVALID:           gte_invalid
 CODE_GT_INVALID:            gt_invalid
 CODE_LTE_INVALID:           lte_invalid
 CODE_LT_INVALID:            lt_invalid
+CODE_MULTIPLE_OF_INVALID:   multiple_of_invalid
 CODE_IN_INVALID:            in_invalid
 CODE_NOT_IN_INVALID:        not_in_invalid
 CODE_FORMAT_INVALID:        format_invalid

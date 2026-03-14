@@ -1,0 +1,81 @@
+feature: Numeric — multiple_of
+
+given:
+  quantity: integer, % 10
+  price:
+    $type: number
+    $multiple_of: 0.5
+
+scenarios:
+  - name: optional absent
+    when: {}
+    then: []
+
+  - name: integer is a multiple
+    when:
+      quantity: 30
+    then: []
+
+  - name: zero is a multiple
+    when:
+      quantity: 0
+    then: []
+
+  - name: decimal is a multiple
+    when:
+      price: 9.5
+    then: []
+
+  - name: negative integer is a multiple
+    when:
+      quantity: -30
+    then: []
+
+  - name: negative decimal is a multiple
+    when:
+      price: -9.5
+    then: []
+
+  - name: integer not a multiple
+    when:
+      quantity: 25
+    then:
+      - path: quantity
+        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        message: Value must be a multiple of `10`
+        data:
+          value: 25
+          multiple_of: 10
+
+  - name: negative integer not a multiple
+    when:
+      quantity: -25
+    then:
+      - path: quantity
+        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        message: Value must be a multiple of `10`
+        data:
+          value: -25
+          multiple_of: 10
+
+  - name: decimal not a multiple
+    when:
+      price: 9.3
+    then:
+      - path: price
+        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        message: Value must be a multiple of `0.5`
+        data:
+          value: 9.3
+          multiple_of: 0.5
+
+  - name: negative decimal not a multiple
+    when:
+      price: -9.3
+    then:
+      - path: price
+        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        message: Value must be a multiple of `0.5`
+        data:
+          value: -9.3
+          multiple_of: 0.5

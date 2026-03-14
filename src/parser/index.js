@@ -88,8 +88,9 @@ function buildObjectNode (raw, inheritedStrict) {
     if (raw.$lt     !== undefined) node.lt     = raw.$lt
     if (raw.$lte    !== undefined) node.lte    = raw.$lte
     if (raw.$format !== undefined) node.format = raw.$format
-    if (raw.$in     !== undefined) node.in     = raw.$in
-    if (raw.$not_in !== undefined) node.not_in = raw.$not_in
+    if (raw.$in          !== undefined) node.in          = raw.$in
+    if (raw.$not_in      !== undefined) node.not_in      = raw.$not_in
+    if (raw.$multiple_of !== undefined) node.multiple_of = raw.$multiple_of
 
     if (raw.$dependencies !== undefined) node.dependencies = raw.$dependencies
 
@@ -113,7 +114,7 @@ function buildObjectNode (raw, inheritedStrict) {
       }
     }
 
-    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'in', 'not_in']
+    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'in', 'not_in', 'multiple_of']
     const rules = SCALAR_RUNE_KEYS.filter(k => k in node)
     if (rules.length) node.rules = rules
   }
