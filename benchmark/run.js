@@ -68,7 +68,7 @@ const ajvValidate = ajv.compile(ajvSchema)
 
 // ── Benchmark ─────────────────────────────────────────────────────────────────
 
-const GOAL = 1.5
+const GOAL = 0.5 // yss must be at least 50% faster than ajv
 const ITERATIONS = Number(process.argv[2]?.replace(/_/g, '')) || 100_000
 
 function bench (name, fn, iterations = ITERATIONS) {
@@ -96,7 +96,7 @@ const yssTotal = yssValid + yssInvalid
 const ajvTotal = ajvValid + ajvInvalid
 const pct = (((yssTotal - ajvTotal) / ajvTotal) * 100).toFixed(1)
 const faster = yssTotal >= ajvTotal
-const metGoal = (ajvTotal / yssTotal) <= GOAL
+const metGoal = ((yssTotal - ajvTotal) / ajvTotal) >= GOAL
 const status = metGoal ? '\x1b[32m✓ goal met\x1b[0m' : '\x1b[31m✗ not yet\x1b[0m'
 const diff = faster
   ? `\x1b[32myss is ${pct}% faster than ajv\x1b[0m`
