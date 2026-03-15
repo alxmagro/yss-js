@@ -1,0 +1,25 @@
+feature: Array contains — unconstrained quantity
+
+given:
+  items:
+    $type: array
+    $contains:
+      $quantity: [~, ~]
+      $item:
+        $type: string
+
+scenarios:
+  - name: empty array passes
+    when:
+      items: []
+    then: []
+
+  - name: array with no matches passes
+    when:
+      items: [1, 2, 3]
+    then: []
+
+  - name: array with matches also passes
+    when:
+      items: [hello, 42]
+    then: []

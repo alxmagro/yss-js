@@ -22,3 +22,18 @@ scenarios:
         data:
           value: 42
           expected: string
+
+  - name: root array with $at — wrong type at position 0
+    given:
+      $type: array
+      $at:
+        0:
+          $type: string
+    when: [42]
+    then:
+      - path: "[0]"
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string

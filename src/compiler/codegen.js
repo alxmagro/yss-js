@@ -28,8 +28,8 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors') {
     return
   }
 
-  const isArr = type === 'array' || (type === 'any' && (node.item != null || node.at != null))
-  const isObj = type === 'object' || (type === 'any' && node.fields != null)
+  const isArr = type === 'array'
+  const isObj = type === 'object'
 
   if (type !== 'any') {
     const cond = typeMatchCond(varExpr, type)
@@ -45,19 +45,14 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors') {
 
     ctx.emit('}')
   } else {
-    // any — no type check
-    if (isArr) emitArrayBody(ctx, varExpr, node, pathExpr, errTarget)
-    else if (isObj) emitObjectBody(ctx, varExpr, node, pathExpr, errTarget)
-    else {
-      // runtime dispatch (value type unknown at compile time)
-      ctx.emit(`if (Array.isArray(${varExpr})) {`)
-      emitArrayBody(ctx, varExpr, node, pathExpr, errTarget)
-      ctx.emit(`} else if (typeof ${varExpr} === 'object' && ${varExpr} !== null) {`)
-      emitObjectBody(ctx, varExpr, node, pathExpr, errTarget)
-      ctx.emit('} else {')
-      emitScalarRules(ctx, varExpr, node, pathExpr, errTarget)
-      ctx.emit('}')
-    }
+    // any — no type check, runtime dispatch
+    ctx.emit(`if (Array.isArray(${varExpr})) {`)
+    emitArrayBody(ctx, varExpr, node, pathExpr, errTarget)
+    ctx.emit(`} else if (typeof ${varExpr} === 'object' && ${varExpr} !== null) {`)
+    emitObjectBody(ctx, varExpr, node, pathExpr, errTarget)
+    ctx.emit('} else {')
+    emitScalarRules(ctx, varExpr, node, pathExpr, errTarget)
+    ctx.emit('}')
   }
 }
 
@@ -308,17 +303,11 @@ function emitFormat (ctx, varExpr, param, pathExpr, errTarget) {
     const lastSlash = param.lastIndexOf('/')
     const source = param.slice(1, lastSlash)
     const flags = param.slice(lastSlash + 1)
-    try {
-      const regexRef = ctx.addRef(new RegExp(source, flags))
-      checkExpr = `refs.${regexRef}.test(${varExpr})`
-    } catch {
-      return // invalid regex — skip
-    }
-  } else if (aliases[param]) {
+    const regexRef = ctx.addRef(new RegExp(source, flags))
+    checkExpr = `refs.${regexRef}.test(${varExpr})`
+  } else {
     const fnRef = ctx.addRef(aliases[param])
     checkExpr = `refs.${fnRef}(${varExpr})`
-  } else {
-    return // unknown format — skip
   }
 
   ctx.emit(`if (typeof ${varExpr} === 'string' && !(${checkExpr})) {`)

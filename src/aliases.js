@@ -164,12 +164,8 @@ export function runMatch (value, pattern) {
   if (aliases[pattern]) return aliases[pattern](value)
 
   // Raw regex - must be wrapped in /pattern/
-  if (pattern.startsWith('/') && pattern.lastIndexOf('/') > 0) {
-    const lastSlash = pattern.lastIndexOf('/')
-    const source = pattern.slice(1, lastSlash)
-    const flags = pattern.slice(lastSlash + 1)
-    return new RegExp(source, flags).test(value)
-  }
-
-  throw new Error(`=~ "${pattern}" is not a known alias and is not wrapped in /slashes/. Use =~ /pattern/ for raw regex.`)
+  const lastSlash = pattern.lastIndexOf('/')
+  const source = pattern.slice(1, lastSlash)
+  const flags = pattern.slice(lastSlash + 1)
+  return new RegExp(source, flags).test(value)
 }
