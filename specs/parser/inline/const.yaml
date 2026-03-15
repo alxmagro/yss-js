@@ -41,3 +41,10 @@ scenarios:
     when:
       ratio: 3.14
     then: []
+
+  - name: single-quoted string as const value
+    given:
+      greeting: string, == 'hello world'
+    when:
+      greeting: hello world
+    then: []

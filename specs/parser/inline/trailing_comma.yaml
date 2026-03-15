@@ -1,0 +1,12 @@
+feature: Parser — inline trailing comma is rejected
+
+scenarios:
+  - name: trailing comma in inline array value
+    given:
+      role: "string, in [admin, guest,]"
+    then_throws: Trailing comma in inline array
+
+  - name: trailing comma in inline constraints
+    given:
+      name: "string, >= 1,"
+    then_throws: Trailing comma in inline constraints

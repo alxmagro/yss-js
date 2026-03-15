@@ -1,0 +1,30 @@
+feature: AnyOf composite — multi-type field
+
+given:
+  value:
+    $any_of:
+      - $type: string
+      - $type: number
+
+errors:
+  - &anyof_invalid
+    code: "{{ CODE_ANY_OF }}"
+    message: Value does not match any condition
+
+scenarios:
+  - name: string matches
+    when:
+      value: hello
+    then: []
+
+  - name: number matches
+    when:
+      value: 3.14
+    then: []
+
+  - name: neither type matches
+    when:
+      value: true
+    then:
+      - <<: *anyof_invalid
+        path: value

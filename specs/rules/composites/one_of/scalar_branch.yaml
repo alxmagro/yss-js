@@ -1,0 +1,16 @@
+feature: OneOf composite — scalar branch merged with shared fields
+
+given:
+  account:
+    code: string
+    $one_of:
+      - $type: string
+      - detail: string
+
+scenarios:
+  - name: detail branch matches
+    when:
+      account:
+        code: ACC-001
+        detail: premium
+    then: []

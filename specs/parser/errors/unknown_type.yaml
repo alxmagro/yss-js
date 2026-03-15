@@ -11,3 +11,4 @@ scenarios:
     given:
       side: string | ewoks
     then_throws: 'Unknown $type: "ewoks"'
+

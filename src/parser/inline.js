@@ -58,6 +58,7 @@ function splitArray (str) {
     }
   }
   if (current.trim()) parts.push(current.trim())
+  else throw new Error('Trailing comma in inline array')
   return parts
 }
 
@@ -84,11 +85,11 @@ function splitConstraints (str) {
     }
   }
   if (current.trim()) parts.push(current.trim())
+  else throw new Error('Trailing comma in inline constraints')
   return parts
 }
 
 export function parseInline (token) {
-  if (typeof token !== 'string') return null
   token = token.trim()
 
   const result = {}
@@ -103,7 +104,7 @@ export function parseInline (token) {
 
   if (!token.includes(',')) {
     const types = token.split('|').map(t => t.trim()).filter(Boolean)
-    result.type = types.length > 1 ? types : (types[0] ?? token)
+    result.type = types.length > 1 ? types : types[0]
     return result
   }
 
@@ -112,12 +113,11 @@ export function parseInline (token) {
   const constraints = parts.slice(1)
 
   const types = typePart.split('|').map(t => t.trim()).filter(Boolean)
-  result.type = types.length > 1 ? types : (types[0] ?? typePart)
+  result.type = types.length > 1 ? types : types[0]
 
   const rules = []
 
   for (const constraint of constraints) {
-    if (!constraint) continue
     const spaceIdx = constraint.indexOf(' ')
     const key = spaceIdx === -1 ? constraint : constraint.slice(0, spaceIdx).trim()
     const val = spaceIdx === -1 ? true : parseScalar(constraint.slice(spaceIdx + 1).trim())

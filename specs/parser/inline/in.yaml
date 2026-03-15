@@ -1,0 +1,48 @@
+feature: Parser — inline in constraint
+
+scenarios:
+  - name: empty allowed values list never matches
+    given:
+      status: string, in []
+    when:
+      status: active
+    then:
+      - path: status
+        code: "{{ CODE_IN }}"
+        message: Value `active` is not allowed
+        data:
+          value: active
+          in: []
+
+  - name: primitive value in mixed list matches
+    given:
+      role: "array | string, in [[active, admin], guest]"
+    when:
+      role: guest
+    then: []
+
+  - name: primitive value inside nested array never matches
+    given:
+      role: "array | string, in [[active, admin], guest]"
+    when:
+      role: active
+    then:
+      - path: role
+        code: "{{ CODE_IN }}"
+        message: Value `active` is not allowed
+        data:
+          value: active
+          in: [[active, admin], guest]
+
+  - name: array value never matches by reference equality
+    given:
+      role: "array | string, in [[active, admin], guest]"
+    when:
+      role: [active, admin]
+    then:
+      - path: role
+        code: "{{ CODE_IN }}"
+        message: Value `active,admin` is not allowed
+        data:
+          value: [active, admin]
+          in: [[active, admin], guest]

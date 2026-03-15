@@ -1,0 +1,9 @@
+feature: Parser — unknown inline constraint is silently ignored
+
+scenarios:
+  - name: unknown constraint does not affect validation
+    given:
+      name: string, unknown_rule
+    when:
+      name: Luke Skywalker
+    then: []

@@ -79,8 +79,6 @@ export function loadImports (rawImports, baseDir, buildAST) {
  * @returns {object} node with $ref nodes substituted
  */
 export function resolveRefs (node, importedTrees) {
-  if (!node || typeof node !== 'object') return node
-
   // Resolve $ref node
   if (node.$ref) {
     const parts = node.$ref.split('.')

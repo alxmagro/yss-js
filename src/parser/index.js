@@ -72,6 +72,10 @@ function buildObjectNode (raw, inheritedStrict) {
       } else {
         node.type = String(raw.$type)
       }
+      const types = Array.isArray(node.type) ? node.type : [node.type]
+      for (const t of types) {
+        if (!VALID_LEAF_TYPES.has(t)) throw new Error(`Unknown $type: "${t}"`)
+      }
     }
 
     if (raw.$const !== undefined) {
@@ -144,11 +148,7 @@ function buildObjectNode (raw, inheritedStrict) {
 
     const items = raw.$any_of.map(branch => {
       const branchNode = buildNode(branch, strict)
-
-      if (Object.keys(sharedFields).length > 0) {
-        branchNode.fields = { ...sharedFields, ...(branchNode.fields ?? {}) }
-      }
-
+      branchNode.fields = { ...sharedFields, ...(branchNode.fields ?? {}) }
       return branchNode
     })
 
@@ -180,11 +180,7 @@ function buildObjectNode (raw, inheritedStrict) {
 
     const items = raw.$one_of.map(branch => {
       const branchNode = buildNode(branch, strict)
-
-      if (Object.keys(sharedFields).length > 0) {
-        branchNode.fields = { ...sharedFields, ...(branchNode.fields ?? {}) }
-      }
-
+      branchNode.fields = { ...sharedFields, ...(branchNode.fields ?? {}) }
       return branchNode
     })
 
@@ -203,7 +199,6 @@ function buildObjectNode (raw, inheritedStrict) {
  * Walk every node in a schema tree, calling fn(node) on each.
  */
 export function walkAST (node, fn) {
-  if (!node || typeof node !== 'object') return
   fn(node)
   if (node.fields) Object.values(node.fields).forEach(n => walkAST(n, fn))
   if (node.item) walkAST(node.item, fn)
@@ -222,10 +217,6 @@ export function assertIntegrity (tree) {
     const rawTypes = Array.isArray(node.type) ? node.type : [node.type]
     for (const t of rawTypes) {
       if (t && !VALID_NODE_TYPES.has(t)) throw new Error(`Unknown $type: "${t}"`)
-    }
-
-    if (node.baseType !== undefined && !VALID_LEAF_TYPES.has(node.baseType)) {
-      throw new Error(`Unknown $type: "${node.baseType}"`)
     }
   })
 }
@@ -246,7 +237,7 @@ export function buildAST (raw, baseDir = process.cwd()) {
     Object.entries(raw).filter(([k]) => !RESERVED_ROOT.has(k))
   )
 
-  let tree = buildObjectNode(stripped, false)
+  let tree = buildNode(stripped)
 
   if (raw.$imports && typeof raw.$imports === 'object') {
     const importedTrees = loadImports(raw.$imports, baseDir, buildAST)

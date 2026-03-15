@@ -9,6 +9,8 @@ given:
     $const: 3.14
   flag:
     $const: true
+  nothing:
+    $const: null
 
 scenarios:
   - name: optional fields absent
@@ -66,3 +68,19 @@ scenarios:
         data:
           value: false
           const: true
+
+  - name: null const — value matches
+    when:
+      nothing: null
+    then: []
+
+  - name: null const — value mismatch
+    when:
+      nothing: something
+    then:
+      - path: nothing
+        code: "{{ CODE_CONST }}"
+        message: Value must be `null`
+        data:
+          value: something
+          const: null
