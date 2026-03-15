@@ -58,6 +58,18 @@ scenarios:
           size: 7
           expected: 5
 
+  - name: object wrong number of props
+    when:
+      meta: { a: 1, b: 2, c: 3 }
+    then:
+      - path: meta
+        code: "{{ CODE_SIZE_EXACT }}"
+        message: Size must be exactly `2`
+        data:
+          value: { a: 1, b: 2, c: 3 }
+          size: 3
+          expected: 2
+
   - name: array wrong size
     when:
       tags: [a, b]
