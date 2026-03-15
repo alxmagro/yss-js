@@ -1,0 +1,5 @@
+$imports:
+  stub: ../_stub.yaml
+
+field:
+  $ref: stub.nonexistent

@@ -1,0 +1,22 @@
+feature: Parser — inline lte constraint
+
+scenarios:
+  - name: valid value at bound
+    given:
+      score: "integer, <= 100"
+    when:
+      score: 100
+    then: []
+
+  - name: value above bound fails
+    given:
+      score: "integer, <= 100"
+    when:
+      score: 101
+    then:
+      - path: score
+        code: "{{ CODE_LTE }}"
+        message: Value must be less than or equal to `100`
+        data:
+          value: 101
+          lte: 100

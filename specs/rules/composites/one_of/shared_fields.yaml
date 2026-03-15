@@ -1,0 +1,47 @@
+feature: OneOf composite — shared fields merged into branches
+
+given:
+  $required: [id, type]
+  id: string
+  type: string
+  $one_of:
+    - $required: [card]
+      card:
+        $required: [number, expiry]
+        number: string
+        expiry: string
+    - $required: [bank]
+      bank:
+        $required: [iban]
+        iban: string
+
+errors:
+  - &oneof_invalid
+    code: "{{ CODE_ONE_OF }}"
+    message: Value does not match any condition
+
+scenarios:
+  - name: matches first branch
+    when:
+      id: pay-001
+      type: card
+      card:
+        number: "4111111111111111"
+        expiry: 12/26
+    then: []
+
+  - name: matches second branch
+    when:
+      id: pay-002
+      type: bank
+      bank:
+        iban: DE89370400440532013000
+    then: []
+
+  - name: no branch matches
+    when:
+      id: pay-003
+      type: unknown
+    then:
+      - <<: *oneof_invalid
+        path: ""

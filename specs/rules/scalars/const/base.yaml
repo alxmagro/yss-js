@@ -1,4 +1,4 @@
-feature: Const validation
+feature: Const validation — basic
 
 given:
   role: any, == admin
@@ -28,7 +28,7 @@ scenarios:
           value: user
           const: admin
 
-  - name: wrong type - type validation precedence
+  - name: type validation takes precedence over const
     when:
       version: "2"
     then:

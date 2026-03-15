@@ -1,7 +1,7 @@
 feature: Unique validation
 
 given:
-  tags: array, uniq
+  tags: array, unique
   ids:
     $type: array
     $unique: true

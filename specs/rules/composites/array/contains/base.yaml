@@ -8,6 +8,11 @@ given:
     $type: array
     $contains:
       role: string, == owner
+  ranked:
+    $type: array
+    $contains:
+      $item:
+        score: integer
 
 scenarios:
   - name: optional fields absent
@@ -36,6 +41,13 @@ scenarios:
       members:
         - { name: alice, role: owner }
         - { name: bob,   role: owner }
+    then: []
+
+  - name: valid array with explicit $item without $quantity defaults to at least one match
+    when:
+      ranked:
+        - { score: 10 }
+        - { score: 20 }
     then: []
 
   - name: empty string array

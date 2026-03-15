@@ -1,0 +1,31 @@
+feature: Parser — inline union type
+
+scenarios:
+  - name: value matches one of the union types
+    given:
+      id: "string | integer"
+    when:
+      id: 42
+    then: []
+
+  - name: string value also matches union
+    given:
+      id: "string | integer"
+    when:
+      id: abc
+    then: []
+
+  - name: value outside union types fails
+    given:
+      id: "string | integer"
+    when:
+      id: true
+    then:
+      - path: id
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: true
+          expected:
+            - string
+            - integer

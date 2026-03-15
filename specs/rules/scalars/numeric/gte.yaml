@@ -4,6 +4,8 @@ given:
   age:
     $type: integer
     $gte: 18
+  loose:
+    $gte: 18
 
 scenarios:
   - name: valid at boundary
@@ -18,6 +20,11 @@ scenarios:
 
   - name: optional absent
     when: {}
+    then: []
+
+  - name: non-number value skips rule
+    when:
+      loose: "hello"
     then: []
 
   - name: below boundary

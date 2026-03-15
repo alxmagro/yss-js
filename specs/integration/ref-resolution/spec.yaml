@@ -1,0 +1,89 @@
+feature: $ref resolution — all resolveRefs paths
+
+scenarios:
+  - name: all fields absent
+    when: {}
+    then: []
+
+  - name: resolves full object ref
+    when:
+      entry:
+        label: foo
+        value: 42
+    then: []
+
+  - name: resolves dot-path ref
+    when:
+      label_only: hello
+    then: []
+
+  - name: resolves ref inside array item
+    when:
+      entries:
+        - label: a
+          value: 1
+        - label: b
+          value: 2
+    then: []
+
+  - name: resolves ref inside positional array
+    when:
+      header:
+        - hello
+        - 99
+    then: []
+
+  - name: type error through resolved object ref
+    when:
+      entry:
+        label: 42
+    then:
+      - path: entry.label
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string
+
+  - name: type error through resolved dot-path ref
+    when:
+      label_only: 42
+    then:
+      - path: label_only
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string
+
+  - name: type error through resolved item ref
+    when:
+      entries:
+        - label: a
+          value: "not-a-number"
+    then:
+      - path: entries[0].value
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: "not-a-number"
+          expected: number
+
+  - name: type error through resolved at ref
+    when:
+      header:
+        - 42
+        - hello
+    then:
+      - path: header[0]
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string
+      - path: header[1]
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: hello
+          expected: number

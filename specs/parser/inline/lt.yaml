@@ -1,0 +1,22 @@
+feature: Parser — inline lt constraint
+
+scenarios:
+  - name: valid value below bound
+    given:
+      priority: "integer, < 10"
+    when:
+      priority: 9
+    then: []
+
+  - name: value at bound fails
+    given:
+      priority: "integer, < 10"
+    when:
+      priority: 10
+    then:
+      - path: priority
+        code: "{{ CODE_LT }}"
+        message: Value must be less than `10`
+        data:
+          value: 10
+          lt: 10

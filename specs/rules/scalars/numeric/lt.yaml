@@ -4,6 +4,8 @@ given:
   level:
     $type: integer
     $lt: 10
+  loose:
+    $lt: 10
 
 scenarios:
   - name: valid below boundary
@@ -13,6 +15,11 @@ scenarios:
 
   - name: optional absent
     when: {}
+    then: []
+
+  - name: non-number value skips rule
+    when:
+      loose: "hello"
     then: []
 
   - name: at boundary fails

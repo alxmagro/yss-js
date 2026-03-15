@@ -5,6 +5,8 @@ given:
   idn_email:
     $type: string
     $format: idn-email
+  loose:
+    $format: email
 
 scenarios:
   - name: optional fields absent
@@ -15,6 +17,11 @@ scenarios:
     when:
       email: user@example.com
       idn_email: user@example.com
+    then: []
+
+  - name: non-string value skips rule
+    when:
+      loose: 42
     then: []
 
   - name: invalid email

@@ -1,0 +1,3 @@
+feature: $ref — unknown import namespace
+
+throws: '$ref: unknown import namespace "unknown"'

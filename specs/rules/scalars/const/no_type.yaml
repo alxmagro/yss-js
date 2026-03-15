@@ -1,0 +1,68 @@
+feature: Const validation — type inference without $type
+
+given:
+  label:
+    $const: draft
+  count:
+    $const: 5
+  pi:
+    $const: 3.14
+  flag:
+    $const: true
+
+scenarios:
+  - name: optional fields absent
+    when: {}
+    then: []
+
+  - name: values match const
+    when:
+      label: draft
+      count: 5
+      pi: 3.14
+      flag: true
+    then: []
+
+  - name: wrong string const
+    when:
+      label: published
+    then:
+      - path: label
+        code: "{{ CODE_CONST }}"
+        message: Value must be `draft`
+        data:
+          value: published
+          const: draft
+
+  - name: wrong integer const
+    when:
+      count: 9
+    then:
+      - path: count
+        code: "{{ CODE_CONST }}"
+        message: Value must be `5`
+        data:
+          value: 9
+          const: 5
+
+  - name: wrong float const
+    when:
+      pi: 2.71
+    then:
+      - path: pi
+        code: "{{ CODE_CONST }}"
+        message: Value must be `3.14`
+        data:
+          value: 2.71
+          const: 3.14
+
+  - name: wrong boolean const
+    when:
+      flag: false
+    then:
+      - path: flag
+        code: "{{ CODE_CONST }}"
+        message: Value must be `true`
+        data:
+          value: false
+          const: true

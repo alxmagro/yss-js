@@ -4,6 +4,8 @@ given:
   score:
     $type: number
     $gt: 0
+  loose:
+    $gt: 0
 
 scenarios:
   - name: valid above boundary
@@ -25,6 +27,11 @@ scenarios:
         data:
           gt: 0
           value: 0.0
+
+  - name: non-number value skips rule
+    when:
+      loose: "hello"
+    then: []
 
   - name: below boundary fails
     when:

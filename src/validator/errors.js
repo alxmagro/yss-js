@@ -29,12 +29,6 @@ export class ValidationError extends Error {
   }
 }
 
-export function makeError (path, code, message, data) {
-  const err = { path, code, message }
-  if (data !== undefined) err.data = data
-  return err
-}
-
 export function joinPath (parent, key) {
   if (typeof key === 'number') return parent ? `${parent}[${key}]` : `[${key}]`
   if (!parent) return String(key)

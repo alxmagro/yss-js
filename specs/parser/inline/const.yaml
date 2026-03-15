@@ -1,0 +1,43 @@
+feature: Parser — inline const values
+
+scenarios:
+  - name: quoted string as const value
+    given:
+      greeting: "string, == \"hello world\""
+    when:
+      greeting: hello world
+    then: []
+
+  - name: quoted string const mismatch
+    given:
+      greeting: "string, == \"hello world\""
+    when:
+      greeting: hi
+    then:
+      - path: greeting
+        code: "{{ CODE_CONST }}"
+        message: Value must be `hello world`
+        data:
+          value: hi
+          const: hello world
+
+  - name: boolean true as const value
+    given:
+      active: "boolean, == true"
+    when:
+      active: true
+    then: []
+
+  - name: boolean false as const value
+    given:
+      deleted: "boolean, == false"
+    when:
+      deleted: false
+    then: []
+
+  - name: float as const value
+    given:
+      ratio: "number, == 3.14"
+    when:
+      ratio: 3.14
+    then: []

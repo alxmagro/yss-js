@@ -99,7 +99,7 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     }
   }
 
-  function runThrowsCase (label, given, thenThrows) {
+  function runThrowsCase (label, given, thenThrows, schemaFile) {
     if (thenThrows === null || thenThrows === undefined) {
       log(c.gray(`·  TODO   ${label}`))
       skipped++
@@ -107,7 +107,8 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     }
 
     try {
-      schema.fromObject(given, { interpreted })
+      if (schemaFile) schema.fromFile(schemaFile, { interpreted })
+      else schema.fromObject(given, { interpreted })
       log(c.red(`✗  FAIL   ${label}`))
       log(c.red(`          expected to throw: ${thenThrows}`))
       log(c.red('          but did not throw'))
@@ -129,19 +130,22 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     return !filter || path.includes(filter)
   }
 
-  // ── rules (scalars / composites) ─────────────────────────────────────────────
+  // ── rules (scalars / composites) and parser ──────────────────────────────────
 
-  for (const file of findSpecs(join(specsDir, 'rules')).filter(matchesFilter)) {
+  const ruleDirs = [join(specsDir, 'rules'), join(specsDir, 'parser')]
+
+  for (const file of ruleDirs.flatMap(d => findSpecs(d)).filter(matchesFilter)) {
     const rel = file.replace(specsDir + '/', '')
     const spec = load(readFileSync(file, 'utf8'))
-    const validate = schema.fromObject(spec.given, { interpreted })
+    const validate = spec.given !== undefined ? schema.fromObject(spec.given, { interpreted }) : null
 
     for (const scenario of (spec.scenarios ?? [])) {
       const label = `${rel} › ${scenario.name ?? '?'}`
       if ('then_throws' in scenario) {
         runThrowsCase(label, scenario.given ?? spec.given, scenario.then_throws)
       } else {
-        runCase(label, validate, scenario.when, scenario.then)
+        const v = scenario.given !== undefined ? schema.fromObject(scenario.given, { interpreted }) : validate
+        runCase(label, v, scenario.when, scenario.then)
       }
     }
   }
@@ -151,7 +155,14 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
   for (const file of findSpecs(join(specsDir, 'integration')).filter(f => f.endsWith('/spec.yaml')).filter(matchesFilter)) {
     const rel = file.replace(specsDir + '/', '')
     const spec = load(readFileSync(file, 'utf8'))
-    const validate = schema.fromFile(join(dirname(file), 'schema.yaml'), { interpreted })
+    const schemaFile = join(dirname(file), 'schema.yaml')
+
+    if (spec.throws !== undefined) {
+      runThrowsCase(rel, null, spec.throws, schemaFile)
+      continue
+    }
+
+    const validate = schema.fromFile(schemaFile, { interpreted })
 
     for (const scenario of (spec.scenarios ?? [])) {
       runCase(`${rel} › ${scenario.name ?? '?'}`, validate, scenario.when, scenario.then)

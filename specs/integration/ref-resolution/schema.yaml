@@ -1,0 +1,25 @@
+$imports:
+  types: ./_types.yaml
+
+# $ref to full imported schema — resolves fields
+entry:
+  $ref: types
+
+# $ref with dot path — navigates into imported fields
+label_only:
+  $ref: types.label
+
+# array with $item: $ref — resolves item
+entries:
+  $type: array
+  $item:
+    $ref: types
+
+# array with $at containing $ref — resolves at
+header:
+  $type: array
+  $at:
+    0:
+      $ref: types.label
+    1:
+      $ref: types.value

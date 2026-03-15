@@ -29,8 +29,12 @@ export function buildNode (raw, inheritedStrict = false) {
     return { type: 'null', required: false }
   }
 
-  if (typeof raw === 'string' || Array.isArray(raw)) {
+  if (typeof raw === 'string') {
     return parseValue(raw)
+  }
+
+  if (Array.isArray(raw)) {
+    throw new Error('Array field definitions are not supported. Use "$type: [a, b]" for union types or "$any_of" for composite validation.')
   }
 
   if (typeof raw === 'object') {
@@ -81,8 +85,6 @@ function buildObjectNode (raw, inheritedStrict) {
     }
     if (raw.$size !== undefined) node.size = raw.$size
     if (raw.$unique !== undefined) node.unique = raw.$unique
-    if (raw.$min !== undefined) node.min = raw.$min
-    if (raw.$max !== undefined) node.max = raw.$max
     if (raw.$gt !== undefined) node.gt = raw.$gt
     if (raw.$gte !== undefined) node.gte = raw.$gte
     if (raw.$lt !== undefined) node.lt = raw.$lt
@@ -114,15 +116,13 @@ function buildObjectNode (raw, inheritedStrict) {
       }
     }
 
-    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'min', 'max', 'gt', 'gte', 'lt', 'lte', 'format', 'in', 'not_in', 'multiple_of']
+    const SCALAR_RUNE_KEYS = ['const', 'size', 'unique', 'gt', 'gte', 'lt', 'lte', 'format', 'in', 'not_in', 'multiple_of']
     const rules = SCALAR_RUNE_KEYS.filter(k => k in node)
     if (rules.length) node.rules = rules
   }
 
   // ── Build fields ───────────────────────────────────────────────────────────
   if (hasFields) {
-    if (!node.type) node.type = 'object'
-
     const required = new Set(Array.isArray(raw.$required) ? raw.$required : [])
     const fields = {}
 
@@ -144,9 +144,7 @@ function buildObjectNode (raw, inheritedStrict) {
       const branchNode = buildNode(branch, strict)
 
       if (Object.keys(sharedFields).length > 0) {
-        const mergedFields = { ...sharedFields, ...(branchNode.fields ?? {}) }
-        branchNode.fields = mergedFields
-        if (!branchNode.type) branchNode.type = 'object'
+        branchNode.fields = { ...sharedFields, ...(branchNode.fields ?? {}) }
       }
 
       return branchNode
@@ -182,9 +180,7 @@ function buildObjectNode (raw, inheritedStrict) {
       const branchNode = buildNode(branch, strict)
 
       if (Object.keys(sharedFields).length > 0) {
-        const mergedFields = { ...sharedFields, ...(branchNode.fields ?? {}) }
-        branchNode.fields = mergedFields
-        if (!branchNode.type) branchNode.type = 'object'
+        branchNode.fields = { ...sharedFields, ...(branchNode.fields ?? {}) }
       }
 
       return branchNode

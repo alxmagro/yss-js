@@ -119,7 +119,6 @@ export function resolveRefs (node, importedTrees) {
   }
 
   if (node.item) result.item = resolveRefs(node.item, importedTrees)
-  if (node.anyOf) result.anyOf = node.anyOf.map(b => resolveRefs(b, importedTrees))
 
   if (node.at) {
     result.at = Object.fromEntries(

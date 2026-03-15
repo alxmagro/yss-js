@@ -13,7 +13,7 @@
  *   size n         exact size
  *   size [n, m]    size range (null = unbounded)
  *   enum [a, b]    allowed values
- *   uniq           unique: true (no val needed)
+ *   unique         unique: true (no val needed)
  *   key            key: true  (any boolean flag with no val)
  *
  * Generic: array<string>, set<integer>, etc.
@@ -132,7 +132,7 @@ export function parseInline (token) {
     if (key === 'in') { result.in = val; rules.push('in'); continue }
     if (key === 'not_in') { result.not_in = val; rules.push('not_in'); continue }
     if (key === '%') { result.multiple_of = val; rules.push('multiple_of'); continue }
-    if (key === 'uniq') { result.unique = true; rules.push('unique'); continue }
+    if (key === 'unique') { result.unique = true; rules.push('unique'); continue }
   }
 
   if (rules.length) result.rules = rules
@@ -141,19 +141,5 @@ export function parseInline (token) {
 }
 
 export function parseValue (value) {
-  if (Array.isArray(value)) {
-    const nodes = value.map(v =>
-      v === null || v === 'null' ? { type: 'null' } : parseInline(String(v))
-    )
-
-    const allSimple = nodes.every(n => {
-      const { type, required, item, ...rules } = n
-      return Object.values(rules).every(v => v === null || v === false)
-    })
-
-    if (allSimple) return { type: nodes.map(n => n.type) }
-    return { anyOf: nodes }
-  }
-
   return parseInline(String(value))
 }

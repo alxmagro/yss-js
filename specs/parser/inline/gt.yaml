@@ -1,0 +1,22 @@
+feature: Parser — inline gt constraint
+
+scenarios:
+  - name: valid value above bound
+    given:
+      age: "integer, > 18"
+    when:
+      age: 19
+    then: []
+
+  - name: value at bound fails
+    given:
+      age: "integer, > 18"
+    when:
+      age: 18
+    then:
+      - path: age
+        code: "{{ CODE_GT }}"
+        message: Value must be greater than `18`
+        data:
+          value: 18
+          gt: 18
