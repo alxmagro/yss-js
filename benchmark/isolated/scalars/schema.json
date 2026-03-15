@@ -6,6 +6,9 @@
     "age":    { "type": "integer", "minimum": 18, "maximum": 120 },
     "score":  { "type": "number",  "minimum": 0,  "maximum": 100 },
     "role":   { "type": "string",  "enum": ["admin", "user", "guest"] },
-    "active": { "type": "boolean" }
+    "active":   { "type": "boolean" },
+    "env":      { "type": "string",  "const": "production" },
+    "status":   { "type": "string",  "not": { "enum": ["banned", "suspended", "deleted"] } },
+    "quantity": { "type": "integer", "multipleOf": 5 }
   }
 }

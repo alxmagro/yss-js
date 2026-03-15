@@ -3,4 +3,7 @@ email:  string, ~ email
 age:    integer, >= 18, <= 120
 score:  number,  >= 0,  <= 100
 role:   string,  in [admin, user, guest]
-active: boolean
+active:    boolean
+env:       string,  == production
+status:    string,  not_in [banned, suspended, deleted]
+quantity:  integer, % 5

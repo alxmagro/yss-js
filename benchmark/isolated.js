@@ -14,9 +14,9 @@ addFormats(ajv)
 // ── Payloads per case ─────────────────────────────────────────────────────────
 
 const payloads = {
-  'flat': {
-    valid:   { name: 'Alice', email: 'alice@example.com', age: 30, score: 87.5, role: 'admin',   active: true },
-    invalid: { name: 'A',     email: 'not-an-email',      age: 15, score: 200,  role: 'unknown', active: 'yes' },
+  'scalars': {
+    valid:   { name: 'Alice', email: 'alice@example.com', age: 30, score: 87.5, role: 'admin',   active: true,  env: 'production', status: 'active',    quantity: 25 },
+    invalid: { name: 'A',     email: 'not-an-email',      age: 15, score: 200,  role: 'unknown', active: 'yes', env: 'staging',    status: 'suspended', quantity: 7  },
   },
   'deep-object': {
     valid:   { user: { profile: { name: 'Alice', bio: 'Hello world' }, settings: { theme: 'dark',  lang: 'en' } } },
