@@ -10,6 +10,9 @@ given:
   phone:
     $type: string
     $format: phone
+  pattern:
+    $type: string
+    $format: regex
 
 scenarios:
   - name: optional fields absent
@@ -20,6 +23,7 @@ scenarios:
     when:
       code: ABC-1234
       phone: "+55 11 91234-5678"
+      pattern: "[a-z]+"
     then: []
 
   - name: invalid raw regex
@@ -43,3 +47,23 @@ scenarios:
         data:
           value: "123"
           format: phone
+
+  - name: invalid regex alias value
+    when:
+      pattern: "[invalid"
+    then:
+      - path: pattern
+        code: "{{ CODE_FORMAT }}"
+        message: Value does not match required format
+        data:
+          value: "[invalid"
+          format: regex
+
+  - name: invalid $patterns syntax
+    given:
+      $patterns:
+        phone: 'no-slashes'
+      field:
+        $type: string
+        $format: phone
+    then_throws: '$patterns: "phone" must be a /regex/ string'

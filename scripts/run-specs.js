@@ -99,6 +99,32 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     }
   }
 
+  function runThrowsCase (label, given, thenThrows) {
+    if (thenThrows === null || thenThrows === undefined) {
+      log(c.gray(`·  TODO   ${label}`))
+      skipped++
+      return
+    }
+
+    try {
+      schema.fromObject(given, { interpreted })
+      log(c.red(`✗  FAIL   ${label}`))
+      log(c.red(`          expected to throw: ${thenThrows}`))
+      log(c.red('          but did not throw'))
+      failed++
+    } catch (err) {
+      if (err.message === thenThrows) {
+        log(c.green(`✓  PASS   ${label}`))
+        passed++
+      } else {
+        log(c.red(`✗  FAIL   ${label}`))
+        log(c.red(`          expected throw: ${thenThrows}`))
+        log(c.red(`          got throw:      ${err.message}`))
+        failed++
+      }
+    }
+  }
+
   function matchesFilter (path) {
     return !filter || path.includes(filter)
   }
@@ -111,7 +137,12 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     const validate = schema.fromObject(spec.given, { interpreted })
 
     for (const scenario of (spec.scenarios ?? [])) {
-      runCase(`${rel} › ${scenario.name ?? '?'}`, validate, scenario.when, scenario.then)
+      const label = `${rel} › ${scenario.name ?? '?'}`
+      if ('then_throws' in scenario) {
+        runThrowsCase(label, scenario.given ?? spec.given, scenario.then_throws)
+      } else {
+        runCase(label, validate, scenario.when, scenario.then)
+      }
     }
   }
 
