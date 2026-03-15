@@ -111,18 +111,18 @@ for (let v0 = 0; v0 < payload["tags"].length; v0++) {
 
 ### Contains — Candidate Matching
 
-For each array item, a local buffer `beVar = []` collects errors from running the
-item schema. If the buffer stays empty the item matched; the buffer is then
-discarded. Only one error (the contains constraint violation) is pushed to the
-outer `errTarget`.
+For each array item, a boolean flag `beVar = false` runs the item schema in
+**lightweight mode** (see below). If the flag stays `false` the item matched.
+Only one error (the contains constraint violation) is pushed to the outer
+`errTarget`.
 
 ```js
 let v2 = 0                       // match counter
 for (let v0 = 0; v0 < val.length; v0++) {
   const v1  = val[v0]
-  const v3  = []                  // ← short-lived, V8 bump-pointer alloc
-  /* emitNode(v1, itemNode, path, v3) */
-  if (v3.length === 0) {
+  let v3 = false                  // ← lightweight flag, no allocation
+  /* emitNode(v1, itemNode, path, v3, lightweight=true) */
+  if (!v3) {
     v2++
     if (v2 >= min) break          // ← early exit once min satisfied (min-only)
   }
@@ -148,20 +148,22 @@ short-lived `[]` allocation, which V8 can optimize via escape analysis.
 
 ### AnyOf — Early Exit
 
-Branches run sequentially, stopping at the first match:
+Branches run sequentially, stopping at the first match. Each branch uses a
+**lightweight flag** instead of an error array — no error objects are constructed
+for non-matching branches:
 
 ```js
 let v0 = false          // matched flag
 
 if (!v0) {
-  const v2 = []
-  /* emitNode branch 0 → v2 */
-  if (v2.length === 0) { v0 = true }
+  let v2 = false        // ← lightweight flag, no allocation
+  /* emitNode branch 0 → v2, lightweight=true */
+  if (!v2) { v0 = true }
 }
 if (!v0) {
-  const v3 = []
-  /* emitNode branch 1 → v3 */
-  if (v3.length === 0) { v0 = true }
+  let v3 = false
+  /* emitNode branch 1 → v3, lightweight=true */
+  if (!v3) { v0 = true }
 }
 if (!v0) {
   errors.push({ code: 'anyof_invalid', message: 'Value does not match any condition' })
@@ -188,6 +190,30 @@ if (!v0) {
 }
 ```
 
+---
+
+## Lightweight Mode
+
+`anyOf`, `oneOf`, and `contains` branches only need to know **whether** a node
+produced an error — not what the error was. The full error object
+`{ path, code, message, data }` would be constructed and immediately discarded.
+
+The `lightweight` flag (threaded through all `emit*` functions) changes every
+`errTarget.push({ ... })` into `errTarget = true`. The per-branch `beVar`
+becomes a `let` boolean instead of a `const []`.
+
+**Why this matters**: in JavaScript, object literals are evaluated as arguments
+*before* the function is called — even if the function ignores them. Removing
+the push means the entire `{ path, code, message, data }` object is never
+allocated. On invalid payloads where many branches fail, this compounds
+per-branch and per-element.
+
+**`allOf` is the exception**: its internal per-branch check still uses a real
+`[]` (it needs `beVar.length > 0` to detect failure). Only the outer
+`errTarget.push` — which reports to the parent — becomes lightweight-aware.
+
+---
+
 **`baseType` pre-check**: when the schema declares `$type` alongside `$all_of`
 (e.g. `$type: array`), the parser stores `baseType` on the node. The codegen
 emits a type check *before* running branches, wrapped in an `if/else` block so
@@ -208,14 +234,14 @@ that **exactly one** branch matches. Branches stop only after `count >= 2`
 let v0 = 0              // match counter
 
 if (v0 < 2) {
-  const v1 = []
-  /* emitNode branch 0 → v1 */
-  if (v1.length === 0) { v0++ }
+  let v1 = false        // ← lightweight flag
+  /* emitNode branch 0 → v1, lightweight=true */
+  if (!v1) { v0++ }
 }
 if (v0 < 2) {
-  const v2 = []
-  /* emitNode branch 1 → v2 */
-  if (v2.length === 0) { v0++ }
+  let v2 = false
+  /* emitNode branch 1 → v2, lightweight=true */
+  if (!v2) { v0++ }
 }
 if (v0 === 0)      errors.push({ code: 'oneof_invalid',  ... })
 else if (v0 > 1)   errors.push({ code: 'oneof_multiple', ... })
@@ -223,9 +249,6 @@ else if (v0 > 1)   errors.push({ code: 'oneof_multiple', ... })
 
 **Consequence**: on valid payloads, `oneOf` always runs all N branches, while
 `anyOf` runs only 1 on average. This is structural — not an optimization gap.
-The remaining per-branch overhead (allocating `beVar = []` and creating error
-objects for non-matching branches) is the same as `anyOf` and would be solved
-by the "test mode" codegen path.
 
 ---
 
@@ -270,32 +293,28 @@ in V8.
 
 ## Performance Notes
 
-Benchmarks vs Ajv (2026-03-13, Node.js v24):
+Benchmarks vs Ajv (2026-03-15, Node.js v24):
 
 | Case | valid | invalid |
 |---|---|---|
-| flat scalars | YSS 44% faster | YSS 19% faster |
+| flat scalars | YSS 36% faster | YSS 25% faster |
 | deep object (strict) | parity | YSS 9× faster |
-| array with items | YSS 4× faster | YSS 62% faster |
-| any_of | YSS 4× faster | Ajv 46% faster |
-| all_of | YSS 3.7× faster | YSS 2.4× faster |
-| contains (min-only) | YSS 2.6× faster | Ajv 33% faster |
-| one_of | Ajv 44% faster | YSS 59% faster |
+| array with items | YSS 3.2× faster | YSS 60% faster |
+| any_of | YSS 5× faster | YSS 2.2× faster |
+| all_of | YSS 3.4× faster | YSS 2.6× faster |
+| contains (min-only) | YSS 2.7× faster | YSS 5× faster |
+| one_of | YSS 34% faster | YSS 43% faster |
 
-**The anyOf invalid gap**: when all branches fail, we collect full branch errors
-into `data.any_of`. Ajv discards branch errors entirely and returns a single
-flat error. This allocation cost is the sole remaining gap. On real workloads
-where payloads are mostly valid, the difference does not appear.
-
-**The contains invalid gap**: when no item matches, every item runs a full
-`emitNode` that creates error objects (including path string computation) only
-to discard them. Ajv generates a lean boolean predicate for `contains` candidates.
-The fix would be a second "test mode" codegen path — deferred.
+Numbers are from the isolated benchmark (`node benchmark/isolated.js`).
+The composite benchmark (`npm run bm`) targets ≥50% faster overall.
 
 **Things that did NOT help** (tested and reverted):
 - `require-from-string` instead of `new Function` — no measurable difference
 - Minifying the generated source string — V8 compiles to bytecode once; source
   size is irrelevant at runtime
+- `errTarget.length = savedLen` (array truncation for reuse in `contains`) —
+  more expensive than a fresh short-lived `[]`, which V8 can optimize via escape
+  analysis. Superseded by the lightweight boolean flag anyway.
 
 ---
 
