@@ -1,5 +1,8 @@
 $strict: true
 
+$patterns:
+  zip: /^\d{5}(-\d{4})?$/
+
 id:       integer, >= 1
 username: string,  size [3, 32]
 email:    string,  ~ email

@@ -1,0 +1,7 @@
+feature: Parser error — unexpected field value type
+
+scenarios:
+  - name: numeric field definition throws
+    given:
+      age: 42
+    then_throws: "Unexpected schema value: 42"

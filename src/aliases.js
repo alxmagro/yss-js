@@ -125,7 +125,8 @@ export function registerPatterns (patterns) {
     const lastSlash = raw.lastIndexOf('/')
     const source = raw.slice(1, lastSlash)
     const flags = raw.slice(lastSlash + 1)
-    aliases[name] = (v) => new RegExp(source, flags).test(v)
+    const re = new RegExp(source, flags)
+    aliases[name] = (v) => re.test(v)
   }
 }
 
@@ -140,6 +141,24 @@ export function registerPatterns (patterns) {
  * @param {string} pattern - alias name or /regex/
  * @returns {boolean}
  */
+export function checkFormat (pattern) {
+  if (aliases[pattern]) return
+
+  if (pattern.startsWith('/') && pattern.lastIndexOf('/') > 0) {
+    const lastSlash = pattern.lastIndexOf('/')
+    const source = pattern.slice(1, lastSlash)
+    const flags = pattern.slice(lastSlash + 1)
+    try {
+      new RegExp(source, flags) // eslint-disable-line no-new
+    } catch {
+      throw new Error(`Invalid regex in =~ : ${pattern}`)
+    }
+    return
+  }
+
+  throw new Error(`=~ "${pattern}" is not a known alias and is not wrapped in /slashes/. Use =~ /pattern/ for raw regex.`)
+}
+
 export function runMatch (value, pattern) {
   // Named alias - no delimiters
   if (aliases[pattern]) return aliases[pattern](value)
@@ -149,11 +168,7 @@ export function runMatch (value, pattern) {
     const lastSlash = pattern.lastIndexOf('/')
     const source = pattern.slice(1, lastSlash)
     const flags = pattern.slice(lastSlash + 1)
-    try {
-      return new RegExp(source, flags).test(value)
-    } catch {
-      throw new Error(`Invalid regex in =~ : ${pattern}`)
-    }
+    return new RegExp(source, flags).test(value)
   }
 
   throw new Error(`=~ "${pattern}" is not a known alias and is not wrapped in /slashes/. Use =~ /pattern/ for raw regex.`)

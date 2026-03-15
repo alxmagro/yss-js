@@ -1,0 +1,11 @@
+feature: Parser error — array field definition
+
+scenarios:
+  - name: array field definition throws
+    given:
+      status:
+        - string
+        - integer
+    then_throws: >-
+      Array field definitions are not supported.
+      Use "$type: [a, b]" for union types or "$any_of" for composite validation.

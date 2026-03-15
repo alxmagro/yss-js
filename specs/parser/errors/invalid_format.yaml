@@ -1,0 +1,17 @@
+feature: Parser error — invalid $format value
+
+scenarios:
+  - name: unknown format alias throws
+    given:
+      email:
+        $type: string
+        $format: not-a-known-alias
+    then_throws: >-
+      =~ "not-a-known-alias" is not a known alias and is not wrapped in /slashes/. Use =~ /pattern/ for raw regex.
+
+  - name: invalid regex format throws
+    given:
+      token:
+        $type: string
+        $format: /[invalid/
+    then_throws: "Invalid regex in =~ : /[invalid/"

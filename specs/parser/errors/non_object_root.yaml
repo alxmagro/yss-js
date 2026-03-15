@@ -1,0 +1,6 @@
+feature: Parser error — non-object root
+
+scenarios:
+  - name: string root throws
+    given: "string"
+    then_throws: YSS schema root must be an object

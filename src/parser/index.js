@@ -14,7 +14,7 @@
  */
 
 import { parseValue } from './inline.js'
-import { registerPatterns } from '../aliases.js'
+import { registerPatterns, checkFormat } from '../aliases.js'
 import { loadImports, resolveRefs } from './imports.js'
 
 const RESERVED_ROOT = new Set(['$anchors', '$patterns', '$imports'])
@@ -195,6 +195,28 @@ function buildObjectNode (raw, inheritedStrict) {
   }
 
   return node
+}
+
+/**
+ * Walk every node in a schema tree, calling fn(node) on each.
+ */
+export function walkAST (node, fn) {
+  if (!node || typeof node !== 'object') return
+  fn(node)
+  if (node.fields) Object.values(node.fields).forEach(n => walkAST(n, fn))
+  if (node.item) walkAST(node.item, fn)
+  if (node.at) Object.values(node.at).forEach(n => walkAST(n, fn))
+  if (node.items) node.items.forEach(n => walkAST(n, fn))
+  if (node.contains?.item) walkAST(node.contains.item, fn)
+}
+
+/**
+ * Validate a compiled schema tree, throwing on invalid format values.
+ */
+export function assertIntegrity (tree) {
+  walkAST(tree, node => {
+    if (node.format) checkFormat(node.format)
+  })
 }
 
 /**
