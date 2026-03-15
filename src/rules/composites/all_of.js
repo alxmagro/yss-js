@@ -8,7 +8,7 @@ export default function allOf (value, node, path, validateNode) {
 
   for (let i = 0; i < node.items.length; i++) {
     if (validateNode(value, node.items[i], path).length > 0)
-      return [{ path, code: 'allof_invalid', message: 'Value does not match all conditions', data: { failed_at: i } }]
+      return [{ path, code: 'all_of', message: 'Value does not match all conditions', data: { failed_at: i } }]
   }
 
   return []

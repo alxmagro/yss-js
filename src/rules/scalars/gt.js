@@ -5,7 +5,7 @@ export default function gt (value, schemaParam) {
   if (typeof value !== 'number') return null
   if (value <= schemaParam)
     return {
-      code:    'gt_invalid',
+      code:    'gt',
       message: `Value must be greater than \`${schemaParam}\``,
       data:    { value, gt: schemaParam },
     }

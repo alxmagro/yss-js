@@ -4,7 +4,7 @@
 export default function notInRule (value, schemaParam) {
   if (schemaParam.includes(value)) {
     return {
-      code:    'not_in_invalid',
+      code:    'not_in',
       message: 'Value is not allowed',
       data: {
         value,

@@ -43,13 +43,13 @@ export default function array (value, node, path, validateNode) {
         const message = quantity === 0
           ? 'Array must not contain any matching items'
           : `Array must contain exactly \`${quantity}\` matching items`
-        errors.push({ path, code: 'contains_exact_invalid', message, data: { quantity } })
+        errors.push({ path, code: 'contains_exact', message, data: { quantity } })
       }
     } else if (max != null && count > max) {
-      errors.push({ path, code: 'contains_max_invalid', message: `Array must contain at most \`${max}\` matching items`, data: { quantity } })
+      errors.push({ path, code: 'contains_max', message: `Array must contain at most \`${max}\` matching items`, data: { quantity } })
     } else if (min != null && count < min) {
       const message = min === 1 ? 'Array must contain at least one matching item' : `Array must contain at least \`${min}\` matching items`
-      errors.push({ path, code: 'contains_min_invalid', message, data: { quantity } })
+      errors.push({ path, code: 'contains_min', message, data: { quantity } })
     }
   }
 

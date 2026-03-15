@@ -25,7 +25,7 @@ export default function type (value, schemaParam) {
 
   if (!matches)
     return {
-      code:    'type_mismatch',
+      code:    'type',
       message: 'Unexpected type',
       data:    { value, expected: schemaParam },
     }

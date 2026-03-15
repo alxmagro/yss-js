@@ -5,7 +5,7 @@ export default function anyOf (value, node, path, validateNode) {
   if (matched === -1)
     return [{
       path,
-      code:    'anyof_invalid',
+      code:    'any_of',
       message: 'Value does not match any condition',
     }]
 

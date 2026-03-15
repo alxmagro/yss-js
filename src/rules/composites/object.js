@@ -21,7 +21,7 @@ export default function object (value, node, path, validateNode) {
 
     if (fieldValue === undefined) {
       if (fieldNode.required)
-        errors.push({ path: fieldPath, code: 'prop_required', message: `Missing required property \`${fieldPath}\`` })
+        errors.push({ path: fieldPath, code: 'required', message: `Missing required property \`${fieldPath}\`` })
       continue
     }
     errors.push(...validateNode(fieldValue, fieldNode, fieldPath))
@@ -32,7 +32,7 @@ export default function object (value, node, path, validateNode) {
       if (value[trigger] === undefined) continue
       const missing = deps.filter(dep => value[dep] === undefined)
       if (missing.length > 0)
-        errors.push({ path, code: 'dependent_required', message: 'Value does not match all conditions', data: { trigger, missing } })
+        errors.push({ path, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger, missing } })
     }
   }
 
@@ -40,7 +40,7 @@ export default function object (value, node, path, validateNode) {
     for (const key of Object.keys(value)) {
       if (!(key in fields)) {
         const p = joinPath(path, key)
-        errors.push({ path: p, code: 'prop_unexpected', message: `Unexpected property \`${p}\`` })
+        errors.push({ path: p, code: 'strict', message: `Unexpected property \`${p}\`` })
       }
     }
   }

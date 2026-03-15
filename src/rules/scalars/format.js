@@ -19,7 +19,7 @@ export default function format (value, schemaParam) {
 
   if (!ok) {
     return {
-      code:    'format_invalid',
+      code:    'format',
       message: 'Value does not match required format',
       data:    { value, format: schemaParam },
     }

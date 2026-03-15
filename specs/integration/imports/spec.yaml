@@ -25,7 +25,7 @@ scenarios:
       projects: []
     then:
       - path: slug
-        code: prop_required
+        code: required
         message: Missing required property `slug`
 
   - name: invalid slug format via imported patterns
@@ -37,7 +37,7 @@ scenarios:
       projects: []
     then:
       - path: slug
-        code: format_invalid
+        code: format
         message: Value does not match required format
         data:
           value: "Invalid Slug!"
@@ -51,7 +51,7 @@ scenarios:
       projects: []
     then:
       - path: lead.email
-        code: prop_required
+        code: required
         message: Missing required property `lead.email`
 
   - name: missing required field in $ref project.data
@@ -66,5 +66,5 @@ scenarios:
             email: leia@rebellion.org
     then:
       - path: projects[0].title
-        code: prop_required
+        code: required
         message: Missing required property `projects[0].title`

@@ -12,10 +12,10 @@ export default function oneOf (value, node, path, validateNode) {
   }
 
   if (matchCount === 0)
-    return [{ path, code: 'oneof_invalid',  message: 'Value does not match any condition' }]
+    return [{ path, code: 'one_of',  message: 'Value does not match any condition' }]
 
   if (matchCount > 1)
-    return [{ path, code: 'oneof_multiple', message: 'Value matches more than one condition', data: { matches_at: [firstMatch, secondMatch] } }]
+    return [{ path, code: 'one_of_multiple', message: 'Value matches more than one condition', data: { matches_at: [firstMatch, secondMatch] } }]
 
   return []
 }

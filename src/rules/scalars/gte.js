@@ -5,7 +5,7 @@ export default function gte (value, schemaParam) {
   if (typeof value !== 'number') return null
   if (value < schemaParam)
     return {
-      code:    'gte_invalid',
+      code:    'gte',
       message: `Value must be greater than or equal to \`${schemaParam}\``,
       data:    { value, gte: schemaParam },
     }
