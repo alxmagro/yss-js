@@ -1,0 +1,24 @@
+feature: Parser — root array schema
+
+scenarios:
+  - name: valid array payload
+    given:
+      $type: array
+      $item:
+        $type: string
+    when: [fus, ro, dah]
+    then: []
+
+  - name: invalid item type
+    given:
+      $type: array
+      $item:
+        $type: string
+    when: [fus, 42, dah]
+    then:
+      - path: "[1]"
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: 42
+          expected: string

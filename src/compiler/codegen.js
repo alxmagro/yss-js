@@ -335,6 +335,8 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget) {
 
   const szVar = ctx.nextId()
 
+  const needsTypeGuard = nodeType !== 'string' && nodeType !== 'array' && nodeType !== 'object'
+  if (needsTypeGuard) ctx.emit(`if (typeof ${varExpr} === 'string' || Array.isArray(${varExpr}) || (typeof ${varExpr} === 'object' && ${varExpr} !== null)) {`)
   ctx.emit('{')
   ctx.emit(`  const ${szVar} = ${lenExpr}`)
 
@@ -361,6 +363,7 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget) {
   }
 
   ctx.emit('}')
+  if (needsTypeGuard) ctx.emit('}')
 }
 
 // ── multiple_of ───────────────────────────────────────────────────────────────

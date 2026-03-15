@@ -6,6 +6,8 @@ given:
     $type: array
     $size: 3
   meta: object, size 2
+  count:
+    $size: 5
 
 scenarios:
   - name: optional fields absent
@@ -25,6 +27,11 @@ scenarios:
   - name: object with exact number of props
     when:
       meta: { a: 1, b: 2 }
+    then: []
+
+  - name: non-applicable type skips size rule
+    when:
+      count: 42
     then: []
 
   - name: string too short

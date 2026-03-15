@@ -75,22 +75,17 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     }
 
     try {
-      const payloads = Array.isArray(when) ? when : [when]
+      const actual = validate(when)
       const expected = resolveTemplates(then)
 
-      for (let i = 0; i < payloads.length; i++) {
-        const actual = validate(payloads[i])
-        const caseLabel = payloads.length > 1 ? `${label} [${i}]` : label
-
-        if (deepEqual(actual, expected)) {
-          log(c.green(`✓  PASS   ${caseLabel}`))
-          passed++
-        } else {
-          log(c.red(`✗  FAIL   ${caseLabel}`))
-          log(c.red(`          expected ${JSON.stringify(expected)}`))
-          log(c.red(`          got      ${JSON.stringify(actual)}`))
-          failed++
-        }
+      if (deepEqual(actual, expected)) {
+        log(c.green(`✓  PASS   ${label}`))
+        passed++
+      } else {
+        log(c.red(`✗  FAIL   ${label}`))
+        log(c.red(`          expected ${JSON.stringify(expected)}`))
+        log(c.red(`          got      ${JSON.stringify(actual)}`))
+        failed++
       }
     } catch (err) {
       log(c.red(`✗  ERROR  ${label}`))

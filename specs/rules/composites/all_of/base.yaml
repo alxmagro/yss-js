@@ -48,3 +48,14 @@ scenarios:
         path: tags
         data:
           failed_at: 0
+
+  - name: type mismatch on $all_of field
+    when:
+      tags: not-an-array
+    then:
+      - path: tags
+        code: "{{ CODE_TYPE }}"
+        message: Unexpected type
+        data:
+          value: not-an-array
+          expected: array
