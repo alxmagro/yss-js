@@ -28,8 +28,8 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors') {
     return
   }
 
-  const isArr = type === 'array'
-  const isObj = type === 'object'
+  const isArr = type === 'array' || (type === 'any' && (node.item != null || node.at != null))
+  const isObj = type === 'object' || (type === 'any' && node.fields != null)
 
   if (type !== 'any') {
     const cond = typeMatchCond(varExpr, type)
@@ -44,6 +44,10 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors') {
     else emitScalarRules(ctx, varExpr, node, pathExpr, errTarget)
 
     ctx.emit('}')
+  } else if (isArr) {
+    emitArrayBody(ctx, varExpr, node, pathExpr, errTarget)
+  } else if (isObj) {
+    emitObjectBody(ctx, varExpr, node, pathExpr, errTarget)
   } else {
     // any — no type check, runtime dispatch
     ctx.emit(`if (Array.isArray(${varExpr})) {`)
