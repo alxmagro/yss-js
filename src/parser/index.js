@@ -13,8 +13,8 @@
  *   - Fields are optional by default; $required: [...] marks required fields
  */
 
-import { parseValue }               from './inline.js'
-import { registerPatterns }         from '../aliases.js'
+import { parseValue } from './inline.js'
+import { registerPatterns } from '../aliases.js'
 import { loadImports, resolveRefs } from './imports.js'
 
 const RESERVED_ROOT = new Set(['$anchors', '$patterns', '$imports'])
@@ -44,8 +44,8 @@ export function buildNode (raw, inheritedStrict = false) {
  * Build a node from an object — rune block or object schema.
  */
 function buildObjectNode (raw, inheritedStrict) {
-  const keys      = Object.keys(raw)
-  const hasRunes  = keys.some(k => k.startsWith('$'))
+  const keys = Object.keys(raw)
+  const hasRunes = keys.some(k => k.startsWith('$'))
   const hasFields = keys.some(k => !k.startsWith('$'))
 
   // $ref — resolved later by resolveRefs
@@ -68,28 +68,28 @@ function buildObjectNode (raw, inheritedStrict) {
       }
     }
 
-    if (raw.$const  !== undefined) {
+    if (raw.$const !== undefined) {
       node.const = raw.$const
       // Infer type from const value when $type is not declared
       if (raw.$type === undefined) {
         const v = raw.$const
-        if (typeof v === 'string')       node.type = 'string'
-        else if (Number.isInteger(v))    node.type = 'integer'
-        else if (typeof v === 'number')  node.type = 'number'
+        if (typeof v === 'string') node.type = 'string'
+        else if (Number.isInteger(v)) node.type = 'integer'
+        else if (typeof v === 'number') node.type = 'number'
         else if (typeof v === 'boolean') node.type = 'boolean'
       }
     }
-    if (raw.$size   !== undefined) node.size   = raw.$size
+    if (raw.$size !== undefined) node.size = raw.$size
     if (raw.$unique !== undefined) node.unique = raw.$unique
-    if (raw.$min    !== undefined) node.min    = raw.$min
-    if (raw.$max    !== undefined) node.max    = raw.$max
-    if (raw.$gt     !== undefined) node.gt     = raw.$gt
-    if (raw.$gte    !== undefined) node.gte    = raw.$gte
-    if (raw.$lt     !== undefined) node.lt     = raw.$lt
-    if (raw.$lte    !== undefined) node.lte    = raw.$lte
+    if (raw.$min !== undefined) node.min = raw.$min
+    if (raw.$max !== undefined) node.max = raw.$max
+    if (raw.$gt !== undefined) node.gt = raw.$gt
+    if (raw.$gte !== undefined) node.gte = raw.$gte
+    if (raw.$lt !== undefined) node.lt = raw.$lt
+    if (raw.$lte !== undefined) node.lte = raw.$lte
     if (raw.$format !== undefined) node.format = raw.$format
-    if (raw.$in          !== undefined) node.in          = raw.$in
-    if (raw.$not_in      !== undefined) node.not_in      = raw.$not_in
+    if (raw.$in !== undefined) node.in = raw.$in
+    if (raw.$not_in !== undefined) node.not_in = raw.$not_in
     if (raw.$multiple_of !== undefined) node.multiple_of = raw.$multiple_of
 
     if (raw.$dependencies !== undefined) node.dependencies = raw.$dependencies
@@ -124,7 +124,7 @@ function buildObjectNode (raw, inheritedStrict) {
     if (!node.type) node.type = 'object'
 
     const required = new Set(Array.isArray(raw.$required) ? raw.$required : [])
-    const fields   = {}
+    const fields = {}
 
     for (const [key, val] of Object.entries(raw)) {
       if (key.startsWith('$')) continue
@@ -145,7 +145,7 @@ function buildObjectNode (raw, inheritedStrict) {
 
       if (Object.keys(sharedFields).length > 0) {
         const mergedFields = { ...sharedFields, ...(branchNode.fields ?? {}) }
-        branchNode.fields  = mergedFields
+        branchNode.fields = mergedFields
         if (!branchNode.type) branchNode.type = 'object'
       }
 
@@ -153,24 +153,24 @@ function buildObjectNode (raw, inheritedStrict) {
     })
 
     return {
-      type:     'any_of',
+      type: 'any_of',
       required: node.required,
       strict,
-      items,
+      items
     }
   }
 
   // ── Promote to AllOf ───────────────────────────────────────────────────────
   if (raw.$all_of !== undefined) {
     const baseType = node.type !== 'any' ? node.type : undefined
-    const items    = raw.$all_of.map(branch => buildNode(branch, strict))
+    const items = raw.$all_of.map(branch => buildNode(branch, strict))
 
     return {
-      type:     'all_of',
+      type: 'all_of',
       baseType,
       required: node.required,
       strict,
-      items,
+      items
     }
   }
 
@@ -183,7 +183,7 @@ function buildObjectNode (raw, inheritedStrict) {
 
       if (Object.keys(sharedFields).length > 0) {
         const mergedFields = { ...sharedFields, ...(branchNode.fields ?? {}) }
-        branchNode.fields  = mergedFields
+        branchNode.fields = mergedFields
         if (!branchNode.type) branchNode.type = 'object'
       }
 
@@ -191,10 +191,10 @@ function buildObjectNode (raw, inheritedStrict) {
     })
 
     return {
-      type:     'one_of',
+      type: 'one_of',
       required: node.required,
       strict,
-      items,
+      items
     }
   }
 

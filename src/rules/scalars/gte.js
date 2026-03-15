@@ -3,11 +3,12 @@
  */
 export default function gte (value, schemaParam) {
   if (typeof value !== 'number') return null
-  if (value < schemaParam)
+  if (value < schemaParam) {
     return {
-      code:    'gte',
+      code: 'gte',
       message: `Value must be greater than or equal to \`${schemaParam}\``,
-      data:    { value, gte: schemaParam },
+      data: { value, gte: schemaParam }
     }
+  }
   return null
 }

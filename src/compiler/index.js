@@ -1,5 +1,5 @@
 import { CompilerContext } from './context.js'
-import { emitNode }        from './codegen.js'
+import { emitNode } from './codegen.js'
 
 export function compileAST (ast) {
   const ctx = new CompilerContext()

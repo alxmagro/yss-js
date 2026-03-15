@@ -3,7 +3,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const fixture   = join(__dirname, '../fixtures/user.yaml')
+const fixture = join(__dirname, '../fixtures/user.yaml')
 
 describe('schema.fromFile', () => {
   it('returns a validate function', () => {

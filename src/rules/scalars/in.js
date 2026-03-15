@@ -4,12 +4,12 @@
 export default function inRule (value, schemaParam) {
   if (!schemaParam.includes(value)) {
     return {
-      code:    'in',
+      code: 'in',
       message: `Value \`${value}\` is not allowed`,
       data: {
         value,
-        in: schemaParam,
-      },
+        in: schemaParam
+      }
     }
   }
   return null

@@ -36,18 +36,18 @@
 // ── Dates & Times ────────────────────────────────────────────────────────────
 
 const DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
-const DATE      = /^\d{4}-\d{2}-\d{2}$/
-const TIME      = /^\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
-const DURATION  = /^P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$/
+const DATE = /^\d{4}-\d{2}-\d{2}$/
+const TIME = /^\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
+const DURATION = /^P(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+S)?)?$/
 
 // ── Email ─────────────────────────────────────────────────────────────────────
 
-const EMAIL     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const IDN_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // simplified - full IDN requires unicode lib
 
 // ── Hostname ──────────────────────────────────────────────────────────────────
 
-const HOSTNAME     = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
+const HOSTNAME = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
 const IDN_HOSTNAME = /^(?:[a-zA-Z0-9\u00C0-\u024F](?:[a-zA-Z0-9\u00C0-\u024F-]{0,61}[a-zA-Z0-9\u00C0-\u024F])?\.)+[a-zA-Z\u00C0-\u024F]{2,}$/
 
 // ── IP Addresses ──────────────────────────────────────────────────────────────
@@ -57,9 +57,9 @@ const IPV6 = /^([\da-fA-F]{0,4}:){2,7}[\da-fA-F]{0,4}$/
 
 // ── URI ───────────────────────────────────────────────────────────────────────
 
-const URI           = /^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/[^\s]*$/
+const URI = /^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/[^\s]*$/
 const URI_REFERENCE = /^([a-zA-Z][a-zA-Z0-9+\-.]*:)?\/\/[^\s]*|^[^\s]*$/
-const IRI           = /^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/[^\s]*$/  // simplified
+const IRI = /^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/[^\s]*$/ // simplified
 
 // ── UUID ──────────────────────────────────────────────────────────────────────
 
@@ -71,45 +71,44 @@ const JSON_POINTER = /^(\/([^~/]|~0|~1)*)*$/
 
 // ── Regex ─────────────────────────────────────────────────────────────────────
 
-function isValidRegex(value) {
-  try { new RegExp(value); return true }
-  catch { return false }
+function isValidRegex (value) {
+  try { return !!new RegExp(value) } catch { return false }
 }
 
 // ── Aliases map ───────────────────────────────────────────────────────────────
 
 export const aliases = {
   // dates & times
-  'date-time':    (v) => DATE_TIME.test(v),
-  'date':         (v) => DATE.test(v),
-  'time':         (v) => TIME.test(v),
-  'duration':     (v) => DURATION.test(v),
+  'date-time': (v) => DATE_TIME.test(v),
+  date: (v) => DATE.test(v),
+  time: (v) => TIME.test(v),
+  duration: (v) => DURATION.test(v),
 
   // email
-  'email':        (v) => EMAIL.test(v),
-  'idn-email':    (v) => IDN_EMAIL.test(v),
+  email: (v) => EMAIL.test(v),
+  'idn-email': (v) => IDN_EMAIL.test(v),
 
   // hostname
-  'hostname':     (v) => HOSTNAME.test(v),
+  hostname: (v) => HOSTNAME.test(v),
   'idn-hostname': (v) => IDN_HOSTNAME.test(v),
 
   // ip
-  'ipv4':         (v) => IPV4.test(v) && v.split('.').every(n => Number(n) <= 255),
-  'ipv6':         (v) => IPV6.test(v),
+  ipv4: (v) => IPV4.test(v) && v.split('.').every(n => Number(n) <= 255),
+  ipv6: (v) => IPV6.test(v),
 
   // uri
-  'uri':          (v) => URI.test(v),
-  'uri-reference':(v) => URI_REFERENCE.test(v),
-  'iri':          (v) => IRI.test(v),
+  uri: (v) => URI.test(v),
+  'uri-reference': (v) => URI_REFERENCE.test(v),
+  iri: (v) => IRI.test(v),
 
   // uuid
-  'uuid':         (v) => UUID.test(v),
+  uuid: (v) => UUID.test(v),
 
   // json pointer
   'json-pointer': (v) => JSON_POINTER.test(v),
 
   // regex
-  'regex':        (v) => isValidRegex(v),
+  regex: (v) => isValidRegex(v)
 }
 
 /**
@@ -124,9 +123,9 @@ export function registerPatterns (patterns) {
       throw new Error(`$patterns: "${name}" must be a /regex/ string`)
     }
     const lastSlash = raw.lastIndexOf('/')
-    const source    = raw.slice(1, lastSlash)
-    const flags     = raw.slice(lastSlash + 1)
-    aliases[name]   = (v) => new RegExp(source, flags).test(v)
+    const source = raw.slice(1, lastSlash)
+    const flags = raw.slice(lastSlash + 1)
+    aliases[name] = (v) => new RegExp(source, flags).test(v)
   }
 }
 
@@ -148,8 +147,8 @@ export function runMatch (value, pattern) {
   // Raw regex - must be wrapped in /pattern/
   if (pattern.startsWith('/') && pattern.lastIndexOf('/') > 0) {
     const lastSlash = pattern.lastIndexOf('/')
-    const source    = pattern.slice(1, lastSlash)
-    const flags     = pattern.slice(lastSlash + 1)
+    const source = pattern.slice(1, lastSlash)
+    const flags = pattern.slice(lastSlash + 1)
     try {
       return new RegExp(source, flags).test(value)
     } catch {

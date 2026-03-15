@@ -23,12 +23,13 @@ export default function type (value, schemaParam) {
     matches = false
   }
 
-  if (!matches)
+  if (!matches) {
     return {
-      code:    'type',
+      code: 'type',
       message: 'Unexpected type',
-      data:    { value, expected: schemaParam },
+      data: { value, expected: schemaParam }
     }
+  }
 
   return null
 }

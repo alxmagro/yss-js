@@ -28,7 +28,7 @@ function parseScalar (raw) {
     return splitArray(inner).map(parseScalar)
   }
 
-  if (raw === 'true')  return true
+  if (raw === 'true') return true
   if (raw === 'false') return false
 
   if ((raw.startsWith('"') && raw.endsWith('"')) ||
@@ -37,7 +37,7 @@ function parseScalar (raw) {
   }
 
   if (/^-?\d+\.\d+$/.test(raw)) return parseFloat(raw)
-  if (/^-?\d+$/.test(raw))      return parseInt(raw, 10)
+  if (/^-?\d+$/.test(raw)) return parseInt(raw, 10)
 
   return raw
 }
@@ -75,7 +75,7 @@ function splitConstraints (str) {
     }
     if (ch === '"' || ch === "'") { quote = ch; current += ch; continue }
     if ('[({'.includes(ch)) depth++
-    else if ('])}' .includes(ch)) depth--
+    else if ('])}'.includes(ch)) depth--
     if (ch === ',' && depth === 0) {
       parts.push(current.trim())
       current = ''
@@ -120,19 +120,19 @@ export function parseInline (token) {
     if (!constraint) continue
     const spaceIdx = constraint.indexOf(' ')
     const key = spaceIdx === -1 ? constraint : constraint.slice(0, spaceIdx).trim()
-    const val = spaceIdx === -1 ? true       : parseScalar(constraint.slice(spaceIdx + 1).trim())
+    const val = spaceIdx === -1 ? true : parseScalar(constraint.slice(spaceIdx + 1).trim())
 
-    if (key === '==')     { result.const  = val;  rules.push('const');  continue }
-    if (key === '~')      { result.format = val;  rules.push('format'); continue }
-    if (key === '>=')     { result.gte    = val;  rules.push('gte');    continue }
-    if (key === '>')      { result.gt     = val;  rules.push('gt');     continue }
-    if (key === '<=')     { result.lte    = val;  rules.push('lte');    continue }
-    if (key === '<')      { result.lt     = val;  rules.push('lt');     continue }
-    if (key === 'size')   { result.size   = val;  rules.push('size');   continue }
-    if (key === 'in')     { result.in          = val;  rules.push('in');          continue }
-    if (key === 'not_in') { result.not_in      = val;  rules.push('not_in');      continue }
-    if (key === '%')      { result.multiple_of = val;  rules.push('multiple_of'); continue }
-    if (key === 'uniq')   { result.unique = true; rules.push('unique'); continue }
+    if (key === '==') { result.const = val; rules.push('const'); continue }
+    if (key === '~') { result.format = val; rules.push('format'); continue }
+    if (key === '>=') { result.gte = val; rules.push('gte'); continue }
+    if (key === '>') { result.gt = val; rules.push('gt'); continue }
+    if (key === '<=') { result.lte = val; rules.push('lte'); continue }
+    if (key === '<') { result.lt = val; rules.push('lt'); continue }
+    if (key === 'size') { result.size = val; rules.push('size'); continue }
+    if (key === 'in') { result.in = val; rules.push('in'); continue }
+    if (key === 'not_in') { result.not_in = val; rules.push('not_in'); continue }
+    if (key === '%') { result.multiple_of = val; rules.push('multiple_of'); continue }
+    if (key === 'uniq') { result.unique = true; rules.push('unique'); continue }
   }
 
   if (rules.length) result.rules = rules

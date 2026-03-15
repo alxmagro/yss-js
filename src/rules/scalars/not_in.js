@@ -4,12 +4,12 @@
 export default function notInRule (value, schemaParam) {
   if (schemaParam.includes(value)) {
     return {
-      code:    'not_in',
+      code: 'not_in',
       message: 'Value is not allowed',
       data: {
         value,
-        not_in: schemaParam,
-      },
+        not_in: schemaParam
+      }
     }
   }
   return null

@@ -6,17 +6,17 @@
  */
 
 import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join, dirname }                        from 'node:path'
-import { fileURLToPath }                        from 'node:url'
-import { load }                                 from 'js-yaml'
-import { schema }                               from '../index.js'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { load } from 'js-yaml'
+import { schema } from '../index.js'
 
 const __dirname = join(dirname(fileURLToPath(import.meta.url)), '../specs')
 
 const c = {
-  green:  s => `\x1b[32m${s}\x1b[0m`,
-  red:    s => `\x1b[31m${s}\x1b[0m`,
-  gray:   s => `\x1b[90m${s}\x1b[0m`,
+  green: s => `\x1b[32m${s}\x1b[0m`,
+  red: s => `\x1b[31m${s}\x1b[0m`,
+  gray: s => `\x1b[90m${s}\x1b[0m`
 }
 
 const codes = load(readFileSync(join(__dirname, 'codes.yaml'), 'utf8'))
@@ -56,14 +56,14 @@ function deepEqual (a, b) {
     return a.every((item, i) => deepEqual(item, b[i]))
   }
   if (typeof a === 'object') {
-    const ka = Object.keys(a), kb = Object.keys(b)
+    const ka = Object.keys(a); const kb = Object.keys(b)
     if (ka.length !== kb.length) return false
     return ka.every(k => deepEqual(a[k], b[k]))
   }
   return false
 }
 
-let passed = 0, failed = 0, skipped = 0
+let passed = 0; let failed = 0; let skipped = 0
 
 function runCase (label, validate, when, then) {
   if (then === null || then === undefined) {
@@ -73,12 +73,12 @@ function runCase (label, validate, when, then) {
   }
 
   try {
-    const payloads  = Array.isArray(when) ? when : [when]
-    const expected  = resolveTemplates(then)
+    const payloads = Array.isArray(when) ? when : [when]
+    const expected = resolveTemplates(then)
 
     for (let i = 0; i < payloads.length; i++) {
-      const actual     = validate(payloads[i])
-      const caseLabel  = payloads.length > 1 ? `${label} [${i}]` : label
+      const actual = validate(payloads[i])
+      const caseLabel = payloads.length > 1 ? `${label} [${i}]` : label
 
       if (deepEqual(actual, expected)) {
         console.log(c.green(`✓  PASS   ${caseLabel}`))
@@ -109,7 +109,7 @@ const specFiles = findSpecs(join(__dirname, 'rules'))
   .filter(matchesFilter)
 
 for (const file of specFiles) {
-  const rel  = file.replace(__dirname + '/', '')
+  const rel = file.replace(__dirname + '/', '')
   const spec = load(readFileSync(file, 'utf8'))
 
   const validate = schema.fromObject(spec.given)
@@ -127,8 +127,8 @@ const parserSpecFiles = findSpecs(join(__dirname, 'integration'))
   .filter(matchesFilter)
 
 for (const file of parserSpecFiles) {
-  const rel      = file.replace(__dirname + '/', '')
-  const spec     = load(readFileSync(file, 'utf8'))
+  const rel = file.replace(__dirname + '/', '')
+  const spec = load(readFileSync(file, 'utf8'))
   const validate = schema.fromFile(join(dirname(file), 'schema.yaml'))
 
   for (const scenario of (spec.scenarios ?? [])) {
@@ -140,4 +140,3 @@ for (const file of parserSpecFiles) {
 console.log()
 console.log(`${c.green(passed + ' passed')}, ${c.red(failed + ' failed')}, ${c.gray(skipped + ' skipped')}`)
 if (failed > 0) process.exit(1)
-

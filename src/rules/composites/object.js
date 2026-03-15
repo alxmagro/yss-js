@@ -1,5 +1,5 @@
 import { joinPath } from '../../validator/errors.js'
-import { getRule }  from '../scalars/index.js'
+import { getRule } from '../scalars/index.js'
 
 export default function object (value, node, path, validateNode) {
   const errors = []
@@ -16,12 +16,11 @@ export default function object (value, node, path, validateNode) {
   const { fields, strict } = node
 
   for (const [key, fieldNode] of Object.entries(fields)) {
-    const fieldPath  = joinPath(path, key)
+    const fieldPath = joinPath(path, key)
     const fieldValue = value[key]
 
     if (fieldValue === undefined) {
-      if (fieldNode.required)
-        errors.push({ path: fieldPath, code: 'required', message: `Missing required property \`${fieldPath}\`` })
+      if (fieldNode.required) { errors.push({ path: fieldPath, code: 'required', message: `Missing required property \`${fieldPath}\`` }) }
       continue
     }
     errors.push(...validateNode(fieldValue, fieldNode, fieldPath))
@@ -31,8 +30,7 @@ export default function object (value, node, path, validateNode) {
     for (const [trigger, deps] of Object.entries(node.dependencies)) {
       if (value[trigger] === undefined) continue
       const missing = deps.filter(dep => value[dep] === undefined)
-      if (missing.length > 0)
-        errors.push({ path, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger, missing } })
+      if (missing.length > 0) { errors.push({ path, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger, missing } }) }
     }
   }
 

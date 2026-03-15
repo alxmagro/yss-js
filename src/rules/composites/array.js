@@ -1,5 +1,5 @@
 import { joinPath } from '../../validator/errors.js'
-import { getRule }  from '../scalars/index.js'
+import { getRule } from '../scalars/index.js'
 
 export default function array (value, node, path, validateNode) {
   const errors = []
@@ -12,8 +12,7 @@ export default function array (value, node, path, validateNode) {
   }
 
   if (node.item != null) {
-    for (let i = 0; i < value.length; i++)
-      errors.push(...validateNode(value[i], node.item, joinPath(path, i)))
+    for (let i = 0; i < value.length; i++) { errors.push(...validateNode(value[i], node.item, joinPath(path, i))) }
   }
 
   if (node.at != null) {

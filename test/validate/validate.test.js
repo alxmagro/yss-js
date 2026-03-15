@@ -1,8 +1,8 @@
 import { schema } from '../../index.js'
 
 const validate = schema.fromObject({
-  name:  'string, size [2, 80]',
-  email: 'string, ~ email',
+  name: 'string, size [2, 80]',
+  email: 'string, ~ email'
 })
 
 describe('validate', () => {

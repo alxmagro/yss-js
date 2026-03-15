@@ -13,8 +13,8 @@ describe('ValidationError', () => {
     }
   })
 
-  it('is an instance of Error', () => {
-    expect(error).toBeInstanceOf(Error)
+  it('is an instance of ValidationError', () => {
+    expect(error).toBeInstanceOf(ValidationError)
   })
 
   it('has name ValidationError', () => {

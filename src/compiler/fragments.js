@@ -38,13 +38,13 @@ export function typeMatchCond (varExpr, type) {
 
 function singleTypeCond (v, t) {
   switch (t) {
-    case 'null':    return `${v} === null`
+    case 'null': return `${v} === null`
     case 'boolean': return `typeof ${v} === 'boolean'`
     case 'integer': return `Number.isInteger(${v})`
-    case 'number':  return `typeof ${v} === 'number'`
-    case 'string':  return `typeof ${v} === 'string'`
-    case 'array':   return `Array.isArray(${v})`
-    case 'object':  return `(typeof ${v} === 'object' && ${v} !== null && !Array.isArray(${v}))`
-    default:        return 'false'
+    case 'number': return `typeof ${v} === 'number'`
+    case 'string': return `typeof ${v} === 'string'`
+    case 'array': return `Array.isArray(${v})`
+    case 'object': return `(typeof ${v} === 'object' && ${v} !== null && !Array.isArray(${v}))`
+    default: return 'false'
   }
 }

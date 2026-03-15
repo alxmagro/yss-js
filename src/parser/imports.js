@@ -11,9 +11,9 @@
  *   corresponding compiled tree from importedTrees.
  */
 
-import { readFileSync }    from 'node:fs'
-import { resolve, dirname } from 'node:path'
-import { load }            from 'js-yaml'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { load } from 'js-yaml'
 import { registerPatterns } from '../aliases.js'
 
 /**
@@ -27,7 +27,7 @@ import { registerPatterns } from '../aliases.js'
  */
 function compileFile (filePath, buildAST) {
   const content = readFileSync(filePath, 'utf8')
-  const raw     = load(content)
+  const raw = load(content)
   return buildAST(raw)
 }
 
@@ -47,15 +47,15 @@ export function loadImports (rawImports, baseDir, buildAST) {
     const absolutePath = resolve(baseDir, relativePath)
 
     // Load raw YAML to extract $patterns before compiling
-    const content   = readFileSync(absolutePath, 'utf8')
-    const raw       = load(content)
+    const content = readFileSync(absolutePath, 'utf8')
+    const raw = load(content)
 
     // Register $patterns from the imported file under namespace prefix
     if (raw.$patterns && typeof raw.$patterns === 'object') {
       const prefixed = Object.fromEntries(
         Object.entries(raw.$patterns).map(([name, regex]) => [
           `${namespace}.${name}`,
-          regex,
+          regex
         ])
       )
       registerPatterns(prefixed)
@@ -83,9 +83,9 @@ export function resolveRefs (node, importedTrees) {
 
   // Resolve $ref node
   if (node.$ref) {
-    const parts     = node.$ref.split('.')
+    const parts = node.$ref.split('.')
     const namespace = parts[0]
-    const path      = parts.slice(1)
+    const path = parts.slice(1)
 
     let resolved = importedTrees[namespace]
 
@@ -118,7 +118,7 @@ export function resolveRefs (node, importedTrees) {
     )
   }
 
-  if (node.item)  result.item  = resolveRefs(node.item, importedTrees)
+  if (node.item) result.item = resolveRefs(node.item, importedTrees)
   if (node.anyOf) result.anyOf = node.anyOf.map(b => resolveRefs(b, importedTrees))
 
   if (node.at) {

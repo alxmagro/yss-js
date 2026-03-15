@@ -17,30 +17,33 @@ export default function size (value, schemaParam) {
   }
 
   if (typeof schemaParam === 'number') {
-    if (length !== schemaParam)
+    if (length !== schemaParam) {
       return {
-        code:    'size_exact',
+        code: 'size_exact',
         message: `Size must be exactly \`${schemaParam}\``,
-        data:    { value, size: length, expected: schemaParam },
+        data: { value, size: length, expected: schemaParam }
       }
+    }
     return null
   }
 
   const [min, max] = schemaParam
 
-  if (min != null && length < min)
+  if (min != null && length < min) {
     return {
-      code:    'size_min',
+      code: 'size_min',
       message: `Minimum size is \`${min}\``,
-      data:    { value, size: length, min },
+      data: { value, size: length, min }
     }
+  }
 
-  if (max != null && length > max)
+  if (max != null && length > max) {
     return {
-      code:    'size_max',
+      code: 'size_max',
       message: `Maximum size is \`${max}\``,
-      data:    { value, size: length, max },
+      data: { value, size: length, max }
     }
+  }
 
   return null
 }
