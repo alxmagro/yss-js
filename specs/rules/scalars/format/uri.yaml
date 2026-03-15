@@ -26,7 +26,7 @@ scenarios:
       uri: not a uri
     then:
       - path: uri
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: not a uri
@@ -37,7 +37,7 @@ scenarios:
       uri_ref: "not a uri ref!"
     then:
       - path: uri_ref
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "not a uri ref!"
@@ -48,7 +48,7 @@ scenarios:
       iri: not a iri
     then:
       - path: iri
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: not a iri

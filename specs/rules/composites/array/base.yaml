@@ -6,7 +6,7 @@ given:
 
 errors:
   - &unexpected_type
-    code: "{{ CODE_TYPE_MISMATCH }}"
+    code: "{{ CODE_TYPE }}"
     message: Unexpected type
 
 scenarios:

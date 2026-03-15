@@ -33,7 +33,7 @@ scenarios:
       age: hello
     then:
       - path: age
-        code: "{{ CODE_TYPE_MISMATCH }}"
+        code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
           value: hello

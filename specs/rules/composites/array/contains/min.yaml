@@ -37,7 +37,7 @@ scenarios:
         - { name: Aragorn, race: human }
     then:
       - path: party
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least `2` matching items
         data:
           quantity: [2, null]
@@ -49,7 +49,7 @@ scenarios:
         - { name: Legolas, race: elf }
     then:
       - path: party
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least `2` matching items
         data:
           quantity: [2, null]

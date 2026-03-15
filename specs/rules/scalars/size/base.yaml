@@ -32,7 +32,7 @@ scenarios:
       code: hi
     then:
       - path: code
-        code: "{{ CODE_SIZE_EXACT_INVALID }}"
+        code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `5`
         data:
           value: hi
@@ -44,7 +44,7 @@ scenarios:
       code: toolong
     then:
       - path: code
-        code: "{{ CODE_SIZE_EXACT_INVALID }}"
+        code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `5`
         data:
           value: toolong
@@ -56,7 +56,7 @@ scenarios:
       tags: [a, b]
     then:
       - path: tags
-        code: "{{ CODE_SIZE_EXACT_INVALID }}"
+        code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `3`
         data:
           value: [a, b]

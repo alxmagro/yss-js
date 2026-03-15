@@ -17,10 +17,10 @@ given:
 
 errors:
   - &oneof_invalid
-    code: "{{ CODE_ONEOF_INVALID }}"
+    code: "{{ CODE_ONE_OF }}"
     message: Value does not match any condition
   - &oneof_multiple
-    code: "{{ CODE_ONEOF_MULTIPLE }}"
+    code: "{{ CODE_ONE_OF_MULTIPLE }}"
     message: Value matches more than one condition
 
 scenarios:

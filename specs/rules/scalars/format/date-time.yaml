@@ -28,7 +28,7 @@ scenarios:
       dt: "2024-01-01"
     then:
       - path: dt
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "2024-01-01"
@@ -39,7 +39,7 @@ scenarios:
       d: "01-01-2024"
     then:
       - path: d
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "01-01-2024"
@@ -50,7 +50,7 @@ scenarios:
       t: "14:30"
     then:
       - path: t
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "14:30"
@@ -61,7 +61,7 @@ scenarios:
       dur: "3 days"
     then:
       - path: dur
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "3 days"

@@ -35,7 +35,7 @@ scenarios:
         - { name: Luke,      side: light }
     then:
       - path: crew
-        code: "{{ CODE_CONTAINS_MAX_INVALID }}"
+        code: "{{ CODE_CONTAINS_MAX }}"
         message: Array must contain at most `1` matching items
         data:
           quantity: [null, 1]

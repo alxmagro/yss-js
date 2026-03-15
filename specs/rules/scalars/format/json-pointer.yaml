@@ -30,7 +30,7 @@ scenarios:
       pointer: foo/bar
     then:
       - path: pointer
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: foo/bar

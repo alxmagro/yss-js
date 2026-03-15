@@ -27,7 +27,7 @@ scenarios:
       tags: [jedi, 42]
     then:
       - path: tags[1]
-        code: "{{ CODE_TYPE_MISMATCH }}"
+        code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
           value: 42
@@ -38,7 +38,7 @@ scenarios:
       scores: [10, -1, 20]
     then:
       - path: scores[1]
-        code: "{{ CODE_GTE_INVALID }}"
+        code: "{{ CODE_GTE }}"
         message: Value must be greater than or equal to `0`
         data:
           value: -1

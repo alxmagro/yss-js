@@ -41,7 +41,7 @@ scenarios:
       quantity: 25
     then:
       - path: quantity
-        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `10`
         data:
           value: 25
@@ -52,7 +52,7 @@ scenarios:
       quantity: -25
     then:
       - path: quantity
-        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `10`
         data:
           value: -25
@@ -63,7 +63,7 @@ scenarios:
       price: 9.3
     then:
       - path: price
-        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `0.5`
         data:
           value: 9.3
@@ -74,7 +74,7 @@ scenarios:
       price: -9.3
     then:
       - path: price
-        code: "{{ CODE_MULTIPLE_OF_INVALID }}"
+        code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `0.5`
         data:
           value: -9.3

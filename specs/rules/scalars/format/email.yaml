@@ -22,7 +22,7 @@ scenarios:
       email: not-an-email
     then:
       - path: email
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: not-an-email
@@ -33,7 +33,7 @@ scenarios:
       idn_email: not-an-email
     then:
       - path: idn_email
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: not-an-email

@@ -19,7 +19,7 @@ given:
 
 errors:
   - &anyof_invalid
-    code: "{{ CODE_ANYOF_INVALID }}"
+    code: "{{ CODE_ANY_OF }}"
     message: Value does not match any condition
 
 scenarios:

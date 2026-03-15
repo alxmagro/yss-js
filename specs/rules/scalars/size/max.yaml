@@ -40,7 +40,7 @@ scenarios:
         people very angry and been widely regarded as a bad move.
     then:
       - path: bio
-        code: "{{ CODE_SIZE_MAX_INVALID }}"
+        code: "{{ CODE_SIZE_MAX }}"
         message: Maximum size is `100`
         data:
           value: >-
@@ -54,7 +54,7 @@ scenarios:
       tags: [a, b, c, d, e, f]
     then:
       - path: tags
-        code: "{{ CODE_SIZE_MAX_INVALID }}"
+        code: "{{ CODE_SIZE_MAX }}"
         message: Maximum size is `5`
         data:
           value: [a, b, c, d, e, f]

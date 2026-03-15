@@ -9,7 +9,7 @@ given:
 
 errors:
   - &not_in_invalid
-    code: "{{ CODE_NOT_IN_INVALID }}"
+    code: "{{ CODE_NOT_IN }}"
     message: Value is not allowed
 
 scenarios:

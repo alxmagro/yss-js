@@ -27,7 +27,7 @@ scenarios:
       tags: [new, featured, sale]
     then:
       - path: tags
-        code: "{{ CODE_CONTAINS_EXACT_INVALID }}"
+        code: "{{ CODE_CONTAINS_EXACT }}"
         message: Array must contain exactly `2` matching items
         data:
           quantity: 2
@@ -37,7 +37,7 @@ scenarios:
       tags: [featured, featured, featured]
     then:
       - path: tags
-        code: "{{ CODE_CONTAINS_EXACT_INVALID }}"
+        code: "{{ CODE_CONTAINS_EXACT }}"
         message: Array must contain exactly `2` matching items
         data:
           quantity: 2
@@ -52,7 +52,7 @@ scenarios:
       flags: [active, banned]
     then:
       - path: flags
-        code: "{{ CODE_CONTAINS_EXACT_INVALID }}"
+        code: "{{ CODE_CONTAINS_EXACT }}"
         message: Array must not contain any matching items
         data:
           quantity: 0

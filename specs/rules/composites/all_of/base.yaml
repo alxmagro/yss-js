@@ -9,7 +9,7 @@ given:
 
 errors:
   - &allof_invalid
-    code: "{{ CODE_ALLOF_INVALID }}"
+    code: "{{ CODE_ALL_OF }}"
     message: Value does not match all conditions
 
 scenarios:

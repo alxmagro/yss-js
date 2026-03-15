@@ -20,7 +20,7 @@ scenarios:
       level: 10
     then:
       - path: level
-        code: "{{ CODE_LT_INVALID }}"
+        code: "{{ CODE_LT }}"
         message: Value must be less than `10`
         data:
           lt: 10
@@ -31,7 +31,7 @@ scenarios:
       level: 11
     then:
       - path: level
-        code: "{{ CODE_LT_INVALID }}"
+        code: "{{ CODE_LT }}"
         message: Value must be less than `10`
         data:
           lt: 10

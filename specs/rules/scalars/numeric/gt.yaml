@@ -20,7 +20,7 @@ scenarios:
       score: 0.0
     then:
       - path: score
-        code: "{{ CODE_GT_INVALID }}"
+        code: "{{ CODE_GT }}"
         message: Value must be greater than `0`
         data:
           gt: 0
@@ -31,7 +31,7 @@ scenarios:
       score: -1.0
     then:
       - path: score
-        code: "{{ CODE_GT_INVALID }}"
+        code: "{{ CODE_GT }}"
         message: Value must be greater than `0`
         data:
           gt: 0

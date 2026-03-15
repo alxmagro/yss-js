@@ -38,7 +38,7 @@ scenarios:
         - { name: Anakin, rank: knight }
     then:
       - path: council
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least `2` matching items
         data:
           quantity: [2, 4]
@@ -53,7 +53,7 @@ scenarios:
         - { name: Shaak Ti, rank: master }
     then:
       - path: council
-        code: "{{ CODE_CONTAINS_MAX_INVALID }}"
+        code: "{{ CODE_CONTAINS_MAX }}"
         message: Array must contain at most `4` matching items
         data:
           quantity: [2, 4]

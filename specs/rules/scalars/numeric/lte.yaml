@@ -25,7 +25,7 @@ scenarios:
       score: 100.1
     then:
       - path: score
-        code: "{{ CODE_LTE_INVALID }}"
+        code: "{{ CODE_LTE }}"
         message: Value must be less than or equal to `100`
         data:
           lte: 100

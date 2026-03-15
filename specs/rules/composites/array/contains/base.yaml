@@ -43,7 +43,7 @@ scenarios:
       tags: []
     then:
       - path: tags
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least one matching item
         data:
           quantity: [1, null]
@@ -53,7 +53,7 @@ scenarios:
       tags: [new, sale]
     then:
       - path: tags
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least one matching item
         data:
           quantity: [1, null]
@@ -63,7 +63,7 @@ scenarios:
       members: []
     then:
       - path: members
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least one matching item
         data:
           quantity: [1, null]
@@ -75,7 +75,7 @@ scenarios:
         - { name: bob,   role: viewer }
     then:
       - path: members
-        code: "{{ CODE_CONTAINS_MIN_INVALID }}"
+        code: "{{ CODE_CONTAINS_MIN }}"
         message: Array must contain at least one matching item
         data:
           quantity: [1, null]

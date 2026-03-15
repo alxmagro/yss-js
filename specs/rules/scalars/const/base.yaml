@@ -22,7 +22,7 @@ scenarios:
       role: user
     then:
       - path: role
-        code: "{{ CODE_CONST_MISMATCH }}"
+        code: "{{ CODE_CONST }}"
         message: Value must be `admin`
         data:
           value: user
@@ -33,7 +33,7 @@ scenarios:
       version: "2"
     then:
       - path: version
-        code: "{{ CODE_TYPE_MISMATCH }}"
+        code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
           value: "2"

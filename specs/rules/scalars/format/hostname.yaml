@@ -22,7 +22,7 @@ scenarios:
       host: "not a hostname!"
     then:
       - path: host
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "not a hostname!"
@@ -33,7 +33,7 @@ scenarios:
       idn_host: "not a hostname!"
     then:
       - path: idn_host
-        code: "{{ CODE_FORMAT_INVALID }}"
+        code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
           value: "not a hostname!"

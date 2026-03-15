@@ -25,7 +25,7 @@ scenarios:
       coords: [42, 42]
     then:
       - path: coords[0]
-        code: "{{ CODE_TYPE_MISMATCH }}"
+        code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
           value: 42
@@ -36,7 +36,7 @@ scenarios:
       coords: [hello, hello]
     then:
       - path: coords[1]
-        code: "{{ CODE_TYPE_MISMATCH }}"
+        code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
           value: hello
