@@ -21,17 +21,28 @@
   },
   "scripts": {
     "lint": "standard",
-    "specs": "node scripts/run-specs.js",
-    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --testPathPatterns=test/",
+    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest",
+    "test:specs": "node scripts/run-specs.js",
+    "coverage": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --coverage",
+    "coverage:open": "xdg-open coverage/lcov-report/index.html",
     "bm": "node benchmark/run.js",
     "bm:isolated": "node benchmark/isolated.js"
   },
   "jest": {
     "testEnvironment": "node",
-    "transform": {}
+    "transform": {},
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ]
   },
   "standard": {
-    "env": ["jest"]
+    "env": [
+      "jest"
+    ]
   },
   "keywords": [
     "yaml",

@@ -20,6 +20,15 @@
  *   list_position_missing - declared List position is out of bounds
  */
 
+export class ValidationError extends Error {
+  constructor (errors) {
+    const summary = errors.map(e => `  ${e.path || '(root)'}: ${e.message}`).join('\n')
+    super(`Validation failed:\n${summary}`)
+    this.name = 'ValidationError'
+    this.errors = errors
+  }
+}
+
 export function makeError (path, code, message, data) {
   const err = { path, code, message }
   if (data !== undefined) err.data = data

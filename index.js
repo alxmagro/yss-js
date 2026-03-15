@@ -19,24 +19,14 @@ import { load } from 'js-yaml'
 import { buildAST } from './src/parser/index.js'
 import { compileAST } from './src/compiler/index.js'
 import { validateNode } from './src/validator/index.js'
+import { ValidationError } from './src/validator/errors.js'
 
-const DEV_MODE = false
-
-// ── ValidationError ───────────────────────────────────────────────────────────
-
-export class ValidationError extends Error {
-  constructor (errors) {
-    const summary = errors.map(e => `  ${e.path || '(root)'}: ${e.message}`).join('\n')
-    super(`Validation failed:\n${summary}`)
-    this.name = 'ValidationError'
-    this.errors = errors
-  }
-}
+export { ValidationError }
 
 // ── Compile a schema tree into a validate function ────────────────────────────
 
-function compile (tree) {
-  const validate = DEV_MODE
+function compile (tree, { interpreted = false } = {}) {
+  const validate = interpreted
     ? (payload) => validateNode(payload, tree)
     : compileAST(tree)
 
@@ -60,21 +50,21 @@ export const schema = {
    * @param {string} path - path to the .yaml file
    * @returns {Function} validate(payload) -> errors[]
    */
-  fromFile (path) {
+  fromFile (path, options) {
     const content = readFileSync(path, 'utf8')
     const raw = load(content)
     const tree = buildAST(raw, dirname(path))
-    return compile(tree)
+    return compile(tree, options)
   },
 
-  fromString (yaml) {
+  fromString (yaml, options) {
     const raw = load(yaml)
     const tree = buildAST(raw)
-    return compile(tree)
+    return compile(tree, options)
   },
 
-  fromObject (raw) {
+  fromObject (raw, options) {
     const tree = buildAST(raw)
-    return compile(tree)
+    return compile(tree, options)
   }
 }

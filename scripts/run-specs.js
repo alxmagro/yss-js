@@ -2,7 +2,7 @@
  * YSS spec runner — language-agnostic YAML specs
  *
  * Usage:
- *   node scripts/run-specs.js
+ *   node scripts/run-specs.js [filter]
  */
 
 import { readFileSync, readdirSync, statSync } from 'node:fs'
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
 import { schema } from '../index.js'
 
-const __dirname = join(dirname(fileURLToPath(import.meta.url)), '../specs')
+const specsDir = join(dirname(fileURLToPath(import.meta.url)), '../specs')
 
 const c = {
   green: s => `\x1b[32m${s}\x1b[0m`,
@@ -19,7 +19,7 @@ const c = {
   gray: s => `\x1b[90m${s}\x1b[0m`
 }
 
-const codes = load(readFileSync(join(__dirname, 'codes.yaml'), 'utf8'))
+const codes = load(readFileSync(join(specsDir, 'codes.yaml'), 'utf8'))
 
 function resolveTemplates (value) {
   if (typeof value === 'string') {
@@ -63,80 +63,81 @@ function deepEqual (a, b) {
   return false
 }
 
-let passed = 0; let failed = 0; let skipped = 0
+export function runSpecs ({ filter, silent = false, interpreted = false } = {}) {
+  let passed = 0; let failed = 0; let skipped = 0
+  const log = silent ? () => {} : console.log
 
-function runCase (label, validate, when, then) {
-  if (then === null || then === undefined) {
-    console.log(c.gray(`·  TODO   ${label}`))
-    skipped++
-    return
-  }
-
-  try {
-    const payloads = Array.isArray(when) ? when : [when]
-    const expected = resolveTemplates(then)
-
-    for (let i = 0; i < payloads.length; i++) {
-      const actual = validate(payloads[i])
-      const caseLabel = payloads.length > 1 ? `${label} [${i}]` : label
-
-      if (deepEqual(actual, expected)) {
-        console.log(c.green(`✓  PASS   ${caseLabel}`))
-        passed++
-      } else {
-        console.log(c.red(`✗  FAIL   ${caseLabel}`))
-        console.log(c.red(`          expected ${JSON.stringify(expected)}`))
-        console.log(c.red(`          got      ${JSON.stringify(actual)}`))
-        failed++
-      }
+  function runCase (label, validate, when, then) {
+    if (then === null || then === undefined) {
+      log(c.gray(`·  TODO   ${label}`))
+      skipped++
+      return
     }
-  } catch (err) {
-    console.log(c.red(`✗  ERROR  ${label}`))
-    console.log(c.red(`          ${err.message}`))
-    failed++
+
+    try {
+      const payloads = Array.isArray(when) ? when : [when]
+      const expected = resolveTemplates(then)
+
+      for (let i = 0; i < payloads.length; i++) {
+        const actual = validate(payloads[i])
+        const caseLabel = payloads.length > 1 ? `${label} [${i}]` : label
+
+        if (deepEqual(actual, expected)) {
+          log(c.green(`✓  PASS   ${caseLabel}`))
+          passed++
+        } else {
+          log(c.red(`✗  FAIL   ${caseLabel}`))
+          log(c.red(`          expected ${JSON.stringify(expected)}`))
+          log(c.red(`          got      ${JSON.stringify(actual)}`))
+          failed++
+        }
+      }
+    } catch (err) {
+      log(c.red(`✗  ERROR  ${label}`))
+      log(c.red(`          ${err.message}`))
+      failed++
+    }
   }
-}
 
-const filter = process.argv[2]
-
-function matchesFilter (path) {
-  return !filter || path.includes(filter)
-}
-
-// ── rules (scalars / composites) ─────────────────────────────────────────────
-
-const specFiles = findSpecs(join(__dirname, 'rules'))
-  .filter(matchesFilter)
-
-for (const file of specFiles) {
-  const rel = file.replace(__dirname + '/', '')
-  const spec = load(readFileSync(file, 'utf8'))
-
-  const validate = schema.fromObject(spec.given)
-
-  for (const scenario of (spec.scenarios ?? [])) {
-    const label = `${rel} › ${scenario.name ?? '?'}`
-    runCase(label, validate, scenario.when, scenario.then)
+  function matchesFilter (path) {
+    return !filter || path.includes(filter)
   }
-}
 
-// ── integration ───────────────────────────────────────────────────────────────
+  // ── rules (scalars / composites) ─────────────────────────────────────────────
 
-const parserSpecFiles = findSpecs(join(__dirname, 'integration'))
-  .filter(f => f.endsWith('/spec.yaml'))
-  .filter(matchesFilter)
+  for (const file of findSpecs(join(specsDir, 'rules')).filter(matchesFilter)) {
+    const rel = file.replace(specsDir + '/', '')
+    const spec = load(readFileSync(file, 'utf8'))
+    const validate = schema.fromObject(spec.given, { interpreted })
 
-for (const file of parserSpecFiles) {
-  const rel = file.replace(__dirname + '/', '')
-  const spec = load(readFileSync(file, 'utf8'))
-  const validate = schema.fromFile(join(dirname(file), 'schema.yaml'))
-
-  for (const scenario of (spec.scenarios ?? [])) {
-    const label = `${rel} › ${scenario.name ?? '?'}`
-    runCase(label, validate, scenario.when, scenario.then)
+    for (const scenario of (spec.scenarios ?? [])) {
+      runCase(`${rel} › ${scenario.name ?? '?'}`, validate, scenario.when, scenario.then)
+    }
   }
+
+  // ── integration ───────────────────────────────────────────────────────────────
+
+  for (const file of findSpecs(join(specsDir, 'integration')).filter(f => f.endsWith('/spec.yaml')).filter(matchesFilter)) {
+    const rel = file.replace(specsDir + '/', '')
+    const spec = load(readFileSync(file, 'utf8'))
+    const validate = schema.fromFile(join(dirname(file), 'schema.yaml'), { interpreted })
+
+    for (const scenario of (spec.scenarios ?? [])) {
+      runCase(`${rel} › ${scenario.name ?? '?'}`, validate, scenario.when, scenario.then)
+    }
+  }
+
+  return { passed, failed, skipped }
 }
 
-console.log()
-console.log(`${c.green(passed + ' passed')}, ${c.red(failed + ' failed')}, ${c.gray(skipped + ' skipped')}`)
-if (failed > 0) process.exit(1)
+// ── CLI ───────────────────────────────────────────────────────────────────────
+
+const isCLI = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]
+
+if (isCLI) {
+  const { passed, failed, skipped } = runSpecs({ filter: process.argv[2] })
+
+  console.log()
+  console.log(`${c.green(passed + ' passed')}, ${c.red(failed + ' failed')}, ${c.gray(skipped + ' skipped')}`)
+  if (failed > 0) process.exit(1)
+}
