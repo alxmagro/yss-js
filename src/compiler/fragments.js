@@ -45,6 +45,5 @@ function singleTypeCond (v, t) {
     case 'string': return `typeof ${v} === 'string'`
     case 'array': return `Array.isArray(${v})`
     case 'object': return `(typeof ${v} === 'object' && ${v} !== null && !Array.isArray(${v}))`
-    default: return 'false'
   }
 }

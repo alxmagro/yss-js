@@ -6,7 +6,6 @@ export default function array (value, node, path, validateNode) {
 
   for (const key of (node.rules ?? [])) {
     const rule = getRule(key)
-    if (!rule) continue
     const result = rule(value, node[key], path)
     if (result) errors.push({ path, ...result })
   }

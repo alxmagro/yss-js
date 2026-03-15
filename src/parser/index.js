@@ -18,6 +18,8 @@ import { registerPatterns, checkFormat } from '../aliases.js'
 import { loadImports, resolveRefs } from './imports.js'
 
 const RESERVED_ROOT = new Set(['$anchors', '$patterns', '$imports'])
+const VALID_LEAF_TYPES = new Set(['any', 'null', 'boolean', 'integer', 'number', 'string', 'array', 'object'])
+const VALID_NODE_TYPES = new Set([...VALID_LEAF_TYPES, 'any_of', 'one_of', 'all_of'])
 
 /**
  * Build a schema node from a raw YAML value.
@@ -211,11 +213,20 @@ export function walkAST (node, fn) {
 }
 
 /**
- * Validate a compiled schema tree, throwing on invalid format values.
+ * Assert schema tree integrity, throwing on invalid $type or $format values.
  */
 export function assertIntegrity (tree) {
   walkAST(tree, node => {
     if (node.format) checkFormat(node.format)
+
+    const rawTypes = Array.isArray(node.type) ? node.type : [node.type]
+    for (const t of rawTypes) {
+      if (t && !VALID_NODE_TYPES.has(t)) throw new Error(`Unknown $type: "${t}"`)
+    }
+
+    if (node.baseType !== undefined && !VALID_LEAF_TYPES.has(node.baseType)) {
+      throw new Error(`Unknown $type: "${node.baseType}"`)
+    }
   })
 }
 

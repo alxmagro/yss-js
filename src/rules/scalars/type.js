@@ -19,8 +19,6 @@ export default function type (value, schemaParam) {
     matches = allowed.includes('array')
   } else if (typeof value === 'object') {
     matches = allowed.includes('object')
-  } else {
-    matches = false
   }
 
   if (!matches) {

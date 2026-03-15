@@ -1,0 +1,13 @@
+feature: Parser error — unknown $type value
+
+scenarios:
+  - name: unknown scalar type throws
+    given:
+      side:
+        $type: ewoks
+    then_throws: 'Unknown $type: "ewoks"'
+
+  - name: unknown type in union throws
+    given:
+      side: string | ewoks
+    then_throws: 'Unknown $type: "ewoks"'

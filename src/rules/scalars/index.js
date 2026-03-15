@@ -25,5 +25,5 @@ export const scalarRules = {
 }
 
 export function getRule (name) {
-  return scalarRules[name] ?? null
+  return scalarRules[name]
 }
