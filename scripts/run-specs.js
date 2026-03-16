@@ -9,7 +9,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { load } from 'js-yaml'
-import { schema } from '../index.js'
+import { schema as schemaDefault } from '../index.js'
 
 const specsDir = join(dirname(fileURLToPath(import.meta.url)), '../specs')
 
@@ -65,7 +65,8 @@ function deepEqual (a, b) {
 
 class BailSignal extends Error {}
 
-export function runSpecs ({ filter, silent = false, interpreted = false, bail = false } = {}) {
+export function runSpecs ({ filter, silent = false, interpreted = false, bail = false, schema: schemaOverride } = {}) {
+  const schema = schemaOverride ?? schemaDefault
   let passed = 0; let failed = 0; let skipped = 0
   const log = silent ? () => {} : console.log
   const logPass = (bail || silent) ? () => {} : log

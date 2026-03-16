@@ -26,3 +26,4 @@ npm install --prefix "$INTEGRATION" "$INTEGRATION/$TARBALL" --no-save --silent
 
 echo "▶ running tests..."
 node "$INTEGRATION/index.test.js"
+node "$INTEGRATION/specs.test.js"
