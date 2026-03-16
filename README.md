@@ -2,6 +2,15 @@
   <img src="assets/logo.svg"/>
 </p>
 
+<p align="center">
+  <a href="https://github.com/alxmagro/yss-js/actions/workflows/ci.yml">
+    <img src="https://github.com/alxmagro/yss-js/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status">
+  </a>
+  <a href="https://codecov.io/github/alxmagro/yss-js" >
+    <img src="https://codecov.io/github/alxmagro/yss-js/graph/badge.svg?token=8XJS41Z9D0"/>
+  </a>
+</p>
+
 ## Introduction
 
 A YSS parser for javascript.
