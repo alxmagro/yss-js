@@ -57,7 +57,7 @@ const errors   = validate(payload)
 npm install yss-js
 ```
 
-Requires Node.js >= 22.
+Requires Node.js >= 22. Supports ESM only.
 
 ## API
 
