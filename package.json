@@ -24,7 +24,7 @@
     "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest",
     "test:specs": "node scripts/run-specs.js",
     "coverage": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest --coverage",
-    "coverage:open": "xdg-open coverage/lcov-report/index.html",
+    "coverage:open": "xdg-open .coverage/lcov-report/index.html",
     "bm": "node benchmark/run.js",
     "bm:isolated": "node benchmark/isolated.js"
   },
@@ -34,6 +34,7 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ],
+    "coverageDirectory": ".coverage",
     "coverageReporters": [
       "lcov",
       "text"
