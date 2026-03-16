@@ -1,5 +1,5 @@
 /**
- * YSS - YAML Simplified Schema
+ * YSS - YAML Schema Syntax
  *
  * Public API:
  *

@@ -11,11 +11,14 @@
 
 A YSS parser for javascript.
 
-**See** [YAML Simplified Schema](https://github.com/alxmagro/yss) for the full specification.
+**See** [YAML Schema Syntax](https://github.com/alxmagro/yss) for the full specification.
 
 ## Performance
 
 Benchmarked against [AJV](https://ajv.js.org/).
+
+**Inputs:** [schema.yaml](benchmark/schema.yaml) and [schema.json](benchmark/schema.json)
+
 
 | | yss | ajv | difference |
 |---|---|---|---|
