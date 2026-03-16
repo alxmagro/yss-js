@@ -1,8 +1,8 @@
 import { CompilerContext } from './context.js'
 import { emitNode } from './codegen.js'
 
-export function compileAST (ast) {
-  const ctx = new CompilerContext()
+export function compileAST (ast, { bail = false } = {}) {
+  const ctx = new CompilerContext({ bail })
 
   ctx.emit('const errors = []')
   emitNode(ctx, 'payload', ast, '""')

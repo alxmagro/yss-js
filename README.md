@@ -64,7 +64,7 @@ Requires Node.js >= 22. Supports ESM only.
 
 ## API
 
-**schema.fromFile(path)**
+**schema.fromFile(path, options?)**
 
 Loads and compiles a schema from a `.yaml` file on disk. The schema is compiled once and reused -
 call this at application startup, not on every request.
@@ -73,7 +73,7 @@ call this at application startup, not on every request.
 const validate = schema.fromFile('./schemas/order.yaml')
 ```
 
-**schema.fromObject(raw)**
+**schema.fromObject(raw, options?)**
 
 Same as `fromFile`, but receives a plain JavaScript object. Useful when the schema is already parsed or comes from another source.
 
@@ -84,7 +84,7 @@ const validate = schema.fromObject({
 })
 ```
 
-**schema.fromString(yaml)**
+**schema.fromString(yaml, options?)**
 
 Same as `fromFile`, but receives the YAML directly as a string. Useful for tests or when
 the schema comes from a database or environment variable.
@@ -133,6 +133,41 @@ Returns `true` if valid, `false` otherwise.
 if (!validate.valid(payload)) {
   return res.status(400).json({ error: 'Invalid payload' })
 }
+```
+
+> **Tip:** if you only use `.valid()`, compile with `{ bail: true }` to avoid collecting
+> errors that are never used.
+
+```js
+const validate = schema.fromFile('./order.yaml', { bail: true })
+
+if (!validate.valid(payload)) { ... }
+```
+
+## Options
+
+All three `schema.from*` methods accept an optional `options` object as the last argument.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `bail` | `boolean` | `false` | Stop at the first error instead of collecting all errors |
+
+### bail
+
+By default, validation collects all errors. With `bail: true`, it stops at the first error
+and returns a single-element array. Useful when you only need to know whether the payload is
+valid, or when you want to fail fast on large payloads.
+
+```js
+const validate = schema.fromObject({
+  name:  'string',
+  age:   'integer',
+  email: 'string',
+}, { bail: true })
+
+validate({ name: 42, age: 'old', email: 123 })
+// -> [{ path: 'name', code: 'type', message: 'Unexpected type', ... }]
+//    stops after the first error — age and email are not checked
 ```
 
 ## License

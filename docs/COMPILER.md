@@ -318,6 +318,31 @@ The composite benchmark (`npm run bm`) targets ≥50% faster overall.
 
 ---
 
+## Bail Mode
+
+`compileAST(ast, { bail: true })` compiles a validator that stops at the **first
+error**. Exposed via the public API as `schema.fromObject(raw, { bail: true })`.
+
+Instead of `errTarget.push({...})`, each error site emits:
+
+```js
+errors.push({ path: ..., code: ..., message: ..., data: ... })
+return errors
+```
+
+The `return` is unconditional — there is no `if (errors.length > 0)` check because
+we just pushed, so the length is always `> 0`. This avoids a redundant comparison.
+
+**Zero cost without bail**: `ctx.bail` is read at codegen time only. The generated
+code for `bail: false` is identical to what was generated before bail existed —
+no extra branches, no extra checks.
+
+**Lightweight mode is unaffected**: lightweight branches (`anyOf`, `oneOf`,
+`contains`) set `beVar = true` and never push to `errors`, so no `return` is
+emitted there regardless of `bail`.
+
+---
+
 ## DEV_MODE — Iterating on New Rules
 
 `index.js` exposes a `DEV_MODE` flag (top of file, defaults to `false`):
@@ -346,15 +371,29 @@ the compiled path and skips all codegen coverage.
 
 ## Integration Point
 
-`index.js` (root) calls `compileAST(tree)` and attaches `.assert` and `.valid`:
+`index.js` (root) calls `compileAST(tree, { bail })` and attaches `.assert` and `.valid`:
 
 ```js
-function compile(tree) {
-  const validate = compileAST(tree)
+function compile(tree, { interpreted = false, bail = false } = {}) {
+  const validate = compileAST(tree, { bail })
   validate.assert = function (payload) { ... }
   validate.valid  = function (payload) { ... }
   return validate
 }
 ```
 
-No changes to `schema.fromFile`, `schema.fromString`, or `schema.fromObject`.
+`bail` flows from `schema.fromFile/fromString/fromObject` options down to the active
+backend unchanged.
+
+The interpreter also supports `bail`. It uses a different mechanism: instead of
+codegen, `interpretAST` passes a throwing `emit` callback:
+
+```js
+const emit = bail
+  ? (e) => { throw new BailSignal(e) }
+  : (e) => errors.push(e)
+```
+
+`BailSignal` is caught at the top level of `interpretAST` and the single error is
+returned. All validator functions (`validateNode`, composites) only know about `emit`
+— they are unaware of bail entirely.

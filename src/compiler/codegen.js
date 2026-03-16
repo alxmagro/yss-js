@@ -8,6 +8,19 @@ import {
 const _require = createRequire(import.meta.url)
 const deepEqual = _require('fast-deep-equal')
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function emitPush (ctx, errTarget, lightweight, errorExpr) {
+  if (lightweight) {
+    ctx.emit(`${errTarget} = true`)
+  } else if (ctx.bail) {
+    ctx.emit(`  ${errTarget}.push(${errorExpr})`)
+    ctx.emit('  return errors')
+  } else {
+    ctx.emit(`  ${errTarget}.push(${errorExpr})`)
+  }
+}
+
 // ── Dispatcher ────────────────────────────────────────────────────────────────
 
 export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors', lightweight = false) {
@@ -36,8 +49,7 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors', li
     const expected = JSON.stringify(Array.isArray(type) ? type : type)
 
     ctx.emit(`if (!(${cond})) {`)
-    if (lightweight) ctx.emit(`${errTarget} = true`)
-    else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } })`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } }`)
     ctx.emit('} else {')
 
     if (isArr) emitArrayBody(ctx, varExpr, node, pathExpr, errTarget, lightweight)
@@ -76,8 +88,7 @@ function emitObjectBody (ctx, varExpr, node, pathExpr, errTarget, lightweight = 
     ctx.emit(`if (${fVar} === undefined) {`)
     if (fieldNode.required) {
       ctx.emit(`  const _p = ${fPathStr}`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`  ${errTarget}.push({ path: _p, code: 'required', message: 'Missing required property \`' + _p + '\`' })`)
+      emitPush(ctx, errTarget, lightweight, '{ path: _p, code: \'required\', message: \'Missing required property `\' + _p + \'`\' }')
     }
     ctx.emit('} else {')
     emitNode(ctx, fVar, fieldNode, fPathStr, errTarget, lightweight)
@@ -92,8 +103,7 @@ function emitObjectBody (ctx, varExpr, node, pathExpr, errTarget, lightweight = 
       ctx.emit(`if (${varExpr}["${trigger}"] !== undefined) {`)
       ctx.emit(`  const ${missingVar} = refs.${depsRef}.filter(d => ${varExpr}[d] === undefined)`)
       ctx.emit(`  if (${missingVar}.length > 0)`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger: "${trigger}", missing: ${missingVar} } })`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger: "${trigger}", missing: ${missingVar} } }`)
       ctx.emit('}')
     }
   }
@@ -108,8 +118,7 @@ function emitObjectBody (ctx, varExpr, node, pathExpr, errTarget, lightweight = 
     ctx.emit(`for (const ${kVar} in ${varExpr}) {`)
     ctx.emit(`  if (!refs.${allowedRef}.has(${kVar})) {`)
     ctx.emit(`    const p = ${kPath}`)
-    if (lightweight) ctx.emit(`${errTarget} = true`)
-    else ctx.emit(`    ${errTarget}.push({ path: p, code: 'strict', message: 'Unexpected property \`' + p + '\`' })`)
+    emitPush(ctx, errTarget, lightweight, '{ path: p, code: \'strict\', message: \'Unexpected property `\' + p + \'`\' }')
     ctx.emit('  }')
     ctx.emit('}')
   }
@@ -180,22 +189,19 @@ function emitContains (ctx, varExpr, contains, pathExpr, errTarget, lightweight 
       ? 'Array must not contain any matching items'
       : `Array must contain exactly \`${quantity}\` matching items`
     ctx.emit(`if (${countVar} !== ${quantity}) {`)
-    if (lightweight) ctx.emit(`${errTarget} = true`)
-    else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_exact', message: '${msg}', data: { quantity: ${quantityJson} } })`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'contains_exact', message: '${msg}', data: { quantity: ${quantityJson} } }`)
     ctx.emit('}')
   } else {
     if (max != null) {
       ctx.emit(`if (${countVar} > ${max}) {`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_max', message: 'Array must contain at most \`${max}\` matching items', data: { quantity: ${quantityJson} } })`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'contains_max', message: 'Array must contain at most \`${max}\` matching items', data: { quantity: ${quantityJson} } }`)
       ctx.emit('}')
     }
     if (min != null) {
       const minMsg = min === 1 ? 'Array must contain at least one matching item' : `Array must contain at least \`${min}\` matching items`
       const keyword = max != null ? 'else if' : 'if'
       ctx.emit(`${keyword} (${countVar} < ${min}) {`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'contains_min', message: '${minMsg}', data: { quantity: ${quantityJson} } })`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'contains_min', message: '${minMsg}', data: { quantity: ${quantityJson} } }`)
       ctx.emit('}')
     }
   }
@@ -214,8 +220,7 @@ function emitAllOf (ctx, varExpr, node, pathExpr, errTarget, lightweight = false
       ctx.emit(`  const ${beVar} = []`)
       emitNode(ctx, varExpr, node.items[i], pathExpr, beVar)
       ctx.emit(`  if (${beVar}.length > 0) {`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'all_of', message: 'Value does not match all conditions', data: { failed_at: ${i} } })`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'all_of', message: 'Value does not match all conditions', data: { failed_at: ${i} } }`)
       ctx.emit(`    ${doneVar} = true`)
       ctx.emit('  }')
       ctx.emit('}')
@@ -226,8 +231,7 @@ function emitAllOf (ctx, varExpr, node, pathExpr, errTarget, lightweight = false
     const cond = typeMatchCond(varExpr, node.baseType)
     const expected = JSON.stringify(node.baseType)
     ctx.emit(`if (!(${cond})) {`)
-    if (lightweight) ctx.emit(`${errTarget} = true`)
-    else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } })`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } }`)
     ctx.emit('} else {')
     emitBranches()
     ctx.emit('}')
@@ -259,11 +263,9 @@ function emitOneOf (ctx, varExpr, node, pathExpr, errTarget, lightweight = false
   }
 
   ctx.emit(`if (${countVar} === 0) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'one_of', message: 'Value does not match any condition' })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'one_of', message: 'Value does not match any condition' }`)
   ctx.emit(`} else if (${countVar} > 1) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'one_of_multiple', message: 'Value matches more than one condition', data: { matches_at: [${firstMatchVar}, ${secondMatchVar}] } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'one_of_multiple', message: 'Value matches more than one condition', data: { matches_at: [${firstMatchVar}, ${secondMatchVar}] } }`)
   ctx.emit('}')
 }
 
@@ -282,8 +284,7 @@ function emitAnyOf (ctx, varExpr, node, pathExpr, errTarget, lightweight = false
   }
 
   ctx.emit(`if (!${matchedVar}) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'any_of', message: 'Value does not match any condition' })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'any_of', message: 'Value does not match any condition' }`)
   ctx.emit('}')
 }
 
@@ -327,8 +328,7 @@ function emitFormat (ctx, varExpr, param, pathExpr, errTarget, lightweight = fal
   }
 
   ctx.emit(`if (typeof ${varExpr} === 'string' && !(${checkExpr})) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'format', message: 'Value does not match required format', data: { value: ${varExpr}, format: ${JSON.stringify(param)} } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'format', message: 'Value does not match required format', data: { value: ${varExpr}, format: ${JSON.stringify(param)} } }`)
   ctx.emit('}')
 }
 
@@ -348,8 +348,7 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget, lightweig
 
   if (typeof param === 'number') {
     ctx.emit(`  if (${szVar} !== ${param}) {`)
-    if (lightweight) ctx.emit(`${errTarget} = true`)
-    else ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'size_exact', message: 'Size must be exactly \`${param}\`', data: { value: ${varExpr}, size: ${szVar}, expected: ${param} } })`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_exact', message: 'Size must be exactly \`${param}\`', data: { value: ${varExpr}, size: ${szVar}, expected: ${param} } }`)
     ctx.emit('  }')
   } else {
     // '~' is YAML null kept as string by the inline parser — treat as unbound
@@ -359,14 +358,12 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget, lightweig
 
     if (min != null) {
       ctx.emit(`  if (${szVar} < ${min}) {`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'size_min', message: 'Minimum size is \`${min}\`', data: { value: ${varExpr}, size: ${szVar}, min: ${min} } })`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_min', message: 'Minimum size is \`${min}\`', data: { value: ${varExpr}, size: ${szVar}, min: ${min} } }`)
       ctx.emit('  }')
     }
     if (max != null) {
       ctx.emit(`  if (${szVar} > ${max}) {`)
-      if (lightweight) ctx.emit(`${errTarget} = true`)
-      else ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'size_max', message: 'Maximum size is \`${max}\`', data: { value: ${varExpr}, size: ${szVar}, max: ${max} } })`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_max', message: 'Maximum size is \`${max}\`', data: { value: ${varExpr}, size: ${szVar}, max: ${max} } }`)
       ctx.emit('  }')
     }
   }
@@ -381,8 +378,7 @@ function emitMultipleOf (ctx, varExpr, param, pathExpr, errTarget, lightweight =
   ctx.emit(`if (typeof ${varExpr} === 'number') {`)
   ctx.emit(`  const _q = ${varExpr} / ${param}`)
   ctx.emit('  if (Math.abs(Math.round(_q) - _q) > 1e-10) {')
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`    ${errTarget}.push({ path: ${pathExpr}, code: 'multiple_of', message: 'Value must be a multiple of \`${param}\`', data: { value: ${varExpr}, multiple_of: ${param} } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'multiple_of', message: 'Value must be a multiple of \`${param}\`', data: { value: ${varExpr}, multiple_of: ${param} } }`)
   ctx.emit('  }')
   ctx.emit('}')
 }
@@ -394,8 +390,7 @@ function emitIn (ctx, varExpr, param, pathExpr, errTarget, lightweight = false) 
   const arrRef = ctx.addRef(param)
 
   ctx.emit(`if (!refs.${setRef}.has(${varExpr})) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'in', message: 'Value \`' + ${varExpr} + '\` is not allowed', data: { value: ${varExpr}, in: refs.${arrRef} } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'in', message: 'Value \`' + ${varExpr} + '\` is not allowed', data: { value: ${varExpr}, in: refs.${arrRef} } }`)
   ctx.emit('}')
 }
 
@@ -404,8 +399,7 @@ function emitNotIn (ctx, varExpr, param, pathExpr, errTarget, lightweight = fals
   const arrRef = ctx.addRef(param)
 
   ctx.emit(`if (refs.${setRef}.has(${varExpr})) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'not_in', message: 'Value is not allowed', data: { value: ${varExpr}, not_in: refs.${arrRef} } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'not_in', message: 'Value is not allowed', data: { value: ${varExpr}, not_in: refs.${arrRef} } }`)
   ctx.emit('}')
 }
 
@@ -415,8 +409,7 @@ function emitConst (ctx, varExpr, param, pathExpr, errTarget, lightweight = fals
   const cStr = JSON.stringify(param)
 
   ctx.emit(`if (${varExpr} !== ${cStr}) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: 'const', message: 'Value must be \`${param}\`', data: { value: ${varExpr}, const: ${cStr} } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'const', message: 'Value must be \`${param}\`', data: { value: ${varExpr}, const: ${cStr} } }`)
   ctx.emit('}')
 }
 
@@ -424,8 +417,7 @@ function emitConst (ctx, varExpr, param, pathExpr, errTarget, lightweight = fals
 
 function emitCompare (ctx, varExpr, param, pathExpr, errTarget, lightweight = false, failCond, code, message, dataKey) {
   ctx.emit(`if (typeof ${varExpr} === 'number' && ${varExpr} ${failCond} ${param}) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`  ${errTarget}.push({ path: ${pathExpr}, code: '${code}', message: '${message} \`${param}\`', data: { value: ${varExpr}, ${dataKey}: ${param} } })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: '${code}', message: '${message} \`${param}\`', data: { value: ${varExpr}, ${dataKey}: ${param} } }`)
   ctx.emit('}')
 }
 
@@ -441,8 +433,7 @@ function emitUnique (ctx, varExpr, pathExpr, errTarget, lightweight = false) {
   ctx.emit(`for (let ${iVar} = 0; ${iVar} < ${varExpr}.length - 1 && !${doneVar}; ${iVar}++) {`)
   ctx.emit(`  for (let ${jVar} = ${iVar} + 1; ${jVar} < ${varExpr}.length; ${jVar}++) {`)
   ctx.emit(`    if (refs.${eqRef}(${varExpr}[${iVar}], ${varExpr}[${jVar}])) {`)
-  if (lightweight) ctx.emit(`${errTarget} = true`)
-  else ctx.emit(`      ${errTarget}.push({ path: ${pathExpr}, code: 'unique', message: 'Array contains duplicated items' })`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'unique', message: 'Array contains duplicated items' }`)
   ctx.emit(`      ${doneVar} = true; break`)
   ctx.emit('    }')
   ctx.emit('  }')

@@ -1,14 +1,9 @@
-export default function anyOf (value, node, path, validateNode) {
-  const branchErrors = node.items.map(branch => validateNode(value, branch, path))
-  const matched = branchErrors.findIndex(e => e.length === 0)
+export default function anyOf (value, node, path, validateNode, emit) {
+  const matched = node.items.some(branch => {
+    let failed = false
+    validateNode(value, branch, path, () => { failed = true })
+    return !failed
+  })
 
-  if (matched === -1) {
-    return [{
-      path,
-      code: 'any_of',
-      message: 'Value does not match any condition'
-    }]
-  }
-
-  return []
+  if (!matched) emit({ path, code: 'any_of', message: 'Value does not match any condition' })
 }

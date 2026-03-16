@@ -1,16 +1,13 @@
 import { joinPath } from '../../validator/errors.js'
 import { getRule } from '../scalars/index.js'
 
-export default function object (value, node, path, validateNode) {
-  const errors = []
-
+export default function object (value, node, path, validateNode, emit) {
   for (const key of (node.rules ?? [])) {
-    const rule = getRule(key)
-    const result = rule(value, node[key], path)
-    if (result) errors.push({ path, ...result })
+    const result = getRule(key)(value, node[key], path)
+    if (result) emit({ path, ...result })
   }
 
-  if (!node.fields) return errors
+  if (!node.fields) return
 
   const { fields, strict } = node
 
@@ -19,17 +16,17 @@ export default function object (value, node, path, validateNode) {
     const fieldValue = value[key]
 
     if (fieldValue === undefined) {
-      if (fieldNode.required) { errors.push({ path: fieldPath, code: 'required', message: `Missing required property \`${fieldPath}\`` }) }
+      if (fieldNode.required) emit({ path: fieldPath, code: 'required', message: `Missing required property \`${fieldPath}\`` })
       continue
     }
-    errors.push(...validateNode(fieldValue, fieldNode, fieldPath))
+    validateNode(fieldValue, fieldNode, fieldPath, emit)
   }
 
   if (node.dependencies != null) {
     for (const [trigger, deps] of Object.entries(node.dependencies)) {
       if (value[trigger] === undefined) continue
       const missing = deps.filter(dep => value[dep] === undefined)
-      if (missing.length > 0) { errors.push({ path, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger, missing } }) }
+      if (missing.length > 0) emit({ path, code: 'dependencies', message: 'Value does not match all conditions', data: { trigger, missing } })
     }
   }
 
@@ -37,10 +34,8 @@ export default function object (value, node, path, validateNode) {
     for (const key of Object.keys(value)) {
       if (!(key in fields)) {
         const p = joinPath(path, key)
-        errors.push({ path: p, code: 'strict', message: `Unexpected property \`${p}\`` })
+        emit({ path: p, code: 'strict', message: `Unexpected property \`${p}\`` })
       }
     }
   }
-
-  return errors
 }

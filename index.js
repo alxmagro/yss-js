@@ -18,19 +18,19 @@ import { dirname } from 'node:path'
 import { load } from 'js-yaml'
 import { buildAST, assertIntegrity } from './src/parser/index.js'
 import { compileAST } from './src/compiler/index.js'
-import { validateNode } from './src/validator/index.js'
+import { interpretAST } from './src/validator/index.js'
 import { ValidationError } from './src/validator/errors.js'
 
 export { ValidationError }
 
 // ── Compile a schema tree into a validate function ────────────────────────────
 
-function compile (tree, { interpreted = false } = {}) {
+function compile (tree, { interpreted = false, bail = false } = {}) {
   assertIntegrity(tree)
 
   const validate = interpreted
-    ? (payload) => validateNode(payload, tree)
-    : compileAST(tree)
+    ? interpretAST(tree, { bail })
+    : compileAST(tree, { bail })
 
   validate.assert = function (payload) {
     const errors = validate(payload)

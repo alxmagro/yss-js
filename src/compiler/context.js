@@ -1,9 +1,10 @@
 export class CompilerContext {
-  constructor () {
+  constructor ({ bail = false } = {}) {
     this._id = 0
     this._refId = 0
     this.refs = {}
     this.lines = []
+    this.bail = bail
   }
 
   nextId () { return `v${this._id++}` }
