@@ -38,7 +38,6 @@ scenarios:
         code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
-          value: 42
           expected: string
 
   - name: wrong item type in integer array
@@ -49,5 +48,4 @@ scenarios:
         code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
-          value: hello
           expected: integer

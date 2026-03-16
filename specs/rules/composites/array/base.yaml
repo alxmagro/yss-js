@@ -30,7 +30,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: tags
-        data: { value: hello, expected: array }
+        data: { expected: array }
 
   - name: integer fails array
     when:
@@ -38,4 +38,4 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: tags
-        data: { value: 42, expected: array }
+        data: { expected: array }

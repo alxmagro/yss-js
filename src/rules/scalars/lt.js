@@ -7,7 +7,7 @@ export default function lt (value, schemaParam) {
     return {
       code: 'lt',
       message: `Value must be less than \`${schemaParam}\``,
-      data: { value, lt: schemaParam }
+      data: { lt: schemaParam }
     }
   }
   return null

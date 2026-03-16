@@ -6,7 +6,7 @@ export default function constRule (value, schemaParam) {
     return {
       code: 'const',
       message: `Value must be \`${schemaParam}\``,
-      data: { value, const: schemaParam }
+      data: { const: schemaParam }
     }
   }
   return null

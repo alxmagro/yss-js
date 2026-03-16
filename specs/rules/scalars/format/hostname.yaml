@@ -25,7 +25,6 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: "not a hostname!"
           format: hostname
 
   - name: invalid idn-hostname
@@ -36,5 +35,4 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: "not a hostname!"
           format: idn-hostname

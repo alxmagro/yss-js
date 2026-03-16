@@ -18,5 +18,4 @@ scenarios:
         code: "{{ CODE_LT }}"
         message: Value must be less than `10`
         data:
-          value: 10
           lt: 10

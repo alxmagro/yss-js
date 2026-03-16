@@ -7,7 +7,7 @@ export default function lte (value, schemaParam) {
     return {
       code: 'lte',
       message: `Value must be less than or equal to \`${schemaParam}\``,
-      data: { value, lte: schemaParam }
+      data: { lte: schemaParam }
     }
   }
   return null

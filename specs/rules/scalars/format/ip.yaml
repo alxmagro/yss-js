@@ -25,7 +25,6 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: 999.999.999.999
           format: ipv4
 
   - name: invalid ipv6
@@ -36,5 +35,4 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: not-an-ip
           format: ipv6

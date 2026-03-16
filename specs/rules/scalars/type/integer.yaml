@@ -37,7 +37,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: count
-        data: { value: 3.14, expected: integer }
+        data: { expected: integer }
 
   - name: string fails integer
     when:
@@ -45,7 +45,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: count
-        data: { value: "42", expected: integer }
+        data: { expected: integer }
 
   - name: boolean fails integer
     when:
@@ -53,7 +53,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: count
-        data: { value: true, expected: integer }
+        data: { expected: integer }
 
   - name: null fails integer
     when:
@@ -61,7 +61,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: count
-        data: { value: ~, expected: integer }
+        data: { expected: integer }
 
   - name: array fails integer
     when:
@@ -69,7 +69,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: count
-        data: { value: [1, 2], expected: integer }
+        data: { expected: integer }
 
   - name: object fails integer
     when:
@@ -79,6 +79,4 @@ scenarios:
       - <<: *unexpected_type
         path: count
         data:
-          value:
-            key: value
           expected: integer

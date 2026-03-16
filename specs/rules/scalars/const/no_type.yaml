@@ -33,7 +33,6 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `draft`
         data:
-          value: published
           const: draft
 
   - name: wrong integer const
@@ -44,7 +43,6 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `5`
         data:
-          value: 9
           const: 5
 
   - name: wrong float const
@@ -55,7 +53,6 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `3.14`
         data:
-          value: 2.71
           const: 3.14
 
   - name: wrong boolean const
@@ -66,7 +63,6 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `true`
         data:
-          value: false
           const: true
 
   - name: null const — value matches
@@ -82,5 +78,4 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `null`
         data:
-          value: something
           const: null

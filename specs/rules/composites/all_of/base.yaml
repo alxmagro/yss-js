@@ -57,5 +57,4 @@ scenarios:
         code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
-          value: not-an-array
           expected: array

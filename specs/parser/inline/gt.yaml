@@ -18,5 +18,4 @@ scenarios:
         code: "{{ CODE_GT }}"
         message: Value must be greater than `18`
         data:
-          value: 18
           gt: 18

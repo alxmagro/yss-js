@@ -25,7 +25,6 @@ scenarios:
         code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
-          value: true
           expected:
             - string
             - integer

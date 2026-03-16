@@ -21,7 +21,7 @@ export default function size (value, schemaParam) {
       return {
         code: 'size_exact',
         message: `Size must be exactly \`${schemaParam}\``,
-        data: { value, size: length, expected: schemaParam }
+        data: { expected: schemaParam }
       }
     }
     return null
@@ -33,7 +33,7 @@ export default function size (value, schemaParam) {
     return {
       code: 'size_min',
       message: `Minimum size is \`${min}\``,
-      data: { value, size: length, min }
+      data: { min }
     }
   }
 
@@ -41,7 +41,7 @@ export default function size (value, schemaParam) {
     return {
       code: 'size_max',
       message: `Maximum size is \`${max}\``,
-      data: { value, size: length, max }
+      data: { max }
     }
   }
 

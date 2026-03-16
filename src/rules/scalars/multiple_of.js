@@ -8,7 +8,7 @@ export default function multipleOf (value, schemaParam) {
     return {
       code: 'multiple_of',
       message: `Value must be a multiple of \`${schemaParam}\``,
-      data: { value, multiple_of: schemaParam }
+      data: { multiple_of: schemaParam }
     }
   }
   return null

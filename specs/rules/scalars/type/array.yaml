@@ -42,7 +42,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: tags
-        data: { value: hello, expected: array }
+        data: { expected: array }
 
   - name: integer fails array
     when:
@@ -50,7 +50,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: tags
-        data: { value: 42, expected: array }
+        data: { expected: array }
 
   - name: boolean fails array
     when:
@@ -58,7 +58,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: tags
-        data: { value: true, expected: array }
+        data: { expected: array }
 
   - name: null fails array
     when:
@@ -66,7 +66,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: tags
-        data: { value: ~, expected: array }
+        data: { expected: array }
 
   - name: object fails array
     when:
@@ -76,6 +76,4 @@ scenarios:
       - <<: *unexpected_type
         path: tags
         data:
-          value:
-            key: value
           expected: array

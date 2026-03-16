@@ -32,7 +32,6 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: not-an-email
           format: email
 
   - name: invalid idn-email
@@ -43,5 +42,4 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: not-an-email
           format: idn-email

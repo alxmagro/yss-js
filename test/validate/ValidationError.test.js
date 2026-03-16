@@ -1,4 +1,4 @@
-import { schema, ValidationError } from '../index.js'
+import { schema, ValidationError } from '../../index.js'
 
 const validate = schema.fromObject({ name: 'string', age: 'integer' })
 

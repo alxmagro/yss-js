@@ -34,8 +34,6 @@ scenarios:
         code: "{{ CODE_SIZE_MIN }}"
         message: Minimum size is `2`
         data:
-          value: h
-          size: 1
           min: 2
 
   - name: empty array below minimum
@@ -46,6 +44,4 @@ scenarios:
         code: "{{ CODE_SIZE_MIN }}"
         message: Minimum size is `1`
         data:
-          value: []
-          size: 0
           min: 1

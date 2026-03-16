@@ -27,7 +27,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: deleted_at
-        data: { value: "null", expected: 'null' }
+        data: { expected: 'null' }
 
   - name: integer fails null
     when:
@@ -35,7 +35,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: deleted_at
-        data: { value: 0, expected: 'null' }
+        data: { expected: 'null' }
 
   - name: boolean fails null
     when:
@@ -43,7 +43,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: deleted_at
-        data: { value: false, expected: 'null' }
+        data: { expected: 'null' }
 
   - name: array fails null
     when:
@@ -51,7 +51,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: deleted_at
-        data: { value: [], expected: 'null' }
+        data: { expected: 'null' }
 
   - name: object fails null
     when:
@@ -61,6 +61,4 @@ scenarios:
       - <<: *unexpected_type
         path: deleted_at
         data:
-          value:
-            key: value
           expected: 'null'

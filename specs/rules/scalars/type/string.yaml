@@ -62,7 +62,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: name
-        data: { value: 42, expected: string }
+        data: { expected: string }
 
   - name: boolean fails string
     when:
@@ -70,7 +70,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: name
-        data: { value: true, expected: string }
+        data: { expected: string }
 
   - name: null fails string
     when:
@@ -78,7 +78,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: name
-        data: { value: ~, expected: string }
+        data: { expected: string }
 
   - name: array fails string
     when:
@@ -86,7 +86,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: name
-        data: { value: [a, b], expected: string }
+        data: { expected: string }
 
   - name: object fails string
     when:
@@ -96,6 +96,4 @@ scenarios:
       - <<: *unexpected_type
         path: name
         data:
-          value:
-            key: value
           expected: string

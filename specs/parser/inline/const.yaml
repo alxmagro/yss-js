@@ -18,7 +18,6 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `hello world`
         data:
-          value: hi
           const: hello world
 
   - name: boolean true as const value

@@ -33,5 +33,4 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: foo/bar
           format: json-pointer

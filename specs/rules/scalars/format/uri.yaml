@@ -29,7 +29,6 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: not a uri
           format: uri
 
   - name: invalid uri-reference
@@ -40,7 +39,6 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: "not a uri ref!"
           format: uri-reference
 
   - name: invalid iri
@@ -51,5 +49,4 @@ scenarios:
         code: "{{ CODE_FORMAT }}"
         message: Value does not match required format
         data:
-          value: not a iri
           format: iri

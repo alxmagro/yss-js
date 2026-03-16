@@ -33,9 +33,8 @@ scenarios:
     then:
       - path: status
         code: "{{ CODE_IN }}"
-        message: Value `cancelled` is not allowed
+        message: Value is not allowed
         data:
-          value: cancelled
           in: [active, inactive, pending]
 
   - name: integer value not in allowed list
@@ -44,9 +43,8 @@ scenarios:
     then:
       - path: priority
         code: "{{ CODE_IN }}"
-        message: Value `5` is not allowed
+        message: Value is not allowed
         data:
-          value: 5
           in: [1, 2, 3]
 
   - name: block syntax value not in allowed list
@@ -55,7 +53,6 @@ scenarios:
     then:
       - path: level
         code: "{{ CODE_IN }}"
-        message: Value `critical` is not allowed
+        message: Value is not allowed
         data:
-          value: critical
           in: [low, medium, high]

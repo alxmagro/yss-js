@@ -39,7 +39,6 @@ scenarios:
       - path: status
         <<: *not_in_invalid
         data:
-          value: banned
           not_in: [deleted, banned]
 
   - name: integer value in excluded list
@@ -49,7 +48,6 @@ scenarios:
       - path: priority
         <<: *not_in_invalid
         data:
-          value: 0
           not_in: [0]
 
   - name: block syntax value in excluded list
@@ -59,5 +57,4 @@ scenarios:
       - path: level
         <<: *not_in_invalid
         data:
-          value: low
           not_in: [low, medium]

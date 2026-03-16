@@ -31,7 +31,6 @@ scenarios:
         message: Value must be less than `10`
         data:
           lt: 10
-          value: 10
 
   - name: above boundary fails
     when:
@@ -42,4 +41,3 @@ scenarios:
         message: Value must be less than `10`
         data:
           lt: 10
-          value: 11

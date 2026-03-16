@@ -44,7 +44,6 @@ scenarios:
         code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `10`
         data:
-          value: 25
           multiple_of: 10
 
   - name: negative integer not a multiple
@@ -55,7 +54,6 @@ scenarios:
         code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `10`
         data:
-          value: -25
           multiple_of: 10
 
   - name: decimal not a multiple
@@ -66,7 +64,6 @@ scenarios:
         code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `0.5`
         data:
-          value: 9.3
           multiple_of: 0.5
 
   - name: negative decimal not a multiple
@@ -77,5 +74,4 @@ scenarios:
         code: "{{ CODE_MULTIPLE_OF }}"
         message: Value must be a multiple of `0.5`
         data:
-          value: -9.3
           multiple_of: 0.5

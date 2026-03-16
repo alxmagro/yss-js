@@ -25,7 +25,6 @@ scenarios:
         code: "{{ CODE_CONST }}"
         message: Value must be `admin`
         data:
-          value: user
           const: admin
 
   - name: type validation takes precedence over const
@@ -36,5 +35,4 @@ scenarios:
         code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
-          value: "2"
           expected: integer

@@ -42,8 +42,6 @@ scenarios:
         code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `5`
         data:
-          value: hi
-          size: 2
           expected: 5
 
   - name: string too long
@@ -54,8 +52,6 @@ scenarios:
         code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `5`
         data:
-          value: toolong
-          size: 7
           expected: 5
 
   - name: object wrong number of props
@@ -66,8 +62,6 @@ scenarios:
         code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `2`
         data:
-          value: { a: 1, b: 2, c: 3 }
-          size: 3
           expected: 2
 
   - name: array wrong size
@@ -78,6 +72,4 @@ scenarios:
         code: "{{ CODE_SIZE_EXACT }}"
         message: Size must be exactly `3`
         data:
-          value: [a, b]
-          size: 2
           expected: 3

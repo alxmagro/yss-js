@@ -49,7 +49,7 @@ export function emitNode (ctx, varExpr, node, pathExpr, errTarget = 'errors', li
     const expected = JSON.stringify(Array.isArray(type) ? type : type)
 
     ctx.emit(`if (!(${cond})) {`)
-    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } }`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { expected: ${expected} } }`)
     ctx.emit('} else {')
 
     if (isArr) emitArrayBody(ctx, varExpr, node, pathExpr, errTarget, lightweight)
@@ -231,7 +231,7 @@ function emitAllOf (ctx, varExpr, node, pathExpr, errTarget, lightweight = false
     const cond = typeMatchCond(varExpr, node.baseType)
     const expected = JSON.stringify(node.baseType)
     ctx.emit(`if (!(${cond})) {`)
-    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { value: ${varExpr}, expected: ${expected} } }`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'type', message: 'Unexpected type', data: { expected: ${expected} } }`)
     ctx.emit('} else {')
     emitBranches()
     ctx.emit('}')
@@ -328,7 +328,7 @@ function emitFormat (ctx, varExpr, param, pathExpr, errTarget, lightweight = fal
   }
 
   ctx.emit(`if (typeof ${varExpr} === 'string' && !(${checkExpr})) {`)
-  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'format', message: 'Value does not match required format', data: { value: ${varExpr}, format: ${JSON.stringify(param)} } }`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'format', message: 'Value does not match required format', data: { format: ${JSON.stringify(param)} } }`)
   ctx.emit('}')
 }
 
@@ -348,7 +348,7 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget, lightweig
 
   if (typeof param === 'number') {
     ctx.emit(`  if (${szVar} !== ${param}) {`)
-    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_exact', message: 'Size must be exactly \`${param}\`', data: { value: ${varExpr}, size: ${szVar}, expected: ${param} } }`)
+    emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_exact', message: 'Size must be exactly \`${param}\`', data: { expected: ${param} } }`)
     ctx.emit('  }')
   } else {
     // '~' is YAML null kept as string by the inline parser — treat as unbound
@@ -358,12 +358,12 @@ function emitSize (ctx, varExpr, param, nodeType, pathExpr, errTarget, lightweig
 
     if (min != null) {
       ctx.emit(`  if (${szVar} < ${min}) {`)
-      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_min', message: 'Minimum size is \`${min}\`', data: { value: ${varExpr}, size: ${szVar}, min: ${min} } }`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_min', message: 'Minimum size is \`${min}\`', data: { min: ${min} } }`)
       ctx.emit('  }')
     }
     if (max != null) {
       ctx.emit(`  if (${szVar} > ${max}) {`)
-      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_max', message: 'Maximum size is \`${max}\`', data: { value: ${varExpr}, size: ${szVar}, max: ${max} } }`)
+      emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'size_max', message: 'Maximum size is \`${max}\`', data: { max: ${max} } }`)
       ctx.emit('  }')
     }
   }
@@ -378,7 +378,7 @@ function emitMultipleOf (ctx, varExpr, param, pathExpr, errTarget, lightweight =
   ctx.emit(`if (typeof ${varExpr} === 'number') {`)
   ctx.emit(`  const _q = ${varExpr} / ${param}`)
   ctx.emit('  if (Math.abs(Math.round(_q) - _q) > 1e-10) {')
-  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'multiple_of', message: 'Value must be a multiple of \`${param}\`', data: { value: ${varExpr}, multiple_of: ${param} } }`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'multiple_of', message: 'Value must be a multiple of \`${param}\`', data: { multiple_of: ${param} } }`)
   ctx.emit('  }')
   ctx.emit('}')
 }
@@ -390,7 +390,7 @@ function emitIn (ctx, varExpr, param, pathExpr, errTarget, lightweight = false) 
   const arrRef = ctx.addRef(param)
 
   ctx.emit(`if (!refs.${setRef}.has(${varExpr})) {`)
-  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'in', message: 'Value \`' + ${varExpr} + '\` is not allowed', data: { value: ${varExpr}, in: refs.${arrRef} } }`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'in', message: 'Value is not allowed', data: { in: refs.${arrRef} } }`)
   ctx.emit('}')
 }
 
@@ -399,7 +399,7 @@ function emitNotIn (ctx, varExpr, param, pathExpr, errTarget, lightweight = fals
   const arrRef = ctx.addRef(param)
 
   ctx.emit(`if (refs.${setRef}.has(${varExpr})) {`)
-  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'not_in', message: 'Value is not allowed', data: { value: ${varExpr}, not_in: refs.${arrRef} } }`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'not_in', message: 'Value is not allowed', data: { not_in: refs.${arrRef} } }`)
   ctx.emit('}')
 }
 
@@ -409,7 +409,7 @@ function emitConst (ctx, varExpr, param, pathExpr, errTarget, lightweight = fals
   const cStr = JSON.stringify(param)
 
   ctx.emit(`if (${varExpr} !== ${cStr}) {`)
-  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'const', message: 'Value must be \`${param}\`', data: { value: ${varExpr}, const: ${cStr} } }`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: 'const', message: 'Value must be \`${param}\`', data: { const: ${cStr} } }`)
   ctx.emit('}')
 }
 
@@ -417,7 +417,7 @@ function emitConst (ctx, varExpr, param, pathExpr, errTarget, lightweight = fals
 
 function emitCompare (ctx, varExpr, param, pathExpr, errTarget, lightweight = false, failCond, code, message, dataKey) {
   ctx.emit(`if (typeof ${varExpr} === 'number' && ${varExpr} ${failCond} ${param}) {`)
-  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: '${code}', message: '${message} \`${param}\`', data: { value: ${varExpr}, ${dataKey}: ${param} } }`)
+  emitPush(ctx, errTarget, lightweight, `{ path: ${pathExpr}, code: '${code}', message: '${message} \`${param}\`', data: { ${dataKey}: ${param} } }`)
   ctx.emit('}')
 }
 

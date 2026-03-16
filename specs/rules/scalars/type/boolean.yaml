@@ -33,7 +33,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: active
-        data: { value: "true", expected: boolean }
+        data: { expected: boolean }
 
   - name: integer fails boolean
     when:
@@ -41,7 +41,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: active
-        data: { value: 1, expected: boolean }
+        data: { expected: boolean }
 
   - name: null fails boolean
     when:
@@ -49,7 +49,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: active
-        data: { value: ~, expected: boolean }
+        data: { expected: boolean }
 
   - name: array fails boolean
     when:
@@ -57,7 +57,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: active
-        data: { value: [true, false], expected: boolean }
+        data: { expected: boolean }
 
   - name: object fails boolean
     when:
@@ -67,6 +67,4 @@ scenarios:
       - <<: *unexpected_type
         path: active
         data:
-          value:
-            key: value
           expected: boolean

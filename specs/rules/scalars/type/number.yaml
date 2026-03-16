@@ -38,7 +38,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: price
-        data: { value: "3.14", expected: number }
+        data: { expected: number }
 
   - name: boolean fails number
     when:
@@ -46,7 +46,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: price
-        data: { value: true, expected: number }
+        data: { expected: number }
 
   - name: null fails number
     when:
@@ -54,7 +54,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: price
-        data: { value: ~, expected: number }
+        data: { expected: number }
 
   - name: array fails number
     when:
@@ -62,7 +62,7 @@ scenarios:
     then:
       - <<: *unexpected_type
         path: price
-        data: { value: [1.0, 2.0], expected: number }
+        data: { expected: number }
 
   - name: object fails number
     when:
@@ -72,6 +72,4 @@ scenarios:
       - <<: *unexpected_type
         path: price
         data:
-          value:
-            key: value
           expected: number

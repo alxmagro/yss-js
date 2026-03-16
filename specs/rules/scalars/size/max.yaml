@@ -43,10 +43,6 @@ scenarios:
         code: "{{ CODE_SIZE_MAX }}"
         message: Maximum size is `100`
         data:
-          value: >-
-            In the beginning the Universe was created. This has made a lot of
-            people very angry and been widely regarded as a bad move.
-          size: 123
           max: 100
 
   - name: array exceeds maximum
@@ -57,6 +53,4 @@ scenarios:
         code: "{{ CODE_SIZE_MAX }}"
         message: Maximum size is `5`
         data:
-          value: [a, b, c, d, e, f]
-          size: 6
           max: 5

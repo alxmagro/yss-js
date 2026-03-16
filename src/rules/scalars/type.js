@@ -25,7 +25,7 @@ export default function type (value, schemaParam) {
     return {
       code: 'type',
       message: 'Unexpected type',
-      data: { value, expected: schemaParam }
+      data: { expected: schemaParam }
     }
   }
 

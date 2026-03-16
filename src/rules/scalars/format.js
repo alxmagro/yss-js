@@ -10,7 +10,7 @@ export default function format (value, schemaParam) {
     return {
       code: 'format',
       message: 'Value does not match required format',
-      data: { value, format: schemaParam }
+      data: { format: schemaParam }
     }
   }
 

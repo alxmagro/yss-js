@@ -16,5 +16,4 @@ scenarios:
         code: "{{ CODE_TYPE }}"
         message: Unexpected type
         data:
-          value: 42
           expected: string

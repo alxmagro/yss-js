@@ -7,7 +7,7 @@ export default function gte (value, schemaParam) {
     return {
       code: 'gte',
       message: `Value must be greater than or equal to \`${schemaParam}\``,
-      data: { value, gte: schemaParam }
+      data: { gte: schemaParam }
     }
   }
   return null

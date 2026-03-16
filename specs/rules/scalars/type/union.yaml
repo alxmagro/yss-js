@@ -48,7 +48,6 @@ scenarios:
       - <<: *unexpected_type
         path: id
         data:
-          value: true
           expected: [string, integer]
 
   - name: array fails two-type union
@@ -58,7 +57,6 @@ scenarios:
       - <<: *unexpected_type
         path: id
         data:
-          value: [a, b]
           expected: [string, integer]
 
   - name: string fails boolean|null union
@@ -68,5 +66,4 @@ scenarios:
       - <<: *unexpected_type
         path: flag
         data:
-          value: hello
           expected: [boolean, "null"]

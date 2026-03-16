@@ -6,10 +6,7 @@ export default function notInRule (value, schemaParam) {
     return {
       code: 'not_in',
       message: 'Value is not allowed',
-      data: {
-        value,
-        not_in: schemaParam
-      }
+      data: { not_in: schemaParam }
     }
   }
   return null

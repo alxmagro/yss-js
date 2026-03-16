@@ -9,9 +9,8 @@ scenarios:
     then:
       - path: status
         code: "{{ CODE_IN }}"
-        message: Value `active` is not allowed
+        message: Value is not allowed
         data:
-          value: active
           in: []
 
   - name: primitive value in mixed list matches
@@ -29,9 +28,8 @@ scenarios:
     then:
       - path: role
         code: "{{ CODE_IN }}"
-        message: Value `active` is not allowed
+        message: Value is not allowed
         data:
-          value: active
           in: [[active, admin], guest]
 
   - name: array value never matches by reference equality
@@ -42,7 +40,6 @@ scenarios:
     then:
       - path: role
         code: "{{ CODE_IN }}"
-        message: Value `active,admin` is not allowed
+        message: Value is not allowed
         data:
-          value: [active, admin]
           in: [[active, admin], guest]

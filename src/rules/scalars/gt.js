@@ -7,7 +7,7 @@ export default function gt (value, schemaParam) {
     return {
       code: 'gt',
       message: `Value must be greater than \`${schemaParam}\``,
-      data: { value, gt: schemaParam }
+      data: { gt: schemaParam }
     }
   }
   return null

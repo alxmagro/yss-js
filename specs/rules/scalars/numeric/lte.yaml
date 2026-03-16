@@ -36,4 +36,3 @@ scenarios:
         message: Value must be less than or equal to `100`
         data:
           lte: 100
-          value: 100.1

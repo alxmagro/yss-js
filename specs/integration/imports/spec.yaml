@@ -40,7 +40,6 @@ scenarios:
         code: format
         message: Value does not match required format
         data:
-          value: "Invalid Slug!"
           format: fmt.slug
 
   - name: missing required field in $ref user

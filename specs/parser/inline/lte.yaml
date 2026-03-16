@@ -18,5 +18,4 @@ scenarios:
         code: "{{ CODE_LTE }}"
         message: Value must be less than or equal to `100`
         data:
-          value: 101
           lte: 100

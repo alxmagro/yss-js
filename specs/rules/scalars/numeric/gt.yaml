@@ -26,7 +26,6 @@ scenarios:
         message: Value must be greater than `0`
         data:
           gt: 0
-          value: 0.0
 
   - name: non-number value skips rule
     when:
@@ -42,4 +41,3 @@ scenarios:
         message: Value must be greater than `0`
         data:
           gt: 0
-          value: -1.0
