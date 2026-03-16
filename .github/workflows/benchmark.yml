@@ -23,4 +23,4 @@ jobs:
         run: npm ci
 
       - name: Run benchmark
-        run: npm run bm
+        run: node benchmark/run.js 10_000_000
