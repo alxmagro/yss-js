@@ -1,7 +1,8 @@
-$strict: true
-
 $patterns:
   zip: /^\d{5}(-\d{4})?$/
+
+$strict: true
+$required: [id, username, email, role, active, address, version]
 
 id:       integer, >= 1
 username: string,  size [3, 32]
@@ -15,12 +16,11 @@ version:
 
 address:
   $strict: true
+  $required: [street, city, country]
   street:  string, size [1, 100]
   city:    string, size [1, 60]
   country: string, size [2, 2]
   zip:     string, ~ zip
-
-  $required: [street, city, country]
 
 tags:
   $type:   array
@@ -32,12 +32,12 @@ permissions:
   $type: array
   $item:
     $strict: true
+    $required: [resource, actions]
     resource: string
     actions:
       $type: array
       $size: [1, ~]
       $item: string, in [create, read, update, delete]
-    $required: [resource, actions]
 
 contact:
   $any_of:
@@ -45,5 +45,3 @@ contact:
     - social:
         platform: string, in [twitter, linkedin, github]
         handle:   string, size [1, 50]
-
-$required: [id, username, email, role, active, address, version]
