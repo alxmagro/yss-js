@@ -82,7 +82,9 @@ const payloads = {
 
 // ── Bench helper ──────────────────────────────────────────────────────────────
 
-function bench (fn, iterations = 200_000) {
+const ITERATIONS = Number(process.argv[2]?.replace(/_/g, '')) || 200_000
+
+function bench (fn, iterations = ITERATIONS) {
   for (let i = 0; i < 2000; i++) fn()
   const start = performance.now()
   for (let i = 0; i < iterations; i++) fn()
