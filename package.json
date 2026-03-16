@@ -31,6 +31,7 @@
     "standard": "^17.1.2"
   },
   "scripts": {
+    "repl": "node --import ./scripts/repl.js",
     "lint": "standard",
     "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules node_modules/.bin/jest",
     "test:specs": "node scripts/run-specs.js",
