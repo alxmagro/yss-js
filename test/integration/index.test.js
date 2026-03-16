@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { schema, ValidationError } from 'yss'
+import { schema, ValidationError } from 'yss-js'
 
 const validate = schema.fromObject({
   name: 'string',

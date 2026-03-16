@@ -1,5 +1,5 @@
 {
-  "name": "yss",
+  "name": "yss-js",
   "description": "YAML Simplified Schema - a human-friendly YAML-based payload validator",
   "private": false,
   "author": "Alexandre Magro <alexandremagro@live.com>",
