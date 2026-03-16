@@ -46,7 +46,7 @@ items:
 ```
 
 ```js
-import { schema } from 'yss'
+import { schema } from 'yss-js'
 
 const validate = schema.fromFile('./order.yaml')
 const errors   = validate(payload)
