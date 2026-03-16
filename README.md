@@ -51,7 +51,7 @@ import { schema } from 'yss-js'
 const validate = schema.fromFile('./order.yaml')
 const errors   = validate(payload)
 // [] -> valid
-// [{ path: 'customer.email', code: 'format_invalid', message: 'Value does not match required format', data: { value: 'bad', format: 'email' } }]
+// [{ path: 'customer.email', code: 'format_invalid', message: 'Value does not match required format', data: { format: 'email' } }]
 ```
 
 ## Install
@@ -107,8 +107,8 @@ const errors = validate({ name: 'Ana', email: 'ana@email.com' })
 
 const errors = validate({ name: 'A', email: 'not-an-email' })
 // -> [
-//     { path: 'name',  code: 'size_min_invalid', message: 'Minimum size is `2`',                      data: { size: 1, min: 2 } },
-//     { path: 'email', code: 'format_invalid',   message: 'Value does not match required format',     data: { value: 'not-an-email', format: 'email' } }
+//     { path: 'name',  code: 'size_min_invalid', message: 'Minimum size is `2`',                  data: { min: 2 } },
+//     { path: 'email', code: 'format_invalid',   message: 'Value does not match required format', data: { format: 'email' } }
 //   ]
 ```
 
