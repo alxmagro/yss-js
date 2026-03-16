@@ -13,6 +13,17 @@ A YSS parser for javascript.
 
 **See** [YAML Simplified Schema](https://github.com/alxmagro/yss) for the full specification.
 
+## Performance
+
+Benchmarked against [AJV](https://ajv.js.org/).
+
+| | yss | ajv | difference |
+|---|---|---|---|
+| valid payload | 2,478,605 ops/sec | 1,271,329 ops/sec | **+95%** |
+| invalid payload | 1,938,438 ops/sec | 1,441,741 ops/sec | **+34%** |
+
+**Measured on GitHub Actions (`ubuntu-latest`, Node.js 24, 10M iterations).*
+
 ## Examples
 
 ```yaml
