@@ -63,9 +63,18 @@ function deepEqual (a, b) {
   return false
 }
 
-export function runSpecs ({ filter, silent = false, interpreted = false } = {}) {
+class BailSignal extends Error {}
+
+export function runSpecs ({ filter, silent = false, interpreted = false, bail = false } = {}) {
   let passed = 0; let failed = 0; let skipped = 0
   const log = silent ? () => {} : console.log
+  const logPass = (bail || silent) ? () => {} : log
+
+  function fail (...lines) {
+    lines.forEach(l => log(c.red(l)))
+    failed++
+    if (bail) throw new BailSignal()
+  }
 
   function runCase (label, validate, when, then) {
     if (then === null || then === undefined) {
@@ -79,18 +88,18 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
       const expected = resolveTemplates(then)
 
       if (deepEqual(actual, expected)) {
-        log(c.green(`✓  PASS   ${label}`))
+        logPass(c.green(`✓  PASS   ${label}`))
         passed++
       } else {
-        log(c.red(`✗  FAIL   ${label}`))
-        log(c.red(`          expected ${JSON.stringify(expected)}`))
-        log(c.red(`          got      ${JSON.stringify(actual)}`))
-        failed++
+        fail(
+          `✗  FAIL   ${label}`,
+          `          expected ${JSON.stringify(expected)}`,
+          `          got      ${JSON.stringify(actual)}`
+        )
       }
     } catch (err) {
-      log(c.red(`✗  ERROR  ${label}`))
-      log(c.red(`          ${err.message}`))
-      failed++
+      if (err instanceof BailSignal) throw err
+      fail(`✗  ERROR  ${label}`, `          ${err.message}`)
     }
   }
 
@@ -104,19 +113,22 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
     try {
       if (schemaFile) schema.fromFile(schemaFile, { interpreted })
       else schema.fromObject(given, { interpreted })
-      log(c.red(`✗  FAIL   ${label}`))
-      log(c.red(`          expected to throw: ${thenThrows}`))
-      log(c.red('          but did not throw'))
-      failed++
+      fail(
+        `✗  FAIL   ${label}`,
+        `          expected to throw: ${thenThrows}`,
+        '          but did not throw'
+      )
     } catch (err) {
+      if (err instanceof BailSignal) throw err
       if (err.message === thenThrows) {
-        log(c.green(`✓  PASS   ${label}`))
+        logPass(c.green(`✓  PASS   ${label}`))
         passed++
       } else {
-        log(c.red(`✗  FAIL   ${label}`))
-        log(c.red(`          expected throw: ${thenThrows}`))
-        log(c.red(`          got throw:      ${err.message}`))
-        failed++
+        fail(
+          `✗  FAIL   ${label}`,
+          `          expected throw: ${thenThrows}`,
+          `          got throw:      ${err.message}`
+        )
       }
     }
   }
@@ -129,39 +141,43 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
 
   const ruleDirs = [join(specsDir, 'rules'), join(specsDir, 'parser')]
 
-  for (const file of ruleDirs.flatMap(d => findSpecs(d)).filter(matchesFilter)) {
-    const rel = file.replace(specsDir + '/', '')
-    const spec = load(readFileSync(file, 'utf8'))
-    const validate = spec.given !== undefined ? schema.fromObject(spec.given, { interpreted }) : null
+  try {
+    for (const file of ruleDirs.flatMap(d => findSpecs(d)).filter(matchesFilter)) {
+      const rel = file.replace(specsDir + '/', '')
+      const spec = load(readFileSync(file, 'utf8'))
+      const validate = spec.given !== undefined ? schema.fromObject(spec.given, { interpreted }) : null
 
-    for (const scenario of (spec.scenarios ?? [])) {
-      const label = `${rel} › ${scenario.name ?? '?'}`
-      if ('then_throws' in scenario) {
-        runThrowsCase(label, scenario.given ?? spec.given, scenario.then_throws)
-      } else {
-        const v = scenario.given !== undefined ? schema.fromObject(scenario.given, { interpreted }) : validate
-        runCase(label, v, scenario.when, scenario.then)
+      for (const scenario of (spec.scenarios ?? [])) {
+        const label = `${rel} › ${scenario.name ?? '?'}`
+        if ('then_throws' in scenario) {
+          runThrowsCase(label, scenario.given ?? spec.given, scenario.then_throws)
+        } else {
+          const v = scenario.given !== undefined ? schema.fromObject(scenario.given, { interpreted }) : validate
+          runCase(label, v, scenario.when, scenario.then)
+        }
       }
     }
-  }
 
-  // ── integration ───────────────────────────────────────────────────────────────
+    // ── integration ───────────────────────────────────────────────────────────────
 
-  for (const file of findSpecs(join(specsDir, 'integration')).filter(f => f.endsWith('/spec.yaml')).filter(matchesFilter)) {
-    const rel = file.replace(specsDir + '/', '')
-    const spec = load(readFileSync(file, 'utf8'))
-    const schemaFile = join(dirname(file), 'schema.yaml')
+    for (const file of findSpecs(join(specsDir, 'integration')).filter(f => f.endsWith('/spec.yaml')).filter(matchesFilter)) {
+      const rel = file.replace(specsDir + '/', '')
+      const spec = load(readFileSync(file, 'utf8'))
+      const schemaFile = join(dirname(file), 'schema.yaml')
 
-    if (spec.throws !== undefined) {
-      runThrowsCase(rel, null, spec.throws, schemaFile)
-      continue
+      if (spec.throws !== undefined) {
+        runThrowsCase(rel, null, spec.throws, schemaFile)
+        continue
+      }
+
+      const validate = schema.fromFile(schemaFile, { interpreted })
+
+      for (const scenario of (spec.scenarios ?? [])) {
+        runCase(`${rel} › ${scenario.name ?? '?'}`, validate, scenario.when, scenario.then)
+      }
     }
-
-    const validate = schema.fromFile(schemaFile, { interpreted })
-
-    for (const scenario of (spec.scenarios ?? [])) {
-      runCase(`${rel} › ${scenario.name ?? '?'}`, validate, scenario.when, scenario.then)
-    }
+  } catch (err) {
+    if (!(err instanceof BailSignal)) throw err
   }
 
   return { passed, failed, skipped }
@@ -172,7 +188,10 @@ export function runSpecs ({ filter, silent = false, interpreted = false } = {}) 
 const isCLI = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]
 
 if (isCLI) {
-  const { passed, failed, skipped } = runSpecs({ filter: process.argv[2] })
+  const args = process.argv.slice(2)
+  const bail = !args.includes('--all')
+  const filter = args.find(a => !a.startsWith('--'))
+  const { passed, failed, skipped } = runSpecs({ filter, bail })
 
   console.log()
   console.log(`${c.green(passed + ' passed')}, ${c.red(failed + ' failed')}, ${c.gray(skipped + ' skipped')}`)
