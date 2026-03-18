@@ -10,7 +10,7 @@
 
 ## Introduction
 
-A YSS parser for javascript.
+A YSS validator for JavaScript.
 
 **See** [YAML Schema Syntax](https://github.com/alxmagro/yss) for the full specification.
 
