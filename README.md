@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+  <a href="https://npmjs.com/package/yss-validator-js"><img src="https://img.shields.io/npm/v/yss-validator-js.svg" alt="npm package"></a>
   <a href="https://github.com/alxmagro/yss-js/actions/workflows/ci.yml"><img src="https://github.com/alxmagro/yss-js/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status"></a>
   <a href="https://codecov.io/github/alxmagro/yss-js" ><img src="https://codecov.io/github/alxmagro/yss-js/graph/badge.svg?token=8XJS41Z9D0"/></a>
 </p>
@@ -46,7 +47,7 @@ items:
 ```
 
 ```js
-import { schema } from 'yss-js'
+import { schema } from 'yss-validator-js'
 
 const validate = schema.fromFile('./order.yaml')
 const errors   = validate(payload)
@@ -57,7 +58,7 @@ const errors   = validate(payload)
 ## Install
 
 ```bash
-npm install yss-js
+npm install yss-validator-js
 ```
 
 Requires Node.js >= 22. Supports ESM only.
