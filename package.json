@@ -2,7 +2,7 @@
   "name": "yss-validator-js",
   "description": "YAML Schema Syntax - a human-friendly YAML-based payload validator",
   "author": "Alexandre Magro <alexandremagro@live.com>",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "exports": {
     ".": "./index.js"
